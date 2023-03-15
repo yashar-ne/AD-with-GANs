@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "GANs and DCGANs.md",
+                "file": "Paper/Generative Adversarial Nets.md",
                 "mode": "source",
                 "source": false
               }
@@ -97,7 +97,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "GANs and DCGANs.md",
+                "file": "Paper/Generative Adversarial Nets.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +114,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "GANs and DCGANs.md",
+                "file": "Paper/Generative Adversarial Nets.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -137,7 +137,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "GANs and DCGANs.md"
+                "file": "Paper/Generative Adversarial Nets.md"
               }
             }
           },
@@ -168,6 +168,7 @@
   },
   "active": "87a434b29419b27a",
   "lastOpenFiles": [
+    "GANs and DCGANs.md",
     "CNN.md",
     "Paper/Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery.md",
     "Paper/Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks.md",
@@ -175,7 +176,6 @@
     "Paper/Improved Techniques for Training GANs.md",
     "Paper/Generative Adversarial Nets.md",
     "TODOs.md",
-    "GANs and DCGANs.md",
     "Paper/Semantic Image Inpainting with Perceptual andContextual Losses.md",
     "Semantic Image Inpainting with Perceptual and Contextual Losses.md",
     "images/Pasted image 20230312140908.png",
