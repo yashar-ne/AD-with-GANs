@@ -6,18 +6,21 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
         self.ngpu = num_gpu
         self.main = nn.Sequential(
-            nn.Conv2d(num_color_channels, num_feature_maps, 4, 2, 1, bias=False),
+            nn.Conv2d(num_color_channels, num_feature_maps, 2, 3, 1, bias=False),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(num_feature_maps, num_feature_maps * 2, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(num_feature_maps * 2),
+            nn.Conv2d(num_feature_maps, num_feature_maps, 2, 3, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(num_feature_maps * 2, num_feature_maps * 4, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(num_feature_maps * 4),
+            nn.Conv2d(num_feature_maps, num_feature_maps, 2, 3, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(num_feature_maps * 4, num_feature_maps * 8, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(num_feature_maps * 8),
+            nn.Conv2d(num_feature_maps, num_feature_maps, 2, 3, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(num_feature_maps * 8, 1, 4, 1, 0, bias=False),
+            nn.Conv2d(num_feature_maps, num_feature_maps, 2, 3, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(num_feature_maps, 1, 3, 1, 1, bias=False),
             nn.Sigmoid()
         )
 

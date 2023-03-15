@@ -2,23 +2,23 @@ import torch.nn as nn
 
 
 class Generator(nn.Module):
-    def __init__(self, num_gpu, num_feature_maps, num_color_channels):
+    def __init__(self, num_gpu, size_z, num_feature_maps, num_color_channels):
         super(Generator, self).__init__()
         self.ngpu = num_gpu
         self.main = nn.Sequential(
-            nn.ConvTranspose2d(num_color_channels, num_feature_maps * 8, 4, 1, 0, bias=False),
-            nn.BatchNorm2d(num_feature_maps * 8),
-            nn.ReLU(True),
-            nn.ConvTranspose2d(num_feature_maps * 8, num_feature_maps * 4, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(num_feature_maps * 4),
-            nn.ReLU(True),
-            nn.ConvTranspose2d(num_feature_maps * 4, num_feature_maps * 2, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(num_feature_maps * 2),
-            nn.ReLU(True),
-            nn.ConvTranspose2d(num_feature_maps * 2, num_feature_maps, 4, 2, 1, bias=False),
+            nn.ConvTranspose2d(size_z, num_feature_maps, 3, 1, 0, bias=False),
             nn.BatchNorm2d(num_feature_maps),
             nn.ReLU(True),
-            nn.ConvTranspose2d(num_feature_maps, num_color_channels, 4, 2, 1, bias=False),
+            nn.ConvTranspose2d(num_feature_maps, num_feature_maps, 3, 2, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(num_feature_maps, num_feature_maps, 3, 2, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(num_feature_maps, num_feature_maps, 3, 2, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(num_feature_maps, num_color_channels, 3, 2, 1, bias=False),
             nn.Tanh()
         )
 
