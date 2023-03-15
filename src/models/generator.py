@@ -4,7 +4,7 @@ import torch.nn as nn
 class Generator(nn.Module):
     def __init__(self, num_gpu, num_feature_maps, num_color_channels):
         super(Generator, self).__init__()
-        self.num_gpu = num_gpu
+        self.ngpu = num_gpu
         self.main = nn.Sequential(
             nn.ConvTranspose2d(num_color_channels, num_feature_maps * 8, 4, 1, 0, bias=False),
             nn.BatchNorm2d(num_feature_maps * 8),
