@@ -1,3 +1,0 @@
-- [arxiv](https://arxiv.org/abs/1606.03498)
-- relevant part is 3.1 --> feature matching
-- ![[Pasted image 20230312140908.png]]
