@@ -165,18 +165,15 @@ for epoch in range(num_epochs):
 
         if (i + 1) % 100 == 0:
             print(
-                'Epoch [{}/{}], step [{}/{}], d_loss: {:.4f}, g_loss: {:.4f}, D(x): {:.2f}, Discriminator - D(G(x)): {:.2f}, Generator - D(G(x)): {:.2f}'
-                .format(
+                'Epoch [{}/{}], step [{}/{}], d_loss: {:.4f}, g_loss: {:.4f}, D(x): {:.2f}, Discriminator - D(G(x)): {:.2f}, Generator - D(G(x)): {:.2f}'.format(
                     epoch + 1,
                     num_epochs,
                     i + 1,
-                    batch_size,
-                    lossD.item(),
+                    batch_size, lossD.item(),
                     lossG.item(),
                     D_x,
                     D_G_z1,
-                    D_G_z2
-                )
-            )
+                    D_G_z2))
+
     generator.eval()
     generator.train()
