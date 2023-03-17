@@ -3,9 +3,6 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 import torch.optim as optim
 from torchvision import datasets, transforms
-from torchvision.transforms import ToTensor
-
-import matplotlib.pyplot as plt
 
 from models.discriminator import Discriminator
 from models.generator import Generator
