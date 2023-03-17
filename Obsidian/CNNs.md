@@ -1,6 +1,6 @@
 - general description
-- normalization
-- batch normalization
+- normalization and batch normalization
+	- [article](https://towardsdatascience.com/understanding-batch-normalization-for-neural-networks-1cd269786fa6)
 - kernel
 	- padding
 	- stride
