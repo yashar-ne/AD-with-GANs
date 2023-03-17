@@ -1,1 +1,10 @@
-{}
+{
+  "window:zoom-in": [
+    {
+      "modifiers": [
+        "Ctrl"
+      ],
+      "key": "="
+    }
+  ]
+}
