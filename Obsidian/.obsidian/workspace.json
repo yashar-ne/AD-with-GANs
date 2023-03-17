@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Paper/Generative Adversarial Nets.md",
+                "file": "Paper/Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery.md",
                 "mode": "source",
                 "source": false
               }
@@ -97,7 +97,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Paper/Generative Adversarial Nets.md",
+                "file": "Paper/Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +114,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Paper/Generative Adversarial Nets.md",
+                "file": "Paper/Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -137,7 +137,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Paper/Generative Adversarial Nets.md"
+                "file": "Paper/Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery.md"
               }
             }
           },
@@ -168,13 +168,13 @@
   },
   "active": "87a434b29419b27a",
   "lastOpenFiles": [
-    "GANs and DCGANs.md",
-    "CNN.md",
+    "Paper/Semantic Image Inpainting with Perceptual and Contextual Losses.md",
     "Paper/Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery.md",
     "Paper/Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks.md",
-    "Paper/Semantic Image Inpainting with Perceptual and Contextual Losses.md",
-    "Paper/Improved Techniques for Training GANs.md",
+    "GANs and DCGANs.md",
+    "CNNs.md",
     "Paper/Generative Adversarial Nets.md",
+    "Paper/Improved Techniques for Training GANs.md",
     "TODOs.md",
     "Paper/Semantic Image Inpainting with Perceptual andContextual Losses.md",
     "Semantic Image Inpainting with Perceptual and Contextual Losses.md",

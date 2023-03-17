@@ -1,0 +1,6 @@
+- general description
+- normalization
+- batch normalization
+- kernel
+	- padding
+	- stride
