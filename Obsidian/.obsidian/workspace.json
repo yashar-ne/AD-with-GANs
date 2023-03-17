@@ -8,30 +8,31 @@
         "type": "tabs",
         "children": [
           {
-            "id": "87a434b29419b27a",
+            "id": "b189dd0ab6e307fe",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Paper/Generative Adversarial Nets.md",
+                "file": "CNNs.md",
                 "mode": "source",
                 "source": false
               }
             }
           },
           {
-            "id": "b189dd0ab6e307fe",
+            "id": "94ee90cd8b369382",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Paper/Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks.md",
+                "file": "CNNs.md",
                 "mode": "source",
                 "source": false
               }
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -81,7 +82,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 372.51103591918945
+    "width": 218.50247192382812
   },
   "right": {
     "id": "7992bae57850fa2f",
@@ -97,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Paper/Generative Adversarial Nets.md",
+                "file": "CNNs.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +115,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Paper/Generative Adversarial Nets.md",
+                "file": "CNNs.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -137,7 +138,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Paper/Generative Adversarial Nets.md"
+                "file": "CNNs.md"
               }
             }
           },
@@ -166,16 +167,18 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "87a434b29419b27a",
+  "active": "94ee90cd8b369382",
   "lastOpenFiles": [
-    "GANs and DCGANs.md",
     "CNN.md",
     "Paper/Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery.md",
-    "Paper/Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks.md",
     "Paper/Semantic Image Inpainting with Perceptual and Contextual Losses.md",
-    "Paper/Improved Techniques for Training GANs.md",
-    "Paper/Generative Adversarial Nets.md",
+    "CNNs.md",
+    "Paper/Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks.md",
+    "GANs and DCGANs.md",
+    "Optimizer.md",
     "TODOs.md",
+    "Paper/Generative Adversarial Nets.md",
+    "Paper/Improved Techniques for Training GANs.md",
     "Paper/Semantic Image Inpainting with Perceptual andContextual Losses.md",
     "Semantic Image Inpainting with Perceptual and Contextual Losses.md",
     "images/Pasted image 20230312140908.png",
