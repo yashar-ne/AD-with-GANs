@@ -191,6 +191,7 @@ plt.ylabel("Loss")
 plt.legend()
 plt.show()
 
+plt.rcParams['animation.embed_limit'] = 100
 fig = plt.figure(figsize=(8, 8))
 plt.axis("off")
 ims = [[plt.imshow(np.transpose(i, (1, 2, 0)), animated=True)] for i in img_list]
