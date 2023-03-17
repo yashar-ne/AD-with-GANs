@@ -25,7 +25,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Optimizer.md",
+                "file": "CNNs.md",
                 "mode": "source",
                 "source": false
               }
@@ -82,7 +82,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 372.51103591918945
+    "width": 218.50247192382812
   },
   "right": {
     "id": "7992bae57850fa2f",
@@ -98,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Optimizer.md",
+                "file": "CNNs.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -115,7 +115,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Optimizer.md",
+                "file": "CNNs.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -138,7 +138,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Optimizer.md"
+                "file": "CNNs.md"
               }
             }
           },
@@ -169,15 +169,15 @@
   },
   "active": "94ee90cd8b369382",
   "lastOpenFiles": [
+    "Paper/Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery.md",
+    "Paper/Semantic Image Inpainting with Perceptual and Contextual Losses.md",
     "CNNs.md",
-    "Optimizer.md",
-    "GANs and DCGANs.md",
     "Paper/Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks.md",
+    "GANs and DCGANs.md",
+    "Optimizer.md",
     "CNN.md",
     "TODOs.md",
     "Paper/Generative Adversarial Nets.md",
-    "Paper/Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery.md",
-    "Paper/Semantic Image Inpainting with Perceptual and Contextual Losses.md",
     "Paper/Improved Techniques for Training GANs.md",
     "Paper/Semantic Image Inpainting with Perceptual andContextual Losses.md",
     "Semantic Image Inpainting with Perceptual and Contextual Losses.md",

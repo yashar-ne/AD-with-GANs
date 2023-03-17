@@ -13,7 +13,7 @@
 	- Generator learns to map latent space to a realistic image
 		- $G(z) = z \longmapsto x$
 		- images are part of manifold $X$
-	- Randomly sample $z_{1}$ from latent space $Z$ 
+	- Randomly sample $z_{1}$ from latent space $Z$
 	- Feed $z_{1}$ into Generator to get image $G(z_{1})$ 
 	- Based on $G(z_{1})$ define a loss function which provides a gradient to update the coefficients of $z_{1}$ in order to get $z_{2}$
 		- $z_{2}$ leads to a generated image that is closer to query image $x$
@@ -27,7 +27,7 @@
 		
 	- Discrimination loss
 		- Enforces generated image $G(z_{\Gamma})$ to lie in learned mainfold $X$ 
-		- Other that in [[Semantic Image Inpainting with Perceptual and Contextual Losses]] $z_{\Gamma}$ is not updated to better fool the discriminator
+		- Other than in [[Semantic Image Inpainting with Perceptual and Contextual Losses]] $z_{\Gamma}$ is not updated to better fool the discriminator
 			- **approach is to update $z_{\Gamma}$ so that it matches $G(z_{\Gamma})$ 
 		- Authors use feature matching as proposed in [[Improved Techniques for Training GANs]] (section 3.1) to achieve this
 			- Intermediate feature representations are used

@@ -2,5 +2,7 @@
 - normalization and batch normalization
 	- [article](https://towardsdatascience.com/understanding-batch-normalization-for-neural-networks-1cd269786fa6)
 - kernel
+	- [Kernel](https://medium.com/codex/kernels-filters-in-convolutional-neural-network-cnn-lets-talk-about-them-ee4e94f3319)
+	- [Channel and Kernel](https://medium.com/analytics-vidhya/difference-between-channels-and-kernels-in-deep-learning-6db818038a11)
 	- padding
 	- stride
