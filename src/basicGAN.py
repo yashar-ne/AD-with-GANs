@@ -1,7 +1,21 @@
-"""Mostly following
-https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html
-https://github.com/AKASHKADEL/dcgan-mnist"""
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.14.5
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
+# ---
 
+# Mostly following
+# https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html<br>
+# https://github.com/AKASHKADEL/dcgan-mnist
 
 import torch
 import torch.nn as nn
@@ -18,7 +32,11 @@ from models.discriminator import Discriminator
 from models.generator import Generator
 
 # Check if GPU is available. If so activate
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+# Transform image data to tensor and normalize.<br>
+# Normalization: output = (input - mean) / std
 
 transform = transforms.Compose([
     transforms.ToTensor(),
@@ -26,6 +44,7 @@ transform = transforms.Compose([
 ])
 
 # Load MNIST Training-Data
+
 train_dataset = datasets.MNIST(
     root='data',
     train=True,
@@ -34,6 +53,7 @@ train_dataset = datasets.MNIST(
 )
 
 # Set various hyper-parameter
+
 batch_size = 128
 num_classes = 10
 learning_rate = 0.002
@@ -46,6 +66,7 @@ adam_beta1 = 0.2
 num_gpu = 0
 
 # Load data into dataloader, create generator, discriminator objects and loss function
+
 dataloader = torch.utils.data.DataLoader(dataset=train_dataset,
                                          batch_size=batch_size,
                                          shuffle=True)
@@ -60,6 +81,7 @@ discriminator = Discriminator(num_feature_maps=num_feature_maps_d,
 criterion = nn.BCELoss()
 
 # Generate fixed noise for final image generation. Create Adam optimizer objects
+
 fixed_noise = torch.randn(64, size_z, 1, 1, device=device)
 
 real_label = 1.
@@ -163,7 +185,6 @@ for epoch in range(num_epochs):
 
         # adjust models (generator) parameter
         optimizerG.step()
-
         if i % 50 == 0:
             print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
                   % (epoch, num_epochs, i, len(dataloader),
@@ -178,7 +199,6 @@ for epoch in range(num_epochs):
             with torch.no_grad():
                 fake = generator(fixed_noise).detach().cpu()
             img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
-
         iters += 1
 
 # Plot losses of both, generator and discriminator
