@@ -8,6 +8,16 @@
 		- Unsipervised
 	- Klassische Modelle
 	- Neural Networks
+		- Mathematische Grundlagen
+			- Vektoren
+			- Matrizen
+			- Tensor
+			- Vektor-/Matrixoperationen
+				- Dot-Product
+				- Inverse
+				- Transpose
+			- Chain-Rule
+			- Ableitung von Matrizen
 		- Arten Neuronale Netze
 			- Generative vs Diskriminative Modelle
 		- Multilayer Perceptron
@@ -32,6 +42,8 @@
 			- Vorteile ggü. regulären NNs
 	- Anwendugen
 - Computer Vision
+	- Grundlagen
+	- Relevante Aspekte
 - Anwendungen Machine Learning im Bereich Computer Vision
 	- Classification
 	- Generation
@@ -49,11 +61,12 @@
 - Umsetzung/Programmierung Machine Learning
 	- Tensorflow
 	- Pytorch
+		- Autograd
 		- NNs mit Pytorch
 		- Normalisierung
-		- 
+		- CNNs mit Pytorch
 - Anomaly Detection mit GANs
 	- Methoden/Related Work
-	- These
+	- These (WIP)
 	- Experimente
 	- Ergebnisse
