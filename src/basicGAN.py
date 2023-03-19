@@ -3,9 +3,11 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 import torch.optim as optim
 from torchvision import datasets, transforms
-from torchvision.transforms import ToTensor
-
+import torchvision.utils as vutils
+import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from IPython.display import HTML
 
 from models.discriminator import Discriminator
 from models.generator import Generator
@@ -14,7 +16,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 transform = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize(mean=(0.1307,), std=(0.3081,))])
+    transforms.Normalize(mean=(.5,), std=(.5,))])
 
 train_dataset = datasets.MNIST(
     root='data',
@@ -37,7 +39,7 @@ train_dataset = datasets.MNIST(
 batch_size = 128
 num_classes = 10
 learning_rate = 0.002
-num_epochs = 5
+num_epochs = 2
 num_color_channels = 1
 num_feature_maps_g = 32
 num_feature_maps_d = 32
@@ -58,7 +60,7 @@ discriminator = Discriminator(num_feature_maps=num_feature_maps_d,
 
 criterion = nn.BCELoss()
 
-# fixed_noise = torch.randn(16, size_z, 1, 1, device=device)
+fixed_noise = torch.randn(64, size_z, 1, 1, device=device)
 
 real_label = 1.
 fake_label = 0.
@@ -163,20 +165,36 @@ for epoch in range(num_epochs):
         # adjust models (generator) parameter
         optimizerG.step()
 
-        if (i + 1) % 100 == 0:
-            print(
-                'Epoch [{}/{}], step [{}/{}], d_loss: {:.4f}, g_loss: {:.4f}, D(x): {:.2f}, Discriminator - D(G(x)): {:.2f}, Generator - D(G(x)): {:.2f}'
-                .format(
-                    epoch + 1,
-                    num_epochs,
-                    i + 1,
-                    batch_size,
-                    lossD.item(),
-                    lossG.item(),
-                    D_x,
-                    D_G_z1,
-                    D_G_z2
-                )
-            )
-    generator.eval()
-    generator.train()
+        if i % 50 == 0:
+            print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
+                  % (epoch, num_epochs, i, len(dataloader),
+                     lossD.item(), lossG.item(), D_x, D_G_z1, D_G_z2))
+
+        # Save Losses for plotting later
+        G_losses.append(lossG.item())
+        D_losses.append(lossD.item())
+
+        # Check how the generator is doing by saving G's output on fixed_noise
+        if (iters % 500 == 0) or ((epoch == num_epochs - 1) and (i == len(dataloader) - 1)):
+            with torch.no_grad():
+                fake = generator(fixed_noise).detach().cpu()
+            img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
+
+        iters += 1
+
+plt.figure(figsize=(10, 5))
+plt.title("Generator and Discriminator Loss During Training")
+plt.plot(G_losses, label="G")
+plt.plot(D_losses, label="D")
+plt.xlabel("iterations")
+plt.ylabel("Loss")
+plt.legend()
+plt.show()
+
+plt.rcParams['animation.embed_limit'] = 100
+fig = plt.figure(figsize=(8, 8))
+plt.axis("off")
+ims = [[plt.imshow(np.transpose(i, (1, 2, 0)), animated=True)] for i in img_list]
+ani = animation.ArtistAnimation(fig, ims, interval=1000, repeat_delay=1000, blit=True)
+
+HTML(ani.to_jshtml())

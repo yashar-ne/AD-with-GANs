@@ -1,5 +1,16 @@
 - [x] reread paper [[Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery]]
 	- [x] create article
+- [ ] research
+	- [ ] NNs/CNNs
+		- [ ] normalization
+			- [ ] initial
+			- [ ] after layer
+		- [ ] convolutional layer
+			- [ ] pooling		
+			- [ ] kernel
+			- [ ] stride
+			- [ ] padding
+		- [ ] why do we user transpose layers in generator?
 - [ ] create generator/discriminator NNs in project
 	- [x] don´t forget to create separate branch
 	- [x] create regular DCNN
