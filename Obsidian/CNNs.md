@@ -32,3 +32,5 @@ By using different kernel (filters) different effects can be applied to an image
 ![[1 m4IsBwYv7QEND-y6xWw3Yw.gif]]
 
 In machine learning convolutional layer are usually used for feature detection.
+- The stepsize used to move the kernel is called stride
+- In order to maintain tensor-sizes, the input ist often surrounded withadditional fields. The number of rings around the input-tensor is called padding

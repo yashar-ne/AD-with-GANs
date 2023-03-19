@@ -132,4 +132,4 @@ dmypy.json
 src/data/
 /src/model.ckpt
 /clonegitcolab.txt
-Obsidian/.obsidian
+Obsidian/.obsidian/workspace.json
