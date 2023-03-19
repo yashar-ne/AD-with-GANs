@@ -8,27 +8,11 @@
         "type": "tabs",
         "children": [
           {
-            "id": "87a434b29419b27a",
+            "id": "4a625b95fe99841d",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Paper/Generative Adversarial Nets.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "b189dd0ab6e307fe",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Paper/Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks.md",
-                "mode": "source",
-                "source": false
-              }
+              "type": "empty",
+              "state": {}
             }
           }
         ]
@@ -97,7 +81,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Paper/Generative Adversarial Nets.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +97,6 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Paper/Generative Adversarial Nets.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -136,9 +118,7 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {
-                "file": "Paper/Generative Adversarial Nets.md"
-              }
+              "state": {}
             }
           },
           {
@@ -166,16 +146,22 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "87a434b29419b27a",
+  "active": "4a625b95fe99841d",
   "lastOpenFiles": [
-    "GANs and DCGANs.md",
+    "Thesis Gliederung.md",
     "CNN.md",
+    "CNNs.md",
+    "Paper/Generative Adversarial Nets.md",
+    "Paper/Improved Techniques for Training GANs.md",
+    "Paper/Semantic Image Inpainting with Perceptual and Contextual Losses.md",
     "Paper/Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery.md",
     "Paper/Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks.md",
-    "Paper/Semantic Image Inpainting with Perceptual and Contextual Losses.md",
-    "Paper/Improved Techniques for Training GANs.md",
-    "Paper/Generative Adversarial Nets.md",
+    "images/1 m4IsBwYv7QEND-y6xWw3Yw.gif",
+    "Pasted image 20230319145814.png",
+    "images/Pasted image 20230319145037.png",
     "TODOs.md",
+    "Optimizer.md",
+    "GANs and DCGANs.md",
     "Paper/Semantic Image Inpainting with Perceptual andContextual Losses.md",
     "Semantic Image Inpainting with Perceptual and Contextual Losses.md",
     "images/Pasted image 20230312140908.png",
