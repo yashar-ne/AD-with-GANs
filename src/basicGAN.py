@@ -1,3 +1,8 @@
+"""Mostly following
+https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html
+https://github.com/AKASHKADEL/dcgan-mnist"""
+
+
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -12,12 +17,15 @@ from IPython.display import HTML
 from models.discriminator import Discriminator
 from models.generator import Generator
 
+# Check if GPU is available. If so activate
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 transform = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize(mean=(.5,), std=(.5,))])
+    transforms.Normalize(mean=(.5,), std=(.5,))
+])
 
+# Load MNIST Training-Data
 train_dataset = datasets.MNIST(
     root='data',
     train=True,
@@ -25,17 +33,7 @@ train_dataset = datasets.MNIST(
     download=False,
 )
 
-# figure = plt.figure(figsize=(10, 8))
-# cols, rows = 10, 10
-# for i in range(1, cols * rows + 1):
-#     sample_idx = torch.randint(len(test_dataset), size=(1,)).item()
-#     img, label = train_dataset[sample_idx]
-#     figure.add_subplot(rows, cols, i)
-#     plt.axis("off")
-#     plt.imshow(img.squeeze(), cmap="gray")
-# plt.show()
-
-
+# Set various hyper-parameter
 batch_size = 128
 num_classes = 10
 learning_rate = 0.002
@@ -47,6 +45,7 @@ size_z = 100
 adam_beta1 = 0.2
 num_gpu = 0
 
+# Load data into dataloader, create generator, discriminator objects and loss function
 dataloader = torch.utils.data.DataLoader(dataset=train_dataset,
                                          batch_size=batch_size,
                                          shuffle=True)
@@ -60,6 +59,7 @@ discriminator = Discriminator(num_feature_maps=num_feature_maps_d,
 
 criterion = nn.BCELoss()
 
+# Generate fixed noise for final image generation. Create Adam optimizer objects
 fixed_noise = torch.randn(64, size_z, 1, 1, device=device)
 
 real_label = 1.
@@ -70,7 +70,6 @@ optimizerD = optim.Adam(discriminator.parameters(), lr=learning_rate, betas=(ada
 
 # Training Loop
 
-# Lists to keep track of progress
 img_list = []
 G_losses = []
 D_losses = []
@@ -182,6 +181,8 @@ for epoch in range(num_epochs):
 
         iters += 1
 
+# Plot losses of both, generator and discriminator
+
 plt.figure(figsize=(10, 5))
 plt.title("Generator and Discriminator Loss During Training")
 plt.plot(G_losses, label="G")
@@ -191,10 +192,11 @@ plt.ylabel("Loss")
 plt.legend()
 plt.show()
 
+# Generate animation
+
 plt.rcParams['animation.embed_limit'] = 100
 fig = plt.figure(figsize=(8, 8))
 plt.axis("off")
 ims = [[plt.imshow(np.transpose(i, (1, 2, 0)), animated=True)] for i in img_list]
 ani = animation.ArtistAnimation(fig, ims, interval=1000, repeat_delay=1000, blit=True)
-
 HTML(ani.to_jshtml())
