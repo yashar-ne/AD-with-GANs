@@ -5,14 +5,14 @@
 	- Statistische Lernverfahren
 		- Supervised
 		- Self-Supervised
-		- Unsipervised
+		- Unsupervised
 	- Klassische Modelle
 	- Neural Networks
 		- Mathematische Grundlagen
 			- Vektoren
 			- Matrizen
 			- Tensor
-			- Vektor-/Matrixoperationen
+			- Vektor-/Matrix-Operationen
 				- Dot-Product
 				- Inverse
 				- Transpose
@@ -20,17 +20,19 @@
 			- Ableitung von Matrizen
 		- Arten Neuronale Netze
 			- Generative vs Diskriminative Modelle
-		- Multilayer Perceptron
+		- Multilayer Perceptron (MLP)
 			- Mathematische Definition
 		- Deep Neural Networks
+			- Forward-Path
+				- Aktivierungsfunktionen
+					- ReLU
+					- Logistic/Sigmoid
+					- Tanh
 			- Backpropagation
+			- Gradient Descent
 			- Optimierungsverfahren
-				- SGD
+				- Statistical Gradient Descent
 				- Adam
-			- Aktivierungsfunktionen
-				- ReLU
-				- Logistic/Sigmoid
-				- Tanh
 		- Convolutional Neural Networks
 			- Convolution
 				- Mathematische Definition
@@ -40,7 +42,7 @@
 				- Pooling
 			- Architekturen
 			- Vorteile ggü. regulären NNs
-	- Anwendugen
+	- Anwendungen
 - Computer Vision
 	- Grundlagen
 	- Relevante Aspekte
@@ -60,9 +62,9 @@
 		- Unsupervised
 - Umsetzung/Programmierung Machine Learning
 	- Tensorflow
-	- Pytorch
+	- PyTorch
 		- Autograd
-		- NNs mit Pytorch
+		- NNs mit PyTorch
 		- Normalisierung
 		- CNNs mit Pytorch
 - Anomaly Detection mit GANs
@@ -70,3 +72,5 @@
 	- These (WIP)
 	- Experimente
 	- Ergebnisse
+- Fazit
+- Schluss
