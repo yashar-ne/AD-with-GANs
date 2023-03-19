@@ -16,7 +16,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 transform = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize(mean=(0.1307,), std=(0.3081,))])
+    transforms.Normalize(mean=(.5,), std=(.5,))])
 
 train_dataset = datasets.MNIST(
     root='data',
@@ -39,7 +39,7 @@ train_dataset = datasets.MNIST(
 batch_size = 128
 num_classes = 10
 learning_rate = 0.002
-num_epochs = 100
+num_epochs = 2
 num_color_channels = 1
 num_feature_maps_g = 32
 num_feature_maps_d = 32

@@ -1,0 +1,59 @@
+- Einleitung
+- Grundbegriffe
+- Machine Learning
+	- Überblick
+	- Statistische Lernverfahren
+		- Supervised
+		- Self-Supervised
+		- Unsipervised
+	- Klassische Modelle
+	- Neural Networks
+		- Arten Neuronale Netze
+			- Generative vs Diskriminative Modelle
+		- Multilayer Perceptron
+			- Mathematische Definition
+		- Deep Neural Networks
+			- Backpropagation
+			- Optimierungsverfahren
+				- SGD
+				- Adam
+			- Aktivierungsfunktionen
+				- ReLU
+				- Logistic/Sigmoid
+				- Tanh
+		- Convolutional Neural Networks
+			- Convolution
+				- Mathematische Definition
+				- Kernel
+				- Stride
+				- Padding
+				- Pooling
+			- Architekturen
+			- Vorteile ggü. regulären NNs
+	- Anwendugen
+- Computer Vision
+- Anwendungen Machine Learning im Bereich Computer Vision
+	- Classification
+	- Generation
+		- Text 2 Image
+	- Inpainting
+	- Anomaly Detection
+- Generative Modelle
+	- Variational Autoencoder
+	- Generative Adverserial Networks
+	- Deep Convolutional GANs (DCGAN)
+- Anomaly Detection 
+	- Methoden
+		- Supervised
+		- Unsupervised
+- Umsetzung/Programmierung Machine Learning
+	- Tensorflow
+	- Pytorch
+		- NNs mit Pytorch
+		- Normalisierung
+		- 
+- Anomaly Detection mit GANs
+	- Methoden/Related Work
+	- These
+	- Experimente
+	- Ergebnisse
