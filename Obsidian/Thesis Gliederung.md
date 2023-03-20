@@ -18,6 +18,11 @@
 				- Transpose
 			- Chain-Rule
 			- Ableitung von Matrizen
+			- Wahrscheinlichkeitsrechnung
+				- Statistische Verteilung
+					- Gaußsche Normalverteilung
+				- Standardabweichung
+				- Normalisierung/Standardisierung
 		- Arten NNs
 			- Generative vs Discriminative Models
 		- Multilayer Perceptron (MLP)
@@ -33,6 +38,7 @@
 			- Optimierungsverfahren
 				- Statistical Gradient Descent
 				- Adam
+			- Loss Functions
 		- Convolutional Neural Networks
 			- Convolution
 				- Mathematische Definition
@@ -79,9 +85,16 @@
 		- Normalisierung
 		- CNNs mit Pytorch
 - Anomaly Detection mit GANs -> 20
-	- Methoden/Related Work
+	- Related Work
+		- Paper Review
 	- These (WIP)
+	- Methodik
+		- Modell
+		- Datensätze
+		- Training
+		- Deployment
 	- Experimente
+		- Benchmarks
 	- Ergebnisse
 - Zusammenfassung und Fazit -> 2
 - Schluss -> 1
