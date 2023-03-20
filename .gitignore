@@ -135,3 +135,4 @@ src/data/
 Obsidian/.obsidian/workspace.json
 .ipynb_checkpoints/
 model_gen.ckpt
+/Obsidian/.obsidian/graph.json

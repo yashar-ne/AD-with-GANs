@@ -1,18 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.14.5
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
-
 # Mostly following
 # https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html<br>
 # https://github.com/AKASHKADEL/dcgan-mnist
@@ -51,6 +36,13 @@ train_dataset = datasets.MNIST(
     transform=transform,
     download=False,
 )
+
+# Plot Dataset partially
+
+for i in range(9):
+    plt.subplot(330 + 1 + i)
+    plt.imshow(train_dataset[i], cmap=plt.get_cmap('gray'))
+    plt.show()
 
 # Set various hyper-parameter
 

@@ -1,10 +1,10 @@
 - [arxiv](https://arxiv.org/abs/1703.05921)
 
-**TLDR
-- We train a GAN, so it generates images from a given domain
+**TL;DR
+- We train a DCGAN, so it generates images from a given domain
 - We take the then trained generator to create two loss functions
 	- Residual Loss
-	- Discriminative Loss
+	- Discriminitive Loss
 - The loss functions are used together with Backpropagation to find the input-noise of a given (anomalous) query image
 - Starting from that input image, we try to find the input noise ($z_{\Gamma}$) of the training-image that is closest to it
 - Once we found $z_{\Gamma}$, we calculate an anomaly score

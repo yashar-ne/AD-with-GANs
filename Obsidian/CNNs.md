@@ -32,3 +32,5 @@ In machine learning, convolutional layer are usually used for feature detection.
 
 ![[Pasted image 20230319163833.png]]
 
+- Transpose Layers in CNN
+	- [link](https://analyticsindiamag.com/complete-guide-to-transposed-convolutions-in-cnn-models/)
