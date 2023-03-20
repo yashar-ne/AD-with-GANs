@@ -1,6 +1,6 @@
-- Einleitung
-- Grundbegriffe
-- Machine Learning
+- Einleitung -> 1
+- Grundbegriffe -> 3
+- Machine Learning -> 15
 	- Überblick
 	- Statistische Lernverfahren
 		- Supervised
@@ -18,8 +18,8 @@
 				- Transpose
 			- Chain-Rule
 			- Ableitung von Matrizen
-		- Arten Neuronale Netze
-			- Generative vs Diskriminative Modelle
+		- Arten NNs
+			- Generative vs Discriminative Models
 		- Multilayer Perceptron (MLP)
 			- Mathematische Definition
 		- Deep Neural Networks
@@ -41,36 +41,47 @@
 				- Padding
 				- Pooling
 			- Architekturen
-			- Vorteile ggü. regulären NNs
+			- Vorteile gegenüber regulären NNs
 	- Anwendungen
-- Computer Vision
-	- Grundlagen
+- Computer Vision --> 2
+	- Grundlagen 
 	- Relevante Aspekte
-- Anwendungen Machine Learning im Bereich Computer Vision
+- Anwendungen Machine Learning im Bereich Computer Vision -> 5
 	- Classification
 	- Generation
 		- Text 2 Image
 	- Inpainting
 	- Anomaly Detection
-- Generative Modelle
+	- Aktuelle Beispiele
+		- Stable Diffusion
+		- DALL-E
+- Generative Modelle -> 10
+	- Gaussian Mixtures
 	- Variational Autoencoder
-	- Generative Adverserial Networks
-	- Deep Convolutional GANs (DCGAN)
-- Anomaly Detection 
+	- Generative Adversarial Networks
+		- Deep Convolutional GANs (DCGAN)
+	- Diffusion Models
+- Anomaly Detection -> 10
 	- Methoden
 		- Supervised
 		- Unsupervised
-- Umsetzung/Programmierung Machine Learning
+- Umsetzung/Programmierung Machine Learning -> 5
+	- Häufig genutzte Programmiersprachen
+		- R
+		- Python
+		- Julia
+		- C/C++
+	- ScikitLearn
 	- Tensorflow
 	- PyTorch
 		- Autograd
 		- NNs mit PyTorch
 		- Normalisierung
 		- CNNs mit Pytorch
-- Anomaly Detection mit GANs
+- Anomaly Detection mit GANs -> 20
 	- Methoden/Related Work
 	- These (WIP)
 	- Experimente
 	- Ergebnisse
-- Fazit
-- Schluss
+- Zusammenfassung und Fazit -> 2
+- Schluss -> 1

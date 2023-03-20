@@ -3,5 +3,8 @@
   "spellcheckLanguages": [
     "en-US",
     "de-DE"
+  ],
+  "spellcheckDictionary": [
+    "Inpainting"
   ]
 }

@@ -5,24 +5,24 @@
 		- [ ] normalization
 			- [ ] initial
 			- [ ] after layer
-		- [ ] convolutional layer
+		- [x] convolutional layer
 			- [ ] pooling		
-			- [ ] kernel
-			- [ ] stride
-			- [ ] padding
-		- [ ] why do we user transpose layers in generator?
+			- [x] kernel
+			- [x] stride
+			- [x] padding
+		- [ ] why do we use transpose layers in generator?
 - [ ] create generator/discriminator NNs in project
 	- [x] don´t forget to create separate branch
 	- [x] create regular DCNN
 		- [x] use MNIST
-	- [ ] bootstrap everything
+	- [x] bootstrap everything
 		- [x] create discriminator class
-		- [ ] create generator class
-	- [ ] create training procedure
-	- [ ] plug fashion MNIST into GAN
+		- [x] create generator class
+	- [x] create training procedure
+	- [x] plug MNIST into GAN
 	- [ ] try out other datasets
 		- [ ] [MVTec](https://www.mvtec.com/company/research/datasets/mvtec-ad/)
 		- [ ] [CIVAR19](https://www.cs.toronto.edu/~kriz/cifar.html)
 - [ ] Adopt loss-functions from [[Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery]]
 	- [ ] Reference [Github AnoGAN](https://github.com/seungjunlee96/AnoGAN-pytorch)
-- [ ] Write thesis outline
+- [x] Write thesis outline
