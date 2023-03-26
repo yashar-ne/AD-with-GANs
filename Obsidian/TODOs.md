@@ -23,6 +23,7 @@
 	- [ ] try out other datasets
 		- [ ] [MVTec](https://www.mvtec.com/company/research/datasets/mvtec-ad/)
 		- [ ] [CIVAR19](https://www.cs.toronto.edu/~kriz/cifar.html)
+		- [ ] [Eyecandies](https://eyecan-ai.github.io/eyecandies/)
 - [ ] Adopt loss-functions from [[Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery]]
 	- [ ] Reference [Github AnoGAN](https://github.com/seungjunlee96/AnoGAN-pytorch)
 	- [ ] Inference
