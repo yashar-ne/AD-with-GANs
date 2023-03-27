@@ -19,8 +19,8 @@
 			- Chain-Rule
 			- Ableitung von Matrizen
 			- Wahrscheinlichkeitsrechnung
-				- Statistische Verteilung
-					- Gaußsche Normalverteilung
+				- Statistische Verteilungen
+				- Gaußsche Normalverteilung
 				- Standardabweichung
 				- Normalisierung/Standardisierung
 		- Arten NNs
@@ -30,9 +30,9 @@
 		- Deep Neural Networks
 			- Forward-Path
 				- Aktivierungsfunktionen
-					- ReLU
-					- Logistic/Sigmoid
-					- Tanh
+				- ReLU
+				- Logistic/Sigmoid
+				- Tanh
 			- Backpropagation
 			- Gradient Descent
 			- Optimierungsverfahren
@@ -40,6 +40,7 @@
 				- Adam
 			- Loss Functions
 		- Convolutional Neural Networks
+			- Motivation
 			- Convolution
 				- Mathematische Definition
 				- Kernel
@@ -47,16 +48,16 @@
 				- Padding
 				- Pooling
 			- Architekturen
-			- Vorteile gegenüber regulären NNs
 	- Anwendungen
 - Computer Vision --> 2
 	- Grundlagen 
 	- Relevante Aspekte
 - Anwendungen Machine Learning im Bereich Computer Vision -> 5
-	- Classification
+	- Image Classification
+	- Image Segmentation
 	- Generation
 		- Text 2 Image
-	- Inpainting
+		- Inpainting
 	- Anomaly Detection
 	- Aktuelle Beispiele
 		- Stable Diffusion
@@ -82,7 +83,6 @@
 	- PyTorch
 		- Autograd
 		- NNs mit PyTorch
-		- Normalisierung
 		- CNNs mit Pytorch
 - Anomaly Detection mit GANs -> 20
 	- Related Work
