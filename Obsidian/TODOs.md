@@ -11,7 +11,7 @@
 			- [x] stride
 			- [x] padding
 		- [ ] why do we use transpose layers in generator?
-- [ ] create generator/discriminator NNs in project
+- [x] create generator/discriminator NNs in project
 	- [x] don't forget to create separate branch
 	- [x] create regular DCNN
 		- [x] use MNIST
@@ -20,11 +20,25 @@
 		- [x] create generator class
 	- [x] create training procedure
 	- [x] plug MNIST into GAN
-	- [ ] try out other datasets
-		- [ ] [MVTec](https://www.mvtec.com/company/research/datasets/mvtec-ad/)
-		- [ ] [CIVAR19](https://www.cs.toronto.edu/~kriz/cifar.html)
-		- [ ] [Eyecandies](https://eyecan-ai.github.io/eyecandies/)
-- [ ] Adopt loss-functions from [[Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery]]
-	- [ ] Reference [Github AnoGAN](https://github.com/seungjunlee96/AnoGAN-pytorch)
-	- [ ] Inference
+- [ ] Try out other datasets
+	- [ ] [MVTec](https://www.mvtec.com/company/research/datasets/mvtec-ad/)
+	- [ ] [CIVAR19](https://www.cs.toronto.edu/~kriz/cifar.html)
+- [x] Adopt loss-functions from [[Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery]]
+	- [x] Reference [Github AnoGAN](https://github.com/seungjunlee96/AnoGAN-pytorch)
+	- [x] Inference
+- [ ] Finalize Programming
+	- [ ] Add ROC-Score
+		- [ ] TPR vs. FPR
+		- [ ] log more data for that
+		- [ ] 
+			- [ ] take care that you have a realistic normal/outlier ratio
+	- [ ] title of third column is wrong
+	- [ ] add another column with subtraction
+		- [ ] don't forget abs!
 - [x] Write thesis outline
+- [ ] Paper review
+	- [ ] find 10 appropriate paper
+	- [ ] find paper cluster
+	- [ ] cluster found paper
+	- [ ] try to generate a pipe
+	- [ ] image matching

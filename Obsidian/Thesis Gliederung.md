@@ -98,3 +98,15 @@
 	- Ergebnisse
 - Zusammenfassung und Fazit -> 2
 - Schluss -> 1
+
+------
+
+**Lehrstuhl Standard:
+
+- Abstract
+- Introduction
+- Fundamentals
+- Related Work
+- Approach
+- Evaluation
+- Discussion
