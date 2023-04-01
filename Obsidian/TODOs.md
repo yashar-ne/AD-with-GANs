@@ -1,6 +1,6 @@
 - [x] reread paper [[Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery]]
 	- [x] create article
-- [ ] research
+- [ ] Research
 	- [ ] NNs/CNNs
 		- [ ] normalization
 			- [ ] initial
@@ -26,16 +26,16 @@
 - [x] Adopt loss-functions from [[Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery]]
 	- [x] Reference [Github AnoGAN](https://github.com/seungjunlee96/AnoGAN-pytorch)
 	- [x] Inference
-- [ ] Finalize Programming
+- [ ] ***Finalize Programming (AnoGAN)
+	- [ ] Log anomaly score for input-image
 	- [ ] Add ROC-Score
-		- [ ] TPR vs. FPR
+		- [ ] TPR (Specificity) vs. FPR (Sensitivity)
 		- [ ] log more data for that
-		- [ ] 
 			- [ ] take care that you have a realistic normal/outlier ratio
 	- [ ] title of third column is wrong
 	- [ ] add another column with subtraction
 		- [ ] don't forget abs!
-- [x] Write thesis outline
+- [ ] Update thesis outline
 - [ ] Paper review
 	- [ ] find 10 appropriate paper
 	- [ ] find paper cluster

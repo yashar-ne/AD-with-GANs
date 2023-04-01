@@ -7,6 +7,6 @@
 			- $FalsePositive / (TrueNegative + FalsePositive)$
 
 
-![[Pasted image 20230331062500.png|300]]
+![[Pasted image 20230331062500.png|400]]
 
 - 
