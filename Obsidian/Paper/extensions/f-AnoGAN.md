@@ -1,0 +1,3 @@
+- Similar to AnoGAN but added Encoder to enable fast mapping to latent space
+	- allows fast evaluation whether or not novel images/images segments fall into trained manifold
+- 
