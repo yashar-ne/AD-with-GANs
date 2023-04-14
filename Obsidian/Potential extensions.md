@@ -134,6 +134,8 @@ Image Synthesis**
 **VT-ADL: A Vision Transformer Network for Image Anomaly Detection and Localization**
 - [Paper](https://arxiv.org/abs/2104.10036)
 
+![[Pasted image 20230414074537.png]]
+
 ---
 
 **AnoDDPM: Anomaly Detection With Denoising Diffusion Probabilistic Models Using Simplex Noise**
