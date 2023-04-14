@@ -152,6 +152,13 @@ Image Synthesis**
 
 ![[Pasted image 20230414072107.png]]
 
+---
+
+**Neural Batch Sampling with Reinforcement Learning for Semi-supervised Anomaly Detection**
+- [Paper](https://link.springer.com/chapter/10.1007/978-3-030-58574-7_45)
+- "The neural batch sampler is introduced to produce training batches for the AE such that the difference between the loss profiles of anomalous and non-anomalous regions are maximized"
+	- "...aims to sample a sequence of patches {p1,p2, ..., pN } from the dataset D to train the autoencoder such that it produces the most discriminative loss profiles between the anomalies and non-anomalies for the predictor. To achieve this, we invoke the Reinforcement Learning framework [25], which assigns credit to the actions (in this case, how the patches are sampled) taken based on the obtained reward at the end of the sequence of actions. Since we wish to enhance the contrast of the loss profiles and aid the predictor by selecting the right training batches, we define the reward function Rpred1 to be the negative of the prediction loss"
+---
 
 
 
