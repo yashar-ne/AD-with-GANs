@@ -6,5 +6,7 @@
   ],
   "spellcheckDictionary": [
     "Inpainting"
-  ]
+  ],
+  "useMarkdownLinks": false,
+  "readableLineLength": false
 }
