@@ -36,9 +36,22 @@
 	- [x] add another column with subtraction
 		- [x] don't forget abs!
 - [ ] Update thesis outline
-- [ ] Paper review
-	- [ ] find 10 appropriate paper
-	- [ ] find paper cluster
-	- [ ] cluster found paper
-	- [ ] try to generate a pipe
-	- [ ] image matching
+- [x] Paper review
+	- [x] find 10 appropriate paper
+	- [x] find paper cluster
+	- [x] cluster found paper
+	- [x] try to generate a pipe
+	- [x] image matching
+- [ ] Unsupervised Discovery of Interpretable Directions in the GAN Latent Space
+	- [ ] Create paper summary 📅 2023-04-21 🛫 2023-04-17 
+	- [ ] Create augmented MNIST dataset 📅 2023-04-21 🛫 2023-04-18 
+	- [ ] Extend AnoGAN to f-AnoGAN 📅 2023-04-21 🛫 2023-04-18 
+		- [ ] Train f-AnoGAN on modified dataset 📅 2023-04-21 🛫 2023-04-19 
+	- [ ] Implement feature discovery method from paper
+		- [ ] Train model and obtain A-Matrix
+	- [ ] Create tiny App that visualizes X samples and lets supervisor label/rate anomalous samples
+	- [ ] Discover axes that are related to found anomalies
+	- [ ] Create new (L2) distance metric where found axes are weighted higher
+	- [ ] Based on new Distance metric, create method to find closes neighbor with respect to fond axes
+	- [ ] Generate anomaly-score, based on this neighbor and found axes
+		- [ ] Use f-AnoGAN for that

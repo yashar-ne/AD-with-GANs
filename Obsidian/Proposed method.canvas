@@ -1,0 +1,22 @@
+{
+	"nodes":[
+		{"type":"text","text":"Generate MNIST Mod","id":"79347922163ec877","x":-680,"y":-420,"width":250,"height":90},
+		{"type":"text","text":"Train f-AnoGAN with modified dataset","id":"600b0aa8282e2154","x":-680,"y":-260,"width":250,"height":120},
+		{"type":"text","text":"Use feature discovery and obtain Matrix A","id":"5e739c82d1ee1ef2","x":-680,"y":-26,"width":250,"height":126},
+		{"type":"text","text":"Visualize samples and let human supervisor rate anomaly-grade","id":"b43327b631585690","x":-679,"y":221,"width":250,"height":159},
+		{"type":"file","file":"images/20230414_154213.jpg","id":"c3c7d8ab55f8d086","x":-679,"y":480,"width":1287,"height":580},
+		{"type":"text","text":"Discover axes, associated with anomaly/anomalies","id":"e90c3b287431c6af","x":-280,"y":-420,"width":277,"height":140},
+		{"type":"text","text":"Find closest neighbor using found distance metric","id":"9fc0b6a7c506a501","x":-266,"y":221,"width":250,"height":159},
+		{"type":"text","text":"Create new distance metric for latent space that eights anomaly-relevant axes higher then other","id":"2aa87f821ccb720f","x":-266,"y":-140,"width":250,"height":254},
+		{"type":"text","text":"Generate anomaly score for found neighbor","id":"d5a1fe0477bb9eb5","x":220,"y":-140,"width":380,"height":211,"color":"4"}
+	],
+	"edges":[
+		{"id":"c98912bec8c8f25b","fromNode":"79347922163ec877","fromSide":"bottom","toNode":"600b0aa8282e2154","toSide":"top"},
+		{"id":"960a173acf5c7297","fromNode":"600b0aa8282e2154","fromSide":"bottom","toNode":"5e739c82d1ee1ef2","toSide":"top"},
+		{"id":"45db336775b8b437","fromNode":"5e739c82d1ee1ef2","fromSide":"bottom","toNode":"b43327b631585690","toSide":"top"},
+		{"id":"bb40a1a69ab4a4c6","fromNode":"b43327b631585690","fromSide":"right","toNode":"e90c3b287431c6af","toSide":"left"},
+		{"id":"78279318a97e5d4d","fromNode":"e90c3b287431c6af","fromSide":"bottom","toNode":"2aa87f821ccb720f","toSide":"top"},
+		{"id":"7e9746e8e82c7ddb","fromNode":"2aa87f821ccb720f","fromSide":"bottom","toNode":"9fc0b6a7c506a501","toSide":"top"},
+		{"id":"986f82ce093447d5","fromNode":"9fc0b6a7c506a501","fromSide":"right","toNode":"d5a1fe0477bb9eb5","toSide":"left"}
+	]
+}
