@@ -18,4 +18,11 @@
 				- shifts $\varepsilon$ units towards the $k^{th}$ axes
 		- In the end the Reconstructor learns, for two given images to predict the direction and the magnitude of the shift
 			- $R(I_{1}, I_{2}) = (\hat{k}, \hat{\varepsilon})$, where $\hat{k}$ is the prediction of the direction index $k \in \{1,...K\}$
-	- 
+	- Loss function
+		- $\underset{A,R}{min} \underset{z,k,\varepsilon}{\mathbb{E}}L(A,R) = \underset{A,R}{min}\underset{z,k,\varepsilon}{\mathbb{E}} [L_{cl}(k,\hat{k})+\lambda L_{r}(\varepsilon,\hat{\varepsilon})]$
+			- $A$ and $R$ are optimized jointly
+			- classification term -> $L_{cl}(\cdot,\cdot)$
+				- calculates distance between predicted column of the direction matrix and the actual one
+			- regression term     -> $L_{r}(\cdot,\cdot)$
+				- regression towards the shift on found direction
+				- creates a continuous shift on that axes and abrupt transformations
