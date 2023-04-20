@@ -1,7 +1,7 @@
 {
 	"nodes":[
 		{"type":"text","text":"Generate MNIST Mod","id":"79347922163ec877","x":-680,"y":-420,"width":250,"height":90},
-		{"type":"text","text":"Train f-AnoGAN with modified dataset","id":"600b0aa8282e2154","x":-680,"y":-260,"width":250,"height":120},
+		{"type":"text","text":"Train [f-]AnoGAN with modified dataset","id":"600b0aa8282e2154","x":-680,"y":-260,"width":250,"height":120},
 		{"type":"text","text":"Use feature discovery and obtain Matrix A","id":"5e739c82d1ee1ef2","x":-680,"y":-26,"width":250,"height":126},
 		{"type":"text","text":"Visualize samples and let human supervisor rate anomaly-grade","id":"b43327b631585690","x":-679,"y":221,"width":250,"height":159},
 		{"type":"file","file":"images/20230414_154213.jpg","id":"c3c7d8ab55f8d086","x":-679,"y":480,"width":1287,"height":580},

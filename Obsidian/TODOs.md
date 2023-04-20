@@ -43,7 +43,7 @@
 	- [x] try to generate a pipe
 	- [x] image matching
 - [ ] Unsupervised Discovery of Interpretable Directions in the GAN Latent Space
-	- [ ] Create paper summary 📅 2023-04-21 🛫 2023-04-17 
+	- [x] Create paper summary 🛫 2023-04-17 📅 2023-04-21 ✅ 2023-04-20
 	- [ ] Create augmented MNIST dataset 📅 2023-04-21 🛫 2023-04-18 
 	- [ ] Extend AnoGAN to f-AnoGAN 📅 2023-04-21 🛫 2023-04-18 
 		- [ ] Train f-AnoGAN on modified dataset 📅 2023-04-21 🛫 2023-04-19 
