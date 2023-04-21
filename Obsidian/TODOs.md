@@ -44,7 +44,7 @@
 	- [x] image matching
 - [ ] Unsupervised Discovery of Interpretable Directions in the GAN Latent Space
 	- [x] Create paper summary 🛫 2023-04-17 📅 2023-04-21 ✅ 2023-04-20
-	- [ ] Create augmented MNIST dataset 📅 2023-04-21 🛫 2023-04-18 
+	- [x] Create augmented MNIST dataset 🛫 2023-04-18 📅 2023-04-21 ✅ 2023-04-21
 	- [ ] Extend AnoGAN to f-AnoGAN 📅 2023-04-21 🛫 2023-04-18 
 		- [ ] Train f-AnoGAN on modified dataset 📅 2023-04-21 🛫 2023-04-19 
 	- [ ] Implement feature discovery method from paper
