@@ -26,3 +26,8 @@
 			- regression term     -> $L_{r}(\cdot,\cdot)$
 				- regression towards the shift on found direction
 				- creates a continuous shift on that axes and abrupt transformations
+
+
+
+![[Pasted image 20230423150930.png]]
+

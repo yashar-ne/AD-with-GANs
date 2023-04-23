@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 from AnoMNIST import AnoMNIST
-from torchvision import datasets, transforms
+from torchvision import datasets
 import torch
 
 import os
