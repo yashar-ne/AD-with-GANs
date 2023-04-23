@@ -1,5 +1,7 @@
-from torchvision import datasets
 from PIL import Image, ImageDraw, ImageFont
+from AnoMNIST import AnoMNIST
+from torchvision import datasets, transforms
+import torch
 
 import os
 import shutil
@@ -66,4 +68,17 @@ def generate_anomalous_image_files(drop_folder='../data/AnoMNIST/', num_aug=100,
     generate_artificial_mnist_images(drop_folder, num=num_art)
 
 
-generate_anomalous_image_files()
+def get_ano_mnist_dataset(transform, root_dir):
+    ano_mnist_dataset = AnoMNIST(
+        root_dir=root_dir,
+        transform=transform
+    )
+
+    mnist_dataset = datasets.MNIST(
+        root=root_dir,
+        train=True,
+        transform=transform,
+        download=False,
+    )
+
+    return torch.utils.data.ConcatDataset([ano_mnist_dataset, mnist_dataset])
