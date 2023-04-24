@@ -11,10 +11,12 @@ class Reconstructor(nn.Module):
             nn.Conv2d(channels * 2, 3 * width, kernel_size=(5, 5)),
             nn.BatchNorm2d(3 * width),
             nn.ReLU(),
+
             nn.MaxPool2d(kernel_size=(2, 2), stride=2),
             nn.Conv2d(3 * width, 8 * width, kernel_size=(5, 5)),
             nn.BatchNorm2d(8 * width),
             nn.ReLU(),
+
             nn.MaxPool2d(kernel_size=(2, 2), stride=2),
             nn.Conv2d(8 * width, 60 * width, kernel_size=(5, 5)),
             nn.BatchNorm2d(60 * width),
