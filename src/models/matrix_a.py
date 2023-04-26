@@ -4,6 +4,7 @@ import torch.nn as nn
 class MatrixA(nn.Module):
     def __init__(self, input_dim, inner_dim, output_dim):
         super(MatrixA, self).__init__()
+        self.input_dim = input_dim
 
         self.fc1 = nn.Linear(input_dim, inner_dim)
         self.bn1 = nn.BatchNorm1d(inner_dim)

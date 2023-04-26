@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
-from AnoMNIST import AnoMNIST
+from ano_mnist import AnoMNIST
 from torchvision import datasets
 import torch
 
@@ -15,7 +15,7 @@ def generate_augmented_mnist_images(drop_folder, num=10, max_augmentation_thickn
     dataset = datasets.MNIST(
         root='../data',
         train=True,
-        download=False,
+        download=True,
     )
 
     augmentation_thickness: int = random.randint(1, max_augmentation_thickness)
@@ -31,7 +31,7 @@ def generate_augmented_mnist_images(drop_folder, num=10, max_augmentation_thickn
                 img.putpixel((j, random_idx + k + 1), 0)
 
         img.save(f"{drop_folder}/img_aug_{label}_{i}.png")
-        with open(f'{drop_folder}anomnist_dataset.csv', 'a', newline='') as file:
+        with open(f'{drop_folder}/anomnist_dataset.csv', 'a', newline='') as file:
             writer = csv.writer(file)
             fields = [f'img_aug_{label}_{i}.png', f"{label}", "True", "Augmented"]
             writer.writerow(fields)
@@ -47,19 +47,20 @@ def generate_artificial_mnist_images(drop_folder, num=10):
         d.text((8, 4), f'{label}', fill=1, font=font)
 
         img.save(f"{drop_folder}/img_art_{label}_{i}.png")
-        with open(f'{drop_folder}anomnist_dataset.csv', 'a', newline='') as file:
+        with open(f'{drop_folder}/anomnist_dataset.csv', 'a', newline='') as file:
             writer = csv.writer(file)
             fields = [f'img_art_{label}_{i}.png', f"{label}", "True", "Artificial"]
             writer.writerow(fields)
 
 
-def generate_anomalous_image_files(drop_folder='../data/AnoMNIST/', num_aug=100, num_art=100):
+def generate_anomalous_image_files(drop_folder, num_aug=100, num_art=100):
+    drop_folder = f"{drop_folder}/AnoMNIST"
     if os.path.exists(drop_folder):
         shutil.rmtree(drop_folder)
     if not os.path.exists(f"{drop_folder}"):
         os.makedirs(f"{drop_folder}")
 
-    with open(f'{drop_folder}anomnist_dataset.csv', 'a', newline='') as file:
+    with open(f'{drop_folder}/anomnist_dataset.csv', 'a', newline='') as file:
         writer = csv.writer(file)
         fields = ["filename", "label", "anomaly", "type"]
         writer.writerow(fields)
@@ -78,7 +79,7 @@ def get_ano_mnist_dataset(transform, root_dir):
         root=root_dir,
         train=True,
         transform=transform,
-        download=False,
+        download=True,
     )
 
     return torch.utils.data.ConcatDataset([ano_mnist_dataset, mnist_dataset])
