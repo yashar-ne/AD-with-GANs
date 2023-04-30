@@ -8,37 +8,38 @@ class Reconstructor(nn.Module):
         super(Reconstructor, self).__init__()
 
         self.conv = nn.Sequential(
-            nn.Conv2d(channels * 2, 3 * width, kernel_size=(5, 5)),
+            nn.Conv2d(channels * 2, 3 * width, kernel_size=2),
             nn.BatchNorm2d(3 * width),
             nn.ReLU(),
 
-            nn.MaxPool2d(kernel_size=(2, 2), stride=2),
-            nn.Conv2d(3 * width, 8 * width, kernel_size=(5, 5)),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(3 * width, 8 * width, kernel_size=2),
             nn.BatchNorm2d(8 * width),
             nn.ReLU(),
 
-            nn.MaxPool2d(kernel_size=(2, 2), stride=2),
-            nn.Conv2d(8 * width, 60 * width, kernel_size=(5, 5)),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(8 * width, 60 * width, kernel_size=4),
             nn.BatchNorm2d(60 * width),
             nn.ReLU()
         )
 
         self.fc_logits = nn.Sequential(
             nn.Linear(60 * width, 42 * width),
-            nn.BatchNorm1d(42 * width),
+            # nn.BatchNorm1d(42 * width),
             nn.ReLU(),
             nn.Linear(42 * width, np.product(dim))
         )
         self.fc_shift = nn.Sequential(
             nn.Linear(60 * width, 42 * width),
-            nn.BatchNorm1d(42 * width),
+            # nn.BatchNorm1d(42 * width),
             nn.ReLU(),
             nn.Linear(42 * width, 1)
         )
 
     def forward(self, x1, x2):
         batch_size = x1.shape[0]
-        features = self.conv(torch.cat([x1, x2], dim=1))
+        combined = torch.cat([x1, x2], dim=1)
+        features = self.conv(combined)
         features = features.mean(dim=[-1, -2])
         features = features.view(batch_size, -1)
 

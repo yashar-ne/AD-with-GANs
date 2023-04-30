@@ -14,5 +14,5 @@ class MatrixALinear(nn.Module):
         min_dim = int(min(self.input_dim, self.output_dim))
         self.linear.weight.data[:min_dim, :min_dim] = torch.eye(min_dim)
 
-    def forward(self):
-        return self.linear(input)
+    def forward(self, x):
+        return self.linear(x)
