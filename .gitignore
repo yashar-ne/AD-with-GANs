@@ -347,3 +347,4 @@ model_gen.ckpt
 /data/MNIST/raw/train-labels-idx1-ubyte.gz
 /data/
 /saved_models/
+/out_dir/

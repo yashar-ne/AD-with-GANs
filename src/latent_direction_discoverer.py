@@ -60,7 +60,6 @@ class LatentDirectionDiscoverer:
             # cast random noise z
             z = generate_noise(batch_size=self.batch_size, z_dim=self.z_dim, device=self.device)
             target_indices, shifts, basis_shift = self.__make_shifts(self.matrix_a.input_dim,
-                                                                     self.directions_count,
                                                                      self.batch_size)
 
             # cast random integer that represents the k^th column  --> e_k

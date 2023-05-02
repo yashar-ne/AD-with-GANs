@@ -1,5 +1,5 @@
 import os
-import matplotlib as plt
+from matplotlib import pyplot as plt
 import numpy as np
 import torch
 
@@ -61,13 +61,13 @@ class LatentDirectionVisualizer:
         fig, axs = plt.subplots(rows_count, **kwargs)
 
         axs[0].axis('off')
-        axs[0].imshow(to_image(original_img, True))
+        axs[0].imshow(to_image(original_img))
 
         texts = dims
         for ax, shifts_images, text in zip(axs[1:], images, texts):
             ax.axis('off')
             plt.subplots_adjust(left=0.5)
-            ax.imshow(to_image(make_grid(shifts_images, nrow=(2 * shifts_count + 1), padding=1), True))
+            ax.imshow(to_image(make_grid(shifts_images, nrow=(2 * shifts_count + 1), padding=1)))
             ax.text(-20, 21, str(text), fontsize=10)
 
         self.matrix_a.train()

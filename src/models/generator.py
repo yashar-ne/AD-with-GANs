@@ -28,6 +28,6 @@ class Generator(nn.Module):
         return output
 
     def gen_shifted(self, x, shift):
-        shift = torch.unsqueeze(shift, 2)
-        shift = torch.unsqueeze(shift, 2)
+        shift = torch.unsqueeze(shift, -1)
+        shift = torch.unsqueeze(shift, -1)
         return self.forward(x + shift)
