@@ -101,8 +101,8 @@ class LatentDirectionDiscoverer:
     def load_generator(self, path):
         self.g.load_state_dict(torch.load(path, map_location=torch.device(self.device)))
 
-    def __make_shifts(self, latent_dim, directions_count, batch_size):
-        target_indices = torch.randint(0, directions_count, [batch_size])
+    def __make_shifts(self, latent_dim, batch_size):
+        target_indices = torch.randint(0, self.directions_count, [batch_size])
         shifts = 2.0 * torch.rand(target_indices.shape) - 1.0
 
         shifts = self.shift_scale * shifts
