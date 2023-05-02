@@ -1,9 +1,8 @@
 import sys
-
-import numpy as np
 import torch
-
 from src.latent_direction_discoverer import LatentDirectionDiscoverer
+from src.latent_direction_visualizer import LatentDirectionVisualizer
+from src.tools.utils import generate_noise
 
 sys.path.append('tools')
 
@@ -19,5 +18,10 @@ transform = transforms.Compose([
 
 dataset = get_ano_mnist_dataset(transform=transform, root_dir="../data")
 trainer = LatentDirectionDiscoverer(z_dim=100, latent_dim=100, directions_count=100, batch_size=1, device=device)
+visualizer = LatentDirectionVisualizer(matrix_a=trainer.matrix_a, generator=trainer.g, device=device)
+
 trainer.load_generator("../saved_models/generator.pkl")
-trainer.train()
+trainer.train(num_steps=100)
+
+zs = generate_noise(batch_size=1, z_dim=100, device=device)
+visualizer.visualize(zs=zs, shifts_r=10, output_directory='../out_dir')

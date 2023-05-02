@@ -4,12 +4,12 @@ import time
 
 import torch
 import torch.nn as nn
-import torchvision.transforms as transforms
 
 from src.models.generator import Generator
 from src.models.matrix_a_linear import MatrixALinear
 from src.models.reconstructor import Reconstructor
-from PIL import Image
+
+from src.tools.utils import generate_noise
 
 
 class LatentDirectionDiscoverer:
@@ -58,7 +58,7 @@ class LatentDirectionDiscoverer:
             self.reconstructor.zero_grad()
 
             # cast random noise z
-            z = self.__generate_noise()
+            z = generate_noise(batch_size=self.batch_size, z_dim=self.z_dim, device=self.device)
             target_indices, shifts, basis_shift = self.__make_shifts(self.matrix_a.input_dim,
                                                                      self.directions_count,
                                                                      self.batch_size)
@@ -88,7 +88,7 @@ class LatentDirectionDiscoverer:
             matrix_a_opt.step()
             reconstructor_opt.step()
 
-            if step % 100 == 0:
+            if step % 1000 == 0:
                 print(f"Saving checkpoint at step {step}")
                 self.__save_checkpoint(step)
 
@@ -115,12 +115,6 @@ class LatentDirectionDiscoverer:
 
         return target_indices, shifts, z_shift
 
-    def display_image(self, k, e):
-        print("displaying image...")
-
-    def __generate_animation(self):
-        print("generating animation...")
-
     def __save_models(self):
         torch.save(self.matrix_a.state_dict(), f'{self.saved_models_path}/matrix_a.pkl')
         torch.save(self.reconstructor.state_dict(), f'{self.saved_models_path}/reconstructor.pkl')
@@ -132,6 +126,3 @@ class LatentDirectionDiscoverer:
 
     def __load_models_from_checkpoints(self):
         print("loading models...")
-
-    def __generate_noise(self):
-        return torch.randn(self.batch_size, self.z_dim, 1, 1, device=self.device)
