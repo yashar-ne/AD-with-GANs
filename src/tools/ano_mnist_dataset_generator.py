@@ -69,7 +69,7 @@ def generate_anomalous_image_files(drop_folder, num_aug=100, num_art=100):
     generate_artificial_mnist_images(drop_folder, num=num_art)
 
 
-def get_ano_mnist_dataset(transform, root_dir):
+def get_ano_mnist_dataset(transform, root_dir, include_digitals=True):
     ano_mnist_dataset = AnoMNIST(
         root_dir=root_dir,
         transform=transform
@@ -82,4 +82,4 @@ def get_ano_mnist_dataset(transform, root_dir):
         download=True,
     )
 
-    return torch.utils.data.ConcatDataset([ano_mnist_dataset, mnist_dataset])
+    return torch.utils.data.ConcatDataset([ano_mnist_dataset, mnist_dataset]) if include_digitals else torch.utils.data.ConcatDataset([ano_mnist_dataset, mnist_dataset])

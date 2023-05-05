@@ -19,21 +19,23 @@ class LatentDirectionVisualizer:
         self.device = device
 
     @torch.no_grad()
-    def visualize(self, zs, output_directory, shifts_r=8):
+    def visualize(self, noise_batches, output_directory, shifts_range=8):
         os.makedirs(output_directory, exist_ok=True)
 
         step = 20
         max_dim = self.g.size_z
-        shifts_count = zs.shape[0]
+        shifts_count = noise_batches.shape[0]
 
         for start in range(0, max_dim - 1, step):
             images = []
-            dims = range(start, min(start + step, max_dim))
-            for z in zs:
+            vis_range = range(start, min(start + step, max_dim))
+            for z in noise_batches:
                 z = z.unsqueeze(0)
-                fig = self.create_visualization(
-                    z=z, dims=dims, shifts_r=shifts_r, shifts_count=shifts_count,
-                    figsize=(int(shifts_count * 4.0), int(0.5 * step) + 2))
+                fig = self.create_visualization(z=z,
+                                                vis_range=vis_range,
+                                                shifts_range=shifts_range,
+                                                shifts_count=shifts_count,
+                                                figsize=(int(shifts_count * 4.0), int(0.5 * step) + 2))
                 fig.canvas.draw()
                 plt.close(fig)
                 img = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
@@ -44,18 +46,21 @@ class LatentDirectionVisualizer:
                 img = img.transpose(1, 0, 2)[nonzero_columns].transpose(1, 0, 2)
                 images.append(img)
 
-            out_file = os.path.join(output_directory, '{}_{}.jpg'.format(dims[0], dims[-1]))
+            out_file = os.path.join(output_directory, '{}_{}.jpg'.format(vis_range[0], vis_range[-1]))
             print('saving chart to {}'.format(out_file))
             Image.fromarray(np.hstack(images)).save(out_file)
 
     @torch.no_grad()
-    def create_visualization(self, z, dims, shifts_r, shifts_count=5, **kwargs):
+    def create_visualization(self, z, vis_range, shifts_range, shifts_count=5, **kwargs):
         self.g.eval()
         original_img = self.g(z).cpu()
         images = []
 
-        for i in dims:
-            images.append(self.create_shifted_images(z=z, shifts_r=shifts_r, shifts_count=5, dim=i))
+        for i in vis_range:
+            images.append(self.create_shifted_images(z=z,
+                                                     shifts_range=shifts_range,
+                                                     shifts_count=5,
+                                                     dim=i))
 
         rows_count = len(images) + 1
         fig, axs = plt.subplots(rows_count, **kwargs)
@@ -63,7 +68,7 @@ class LatentDirectionVisualizer:
         axs[0].axis('off')
         axs[0].imshow(to_image(original_img))
 
-        texts = dims
+        texts = vis_range
         for ax, shifts_images, text in zip(axs[1:], images, texts):
             ax.axis('off')
             plt.subplots_adjust(left=0.5)
@@ -75,11 +80,11 @@ class LatentDirectionVisualizer:
         return fig
 
     @torch.no_grad()
-    def create_shifted_images(self, z, shifts_r, shifts_count, dim):
+    def create_shifted_images(self, z, shifts_range, shifts_count, dim):
         shifted_images = []
-        for shift in np.arange(-shifts_r, shifts_r + 1e-9, shifts_r / shifts_count):
+        for shift in np.arange(-shifts_range, shifts_range + 1e-9, shifts_range / shifts_count):
             latent_shift = self.matrix_a(one_hot(dims=self.matrix_a.input_dim, value=shift, index=dim).to(self.device))
             shifted_image = self.g.gen_shifted(z, latent_shift).cpu()[0]
             shifted_images.append(shifted_image)
 
-        return shifted_image
+        return shifted_images
