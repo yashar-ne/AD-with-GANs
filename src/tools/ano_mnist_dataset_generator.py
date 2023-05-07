@@ -9,35 +9,49 @@ import random
 import csv
 
 
-def generate_augmented_mnist_images(drop_folder, num=10, max_augmentation_thickness=5,
+def generate_augmented_mnist_images(base_folder, num, max_augmentation_thickness=5,
                                     randomize_augmentation_thickness=False):
     assert max_augmentation_thickness <= 7, "max_augmentation_thickness must be smaller than 7"
+    os.makedirs(base_folder, exist_ok=True)
+
     dataset = datasets.MNIST(
-        root='../data',
+        root=base_folder,
         train=True,
         download=True,
     )
+
+    ano_mnist_drop_folder = os.path.join(base_folder, "AnoMNIST")
+    csv_path = os.path.join(ano_mnist_drop_folder, "anomnist_dataset.csv")
+
+    os.makedirs(base_folder, exist_ok=True)
+    os.makedirs(ano_mnist_drop_folder, exist_ok=True)
 
     augmentation_thickness: int = random.randint(1, max_augmentation_thickness)
     for i in range(num):
         random_idx = random.randint(0, len(dataset.data) - 1)
         img, label = dataset[random_idx]
 
-        augmentation_thickness = random.randint(1,
+        augmentation_thickness = random.randint(3,
                                                 max_augmentation_thickness) if randomize_augmentation_thickness else augmentation_thickness
         random_idx = random.randint(4, 20)
         for j in range(img.size[0]):
             for k in range(augmentation_thickness):
                 img.putpixel((j, random_idx + k + 1), 0)
 
-        img.save(f"{drop_folder}/img_aug_{label}_{i}.png")
-        with open(f'{drop_folder}/anomnist_dataset.csv', 'a', newline='') as file:
+        img.save(os.path.join(ano_mnist_drop_folder, f"img_aug_{label}_{i}.png"))
+        with open(csv_path, 'a', newline='') as file:
             writer = csv.writer(file)
             fields = [f'img_aug_{label}_{i}.png', f"{label}", "True", "Augmented"]
             writer.writerow(fields)
 
 
-def generate_artificial_mnist_images(drop_folder, num=10):
+def generate_artificial_mnist_images(base_folder, num):
+    ano_mnist_drop_folder = os.path.join(base_folder, "AnoMNIST")
+    csv_path = os.path.join(ano_mnist_drop_folder, "anomnist_dataset.csv")
+
+    os.makedirs(base_folder, exist_ok=True)
+    os.makedirs(ano_mnist_drop_folder, exist_ok=True)
+
     for i in range(num):
         label = random.randint(0, 9)
         img = Image.new("1", (28, 28))
@@ -46,30 +60,33 @@ def generate_artificial_mnist_images(drop_folder, num=10):
         d = ImageDraw.Draw(img)
         d.text((8, 4), f'{label}', fill=1, font=font)
 
-        img.save(f"{drop_folder}/img_art_{label}_{i}.png")
-        with open(f'{drop_folder}/anomnist_dataset.csv', 'a', newline='') as file:
+        img.save(os.path.join(ano_mnist_drop_folder, f"img_art_{label}_{i}.png"))
+        with open(os.path.join(ano_mnist_drop_folder, "anomnist_dataset.csv"), 'a', newline='') as file:
             writer = csv.writer(file)
             fields = [f'img_art_{label}_{i}.png', f"{label}", "True", "Artificial"]
             writer.writerow(fields)
 
 
-def generate_anomalous_image_files(drop_folder, num_aug=100, num_art=100):
-    drop_folder = f"{drop_folder}/AnoMNIST"
-    if os.path.exists(drop_folder):
-        shutil.rmtree(drop_folder)
-    if not os.path.exists(f"{drop_folder}"):
-        os.makedirs(f"{drop_folder}")
+def generate_anomalous_image_files(base_folder, num_aug, num_art):
+    if os.path.exists(base_folder):
+        shutil.rmtree(base_folder)
 
-    with open(f'{drop_folder}/anomnist_dataset.csv', 'a', newline='') as file:
+    ano_mnist_drop_folder = os.path.join(base_folder, "AnoMNIST")
+    csv_path = os.path.join(ano_mnist_drop_folder, "anomnist_dataset.csv")
+
+    os.makedirs(base_folder, exist_ok=True)
+    os.makedirs(ano_mnist_drop_folder, exist_ok=True)
+
+    with open(csv_path, 'a', newline='') as file:
         writer = csv.writer(file)
         fields = ["filename", "label", "anomaly", "type"]
         writer.writerow(fields)
 
-    generate_augmented_mnist_images(drop_folder, num=num_aug)
-    generate_artificial_mnist_images(drop_folder, num=num_art)
+    generate_augmented_mnist_images(base_folder, num=num_aug)
+    generate_artificial_mnist_images(base_folder, num=num_art)
 
 
-def get_ano_mnist_dataset(transform, root_dir, include_digitals=True):
+def get_ano_mnist_dataset(transform, root_dir, include_digitals=True, labels=[]):
     ano_mnist_dataset = AnoMNIST(
         root_dir=root_dir,
         transform=transform
@@ -82,4 +99,16 @@ def get_ano_mnist_dataset(transform, root_dir, include_digitals=True):
         download=True,
     )
 
-    return torch.utils.data.ConcatDataset([ano_mnist_dataset, mnist_dataset]) if include_digitals else torch.utils.data.ConcatDataset([ano_mnist_dataset, mnist_dataset])
+    dataset = torch.utils.data.ConcatDataset(
+        [ano_mnist_dataset, mnist_dataset]) if include_digitals else torch.utils.data.ConcatDataset(
+        [ano_mnist_dataset, mnist_dataset])
+
+    if len(labels) > 0:
+        return [d for d in dataset if (d[1] in labels)]
+
+    return dataset
+
+
+dataset = get_ano_mnist_dataset(transform=None, root_dir="../../data", labels=[9])
+
+print(len(dataset))

@@ -23,7 +23,5 @@ visualizer = LatentDirectionVisualizer(matrix_a=trainer.matrix_a, generator=trai
 trainer.load_generator("../saved_models/generator.pkl")
 trainer.train(num_steps=50)
 
-noise_batches = generate_noise(batch_size=20, z_dim=100, device=device)
+noise_batches = generate_noise(batch_size=4, z_dim=100, device=device)
 visualizer.visualize(noise_batches=noise_batches, shifts_range=10, output_directory='../out_dir/10')
-visualizer.visualize(noise_batches=noise_batches, shifts_range=20, output_directory='../out_dir/20')
-visualizer.visualize(noise_batches=noise_batches, shifts_range=30, output_directory='../out_dir/30')
