@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { ContentComponent } from './content/content.component';
 import { LatentDisplayComponent } from './latent-display/latent-display.component';
+import {HttpClientModule} from "@angular/common/http";
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { LatentDisplayComponent } from './latent-display/latent-display.componen
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

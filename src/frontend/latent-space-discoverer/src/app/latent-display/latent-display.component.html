@@ -1,3 +1,5 @@
 <div class="latent-display">
-
+  <div *ngIf="data$ | async as data">
+    <div>{{data.message}}</div>
+</div>
 </div>
