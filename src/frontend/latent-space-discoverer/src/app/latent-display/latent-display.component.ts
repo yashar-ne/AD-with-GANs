@@ -11,9 +11,38 @@ import {Data} from "../models/data.model";
 export class LatentDisplayComponent implements OnInit{
 
   constructor(private bs: BackendService) { }
+
   data$: Observable<Data> = this.bs.getData()
+  imageToShow: any;
+  isImageLoading = false;
+
   ngOnInit(): void {
-    this.data$ = this.bs.getData()
+    this.getImageFromService()
+  }
+
+  getImageFromService() {
+      this.isImageLoading = true;
+      this.bs.getImages().subscribe({
+        next: (data) => {
+          this.createImageFromBlob(data);
+          this.isImageLoading = false;
+        },
+        error: (e) => {
+          this.isImageLoading = false;
+          console.error(e);
+        },
+        complete: () => console.info('DONE')
+      })
+  }
+  createImageFromBlob(image: Blob) {
+     let reader = new FileReader();
+     reader.addEventListener("load", () => {
+        this.imageToShow = reader.result;
+     }, false);
+
+     if (image) {
+        reader.readAsDataURL(image);
+     }
   }
 
 }

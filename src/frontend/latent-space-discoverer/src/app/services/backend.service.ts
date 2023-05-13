@@ -14,4 +14,9 @@ export class BackendService {
     console.log("Getting Data")
     return this.httpClient.get<Data>(`${this.api_root}/get_sample`)
   }
+
+  getImages(): Observable<Blob> {
+    console.log("Getting Images")
+    return this.httpClient.get(`${this.api_root}/get_images`, { responseType: 'blob' });
+  }
 }

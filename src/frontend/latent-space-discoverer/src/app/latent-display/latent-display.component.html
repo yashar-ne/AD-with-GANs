@@ -1,5 +1,6 @@
 <div class="latent-display">
   <div *ngIf="data$ | async as data">
-    <div>{{data.message}}</div>
-</div>
+    <img [src]="imageToShow"
+         alt="Place image title"fill>
+  </div>
 </div>
