@@ -30,7 +30,7 @@ class LatentDirectionDiscoverer:
         self.device = device
 
         # init Generator
-        self.g: Generator = Generator(size_z=self.z_dim, num_feature_maps=32, num_color_channels=1)
+        self.g: Generator = Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1)
 
         # init MatrixA
         self.matrix_a = MatrixALinear(input_dim=self.directions_count, output_dim=latent_dim)
