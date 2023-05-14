@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from starlette.middleware.cors import CORSMiddleware
+
 app = FastAPI()
 
 origins = [
@@ -16,6 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
@@ -28,7 +30,7 @@ async def get_sample():
 
 @app.get("/get_images")
 async def get_images():
-    return FileResponse("../out_dir/10/0_19.jpg")
+    return FileResponse("../../out_dir/10/0_19.jpg")
 
 
 if __name__ == "__main__":

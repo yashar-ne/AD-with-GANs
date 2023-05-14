@@ -55,3 +55,9 @@
 	- [ ] Based on new Distance metric, create method to find closes neighbor with respect to fond axes
 	- [ ] Generate anomaly-score, based on this neighbor and found axes
 		- [ ] Use f-AnoGAN for that
+- [ ] Latent Space Explorer
+	- [ ] Train multiple batches with latent space discovery
+	- [ ] Save all batches as ndarray to file
+	- [ ] use file to randomly show a smooth dimension snippet
+	- [ ] extend BE/FE to show snippet
+	- [ ] let user label snippet as anomalous/normal

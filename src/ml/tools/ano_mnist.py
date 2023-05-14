@@ -6,11 +6,11 @@ from torch.utils.data import Dataset
 
 class AnoMNIST(Dataset):
     def __init__(self, root_dir, transform=None):
-        root_dir = f"{root_dir}/AnoMNIST"
-        assert os.path.exists(f"{root_dir}/anomnist_dataset.csv"), "Invalid root directory"
+        root_dir = os.path.join(root_dir, "AnoMNIST")
+        assert os.path.exists(os.path.join(root_dir, "anomnist_dataset.csv")), "Invalid root directory"
         self.root_dir = root_dir
         self.transform = transform
-        self.label = pd.read_csv(f"{root_dir}/anomnist_dataset.csv")
+        self.label = pd.read_csv(os.path.join(root_dir, "anomnist_dataset.csv"))
 
     def __len__(self):
         return len(self.label)

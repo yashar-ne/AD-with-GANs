@@ -5,11 +5,11 @@ import time
 import torch
 import torch.nn as nn
 
-from src.models.generator import Generator
-from src.models.matrix_a_linear import MatrixALinear
-from src.models.reconstructor import Reconstructor
+from src.ml.models.generator import Generator
+from src.ml.models.matrix_a_linear import MatrixALinear
+from src.ml.models.reconstructor import Reconstructor
 
-from src.tools.utils import generate_noise
+from src.ml.tools.utils import generate_noise
 
 
 class LatentDirectionDiscoverer:

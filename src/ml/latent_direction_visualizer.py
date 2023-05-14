@@ -4,9 +4,9 @@ import numpy as np
 import torch
 
 from torchvision.utils import make_grid
-from src.models.generator import Generator
-from src.models.matrix_a import MatrixA
-from src.tools.utils import one_hot, to_image
+from src.ml.models.generator import Generator
+from src.ml.models.matrix_a import MatrixA
+from src.ml.tools.utils import one_hot, to_image, generate_noise
 from PIL import Image
 
 
@@ -17,6 +17,7 @@ class LatentDirectionVisualizer:
         self.matrix_a: MatrixA = matrix_a
         self.dim = self.g.size_z
         self.device = device
+        self.data = []
 
     @torch.no_grad()
     def visualize(self, noise_batches, output_directory, shifts_range=8):
@@ -27,28 +28,24 @@ class LatentDirectionVisualizer:
         shifts_count = noise_batches.shape[0]
 
         for start in range(0, max_dim - 1, step):
-            images = []
-            vis_range = range(start, min(start + step, max_dim))
-            for z in noise_batches:
-                z = z.unsqueeze(0)
-                fig = self.create_visualization(z=z,
-                                                vis_range=vis_range,
-                                                shifts_range=shifts_range,
-                                                shifts_count=shifts_count,
-                                                figsize=(int(shifts_count * 4.0), int(0.5 * step) + 2))
-                fig.canvas.draw()
-                plt.close(fig)
-                img = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-                img = img.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-
-                # crop borders
-                nonzero_columns = np.count_nonzero(img != 255, axis=0)[:, 0] > 0
-                img = img.transpose(1, 0, 2)[nonzero_columns].transpose(1, 0, 2)
-                images.append(img)
-
+            images, vis_range = self.__get_dim_images(max_dim, noise_batches, shifts_count, shifts_range, start, step)
             out_file = os.path.join(output_directory, '{}_{}.jpg'.format(vis_range[0], vis_range[-1]))
             print('saving chart to {}'.format(out_file))
             Image.fromarray(np.hstack(images)).save(out_file)
+
+    def generate_random_batches_as_numpy_array(self, batch_size, shifts_range, output_directory=""):
+        noise_batches = generate_noise(batch_size=batch_size, z_dim=100, device=self.device)
+
+        step = 20
+        max_dim = self.g.size_z
+        shifts_count = noise_batches.shape[0]
+        images = self.__generate_dim_images(max_dim, step, noise_batches, shifts_range, shifts_count)
+
+        if output_directory:
+            os.makedirs(output_directory, exist_ok=True)
+            np.save(os.path.join(output_directory, "data.npy"), images)
+
+        return images
 
     @torch.no_grad()
     def create_visualization(self, z, vis_range, shifts_range, shifts_count=5, **kwargs):
@@ -88,3 +85,33 @@ class LatentDirectionVisualizer:
             shifted_images.append(shifted_image)
 
         return shifted_images
+
+    def __generate_dim_images(self, max_dim, step, noise_batches, shifts_range, shifts_count):
+        images = []
+        for start in range(0, max_dim - 1, step):
+            dim_images, _ = self.__get_dim_images(max_dim, noise_batches, shifts_count, shifts_range, start, step)
+            images.append(dim_images)
+
+        return images
+
+    def __get_dim_images(self, max_dim, noise_batches, shifts_count, shifts_range, start, step):
+        dim_images = []
+        vis_range = range(start, min(start + step, max_dim))
+        for z in noise_batches:
+            z = z.unsqueeze(0)
+            fig = self.create_visualization(z=z,
+                                            vis_range=vis_range,
+                                            shifts_range=shifts_range,
+                                            shifts_count=shifts_count,
+                                            figsize=(int(shifts_count * 4.0), int(0.5 * step) + 2))
+            fig.canvas.draw()
+            plt.close(fig)
+            img = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+            img = img.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+
+            # crop borders
+            nonzero_columns = np.count_nonzero(img != 255, axis=0)[:, 0] > 0
+            img = img.transpose(1, 0, 2)[nonzero_columns].transpose(1, 0, 2)
+            dim_images.append(img)
+
+        return dim_images, vis_range
