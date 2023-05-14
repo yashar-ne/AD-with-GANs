@@ -4,7 +4,7 @@ import sys
 sys.path.append('./ml/tools')
 import torch
 from latent_direction_discoverer import LatentDirectionDiscoverer
-from latent_direction_visualizer import LatentDirectionVisualizer
+from latent_direction_visualizer import LatentDirectionVisualizer, get_random_strip_as_numpy_array
 from tools.utils import generate_noise
 from tools.ano_mnist_dataset_generator import get_ano_mnist_dataset
 
@@ -26,4 +26,6 @@ trainer.train(num_steps=50)
 
 # noise_batches = generate_noise(batch_size=4, z_dim=100, device=device)
 # visualizer.visualize(noise_batches=noise_batches, shifts_range=10, output_directory=os.path.abspath("../out_dir"))
-images = visualizer.generate_random_batches_as_numpy_array(batch_size=2, shifts_range=8, output_directory=os.path.abspath("../out_dir"))
+# images = visualizer.generate_random_batches_as_numpy_array(batch_size=3, shifts_range=8, output_directory=os.path.abspath("../out_dir"))
+
+print(get_random_strip_as_numpy_array("../out_dir/data.npy").shape)

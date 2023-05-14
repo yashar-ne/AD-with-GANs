@@ -1,4 +1,6 @@
 import os
+import random
+
 from matplotlib import pyplot as plt
 import numpy as np
 import torch
@@ -8,6 +10,14 @@ from src.ml.models.generator import Generator
 from src.ml.models.matrix_a import MatrixA
 from src.ml.tools.utils import one_hot, to_image, generate_noise
 from PIL import Image
+
+
+def get_random_strip_as_numpy_array(file_path):
+    image_data = np.load(file_path)
+    batch_size = image_data.shape[0]
+    dim_size = image_data.shape[1]
+
+    return image_data[random.randint(0, batch_size - 1)][random.randint(0, dim_size - 1)]
 
 
 class LatentDirectionVisualizer:
@@ -28,20 +38,29 @@ class LatentDirectionVisualizer:
         shifts_count = noise_batches.shape[0]
 
         for start in range(0, max_dim - 1, step):
-            images, vis_range = self.__get_dim_images(max_dim, noise_batches, shifts_count, shifts_range, start, step)
+            dim_images, _, vis_range = self.__get_dim_images(max_dim, noise_batches, shifts_count, shifts_range, start,
+                                                             step)
             out_file = os.path.join(output_directory, '{}_{}.jpg'.format(vis_range[0], vis_range[-1]))
             print('saving chart to {}'.format(out_file))
-            Image.fromarray(np.hstack(images)).save(out_file)
+            Image.fromarray(np.hstack(dim_images)).save(out_file)
 
     def generate_random_batches_as_numpy_array(self, batch_size, shifts_range, output_directory=""):
         noise_batches = generate_noise(batch_size=batch_size, z_dim=100, device=self.device)
-
-        step = 20
+        dim_size = noise_batches.shape[1]
         max_dim = self.g.size_z
         shifts_count = noise_batches.shape[0]
-        images = self.__generate_dim_images(max_dim, step, noise_batches, shifts_range, shifts_count)
+        images = self.__generate_dim_images(max_dim, dim_size, noise_batches, shifts_range, shifts_count)
 
         if output_directory:
+            images = np.array(list(
+                map(lambda x: np.array(list(
+                    map(lambda y: np.array(list(
+                        map(lambda z: np.array(list(
+                            map(lambda a: a.numpy(), z)
+                        )), y)
+                    )), x)
+                )), images)
+            ))[0]
             os.makedirs(output_directory, exist_ok=True)
             np.save(os.path.join(output_directory, "data.npy"), images)
 
@@ -74,7 +93,7 @@ class LatentDirectionVisualizer:
 
         self.matrix_a.train()
 
-        return fig
+        return fig, images
 
     @torch.no_grad()
     def create_shifted_images(self, z, shifts_range, shifts_count, dim):
@@ -89,21 +108,22 @@ class LatentDirectionVisualizer:
     def __generate_dim_images(self, max_dim, step, noise_batches, shifts_range, shifts_count):
         images = []
         for start in range(0, max_dim - 1, step):
-            dim_images, _ = self.__get_dim_images(max_dim, noise_batches, shifts_count, shifts_range, start, step)
-            images.append(dim_images)
+            _, raw_images, _ = self.__get_dim_images(max_dim, noise_batches, shifts_count, shifts_range, start, step)
+            images.append(raw_images)
 
         return images
 
     def __get_dim_images(self, max_dim, noise_batches, shifts_count, shifts_range, start, step):
         dim_images = []
+        raw_images = []
         vis_range = range(start, min(start + step, max_dim))
         for z in noise_batches:
             z = z.unsqueeze(0)
-            fig = self.create_visualization(z=z,
-                                            vis_range=vis_range,
-                                            shifts_range=shifts_range,
-                                            shifts_count=shifts_count,
-                                            figsize=(int(shifts_count * 4.0), int(0.5 * step) + 2))
+            fig, raws = self.create_visualization(z=z,
+                                                  vis_range=vis_range,
+                                                  shifts_range=shifts_range,
+                                                  shifts_count=shifts_count,
+                                                  figsize=(int(shifts_count * 4.0), int(0.5 * step) + 2))
             fig.canvas.draw()
             plt.close(fig)
             img = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
@@ -113,5 +133,6 @@ class LatentDirectionVisualizer:
             nonzero_columns = np.count_nonzero(img != 255, axis=0)[:, 0] > 0
             img = img.transpose(1, 0, 2)[nonzero_columns].transpose(1, 0, 2)
             dim_images.append(img)
+            raw_images.append(raws)
 
-        return dim_images, vis_range
+        return dim_images, raw_images, vis_range
