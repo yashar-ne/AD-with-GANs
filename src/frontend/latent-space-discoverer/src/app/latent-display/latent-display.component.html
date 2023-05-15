@@ -1,6 +1,9 @@
 <div class="latent-display">
-  <div *ngIf="data$ | async as data">
-    <img [src]="imageToShow"
-         alt="Place image title"fill>
+  <div *ngIf="imageStrip$ | async as imageStrip">
+    <div class="latent_image_wrapper">
+      <div *ngFor="let strip of imageStrip">
+        <img class="latent_image" src="{{'data:image/png;base64,' + strip.image}}">
+      </div>
+    </div>
   </div>
 </div>

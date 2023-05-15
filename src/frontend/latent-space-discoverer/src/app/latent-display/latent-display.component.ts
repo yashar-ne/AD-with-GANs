@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {BackendService} from "../services/backend.service";
 import {Observable} from "rxjs";
 import {Data} from "../models/data.model";
+import {ImageStrip} from "../models/image-strip.model";
 
 @Component({
   selector: 'latent-display',
@@ -12,6 +13,7 @@ export class LatentDisplayComponent implements OnInit{
 
   constructor(private bs: BackendService) { }
 
+  imageStrip$: Observable<Array<ImageStrip>> = this.bs.getImageStrip()
   data$: Observable<Data> = this.bs.getData()
   imageToShow: any;
   isImageLoading = false;

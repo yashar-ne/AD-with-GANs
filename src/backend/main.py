@@ -1,7 +1,9 @@
 import os
 import sys
-
+import base64
 import numpy as np
+
+from src.backend.models.ImageStrip import ImageStrip
 
 sys.path.append('../ml')
 from src.ml.latent_direction_visualizer import get_random_strip_as_numpy_array
@@ -9,9 +11,10 @@ from src.ml.latent_direction_visualizer import get_random_strip_as_numpy_array
 import io
 import uvicorn
 from PIL import Image
-from fastapi import FastAPI, Response
+from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from starlette.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
 
@@ -45,19 +48,19 @@ async def get_images():
 
 @app.get("/get_image_strip")
 async def get_image_strip():
-    byte_list = []
+    image_list = []
     img_arr = get_random_strip_as_numpy_array(os.path.abspath("../out_dir/data.npy"))
-    for i in img_arr:
+    for idx, i in enumerate(img_arr):
         two_d = (np.reshape(i, (28, 28)) * 255).astype(np.uint8)
         img = Image.fromarray(two_d, 'L')
 
         with io.BytesIO() as buf:
             img.save(buf, format='PNG')
-            im_bytes = buf.getvalue()
+            img_str = base64.b64encode(buf.getvalue())
 
-        byte_list.append(im_bytes)
+        image_list.append(ImageStrip(position=idx, image=img_str))
 
-    return Response(im_bytes)
+    return image_list
 
 
 if __name__ == "__main__":
