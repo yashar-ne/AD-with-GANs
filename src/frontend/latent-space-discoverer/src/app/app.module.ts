@@ -11,13 +11,16 @@ import {NgOptimizedImage} from "@angular/common";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatButtonModule} from "@angular/material/button";
+import { LatentDisplayControlsComponent } from './latent-display/latent-display-controls/latent-display-controls.component';
+import {MatIconModule} from "@angular/material/icon";
 
 @NgModule({
   declarations: [
     AppComponent,
     ToolbarComponent,
     ContentComponent,
-    LatentDisplayComponent
+    LatentDisplayComponent,
+    LatentDisplayControlsComponent
   ],
   imports: [
     BrowserModule,
@@ -26,7 +29,8 @@ import {MatButtonModule} from "@angular/material/button";
     NgOptimizedImage,
     BrowserAnimationsModule,
     MatSlideToggleModule,
-    MatButtonModule
+    MatButtonModule,
+    MatIconModule
   ],
   providers: [],
   bootstrap: [AppComponent]

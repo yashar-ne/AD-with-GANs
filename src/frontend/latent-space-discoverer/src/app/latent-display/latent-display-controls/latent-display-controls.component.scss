@@ -1,0 +1,19 @@
+.latent-display-controls {
+  margin: 2rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  .button {
+    margin: .3rem;
+  }
+
+  .yes {
+    background-color: #0081a7 !important;
+  }
+
+  .no {
+    background-color: brown;
+  }
+}
