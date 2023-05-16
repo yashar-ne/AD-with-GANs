@@ -41,9 +41,9 @@ async def get_sample():
     return {"message": "Stuff Is Working"}
 
 
-@app.get("/get_images")
-async def get_images():
-    return FileResponse("../../out_dir/10/0_19.jpg")
+# @app.get("/get_images")
+# async def get_images():
+    # return FileResponse("../../out_dir/10/0_19.jpg")
 
 
 @app.get("/get_image_strip")
