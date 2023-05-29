@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class ImageStrip(BaseModel):
+class ImageStripModel(BaseModel):
     position: int
     image: str

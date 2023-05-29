@@ -56,8 +56,9 @@
 	- [ ] Generate anomaly-score, based on this neighbor and found axes
 		- [ ] Use f-AnoGAN for that
 - [ ] Latent Space Explorer
-	- [ ] Train multiple batches with latent space discovery
-	- [ ] Save all batches as ndarray to file
-	- [ ] use file to randomly show a smooth dimension snippet
-	- [ ] extend BE/FE to show snippet
+	- [x] Train multiple batches with latent space discovery
+	- [x] Save all batches as ndarray to file
+	- [x] use file to randomly show a smooth dimension snippet
+	- [x] extend BE/FE to show snippet
+	- [ ] add metadata to snippet
 	- [ ] let user label snippet as anomalous/normal

@@ -9,42 +9,9 @@ import {ImageStrip} from "../models/image-strip.model";
   templateUrl: './latent-display.component.html',
   styleUrls: ['./latent-display.component.scss']
 })
-export class LatentDisplayComponent implements OnInit{
+export class LatentDisplayComponent {
 
   constructor(private bs: BackendService) { }
 
   imageStrip$: Observable<Array<ImageStrip>> = this.bs.getImageStrip()
-  data$: Observable<Data> = this.bs.getData()
-  imageToShow: any;
-  isImageLoading = false;
-
-  ngOnInit(): void {
-    this.getImageFromService()
-  }
-
-  getImageFromService() {
-      this.isImageLoading = true;
-      this.bs.getImages().subscribe({
-        next: (data) => {
-          this.createImageFromBlob(data);
-          this.isImageLoading = false;
-        },
-        error: (e) => {
-          this.isImageLoading = false;
-          console.error(e);
-        },
-        complete: () => console.info('DONE')
-      })
-  }
-  createImageFromBlob(image: Blob) {
-     let reader = new FileReader();
-     reader.addEventListener("load", () => {
-        this.imageToShow = reader.result;
-     }, false);
-
-     if (image) {
-        reader.readAsDataURL(image);
-     }
-  }
-
 }
