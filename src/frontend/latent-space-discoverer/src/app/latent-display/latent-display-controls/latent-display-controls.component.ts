@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, EventEmitter, Output} from '@angular/core';
 
 @Component({
   selector: 'latent-display-controls',
@@ -7,11 +7,13 @@ import { Component } from '@angular/core';
 })
 export class LatentDisplayControlsComponent {
 
+  @Output() yesClick = new EventEmitter();
+  @Output() noClick = new EventEmitter();
   yesHandler() {
-    console.log("YES")
+    this.yesClick.emit()
   }
 
   noHandler() {
-    console.log("NO")
+    this.noClick.emit()
   }
 }

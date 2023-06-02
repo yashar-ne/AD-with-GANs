@@ -17,3 +17,10 @@
   width: 6.5rem;
   image-rendering: pixelated;
 }
+
+.latent-display-parameter-settings-wrapper {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}

@@ -1,10 +1,42 @@
 <div class="latent-display">
-  <div *ngIf="imageStrip$ | async as imageStrip">
+  <div *ngIf="shiftedImages$ | async as imageStrip else noImages">
     <div class="latent_image_wrapper">
       <div *ngFor="let strip of imageStrip">
         <img class="latent_image" src="{{'data:image/png;base64,' + strip.image}}">
       </div>
     </div>
+    <latent-display-controls
+      (yesClick)="yesClickHandler()"
+      (noClick)="noClickHandler()">
+    </latent-display-controls>
   </div>
+  <ng-template #noImages>
+    <div *ngIf="!sessionStarted else loading">
+      <div class="latent-display-parameter-settings-wrapper">
+        <mat-form-field>
+          <mat-label>Select the range of shifts</mat-label>
+          <mat-select [(value)]="shiftRange">
+            <mat-option *ngFor="let option of shiftRangeSelectOptions"
+            [value]="option">
+              {{option}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Select the number of shifts</mat-label>
+          <mat-select [(value)]="shiftCount">
+            <mat-option *ngFor="let option of shiftCountSelectOptions"
+            [value]="option">
+              {{option}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-raised-button color="primary" (click)="startHandler()">Start</button>
+      </div>
+    </div>
+    <ng-template #loading>
+      <p>loading next images...</p>
+    </ng-template>
+  </ng-template>
+
 </div>
-<latent-display-controls></latent-display-controls>

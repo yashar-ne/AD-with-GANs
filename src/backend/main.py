@@ -1,18 +1,14 @@
-import os
 import sys
-import base64
-import numpy as np
 
-from src.backend.models.ImageStripModel import ImageStripModel
+import torch
+
+from src.backend.models.GetRandomNoiseModel import GetRandomNoiseModel
 from src.backend.models.GetShiftedImagesModel import GetShiftedImagesModel
 from src.backend.controller.main_controller import MainController
 
 sys.path.append('../ml')
-from src.ml.latent_direction_visualizer import get_random_strip_as_numpy_array
 
-import io
 import uvicorn
-from PIL import Image
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
@@ -27,15 +23,25 @@ app.add_middleware(
 )
 
 
-
 @app.get("/get_image_strip")
 async def get_image_strip():
     return main_controller.get_image_strip()
 
 
+@app.post("/get_random_noise")
+async def get_shifted_images(body: GetRandomNoiseModel):
+    z = main_controller.get_random_noise(body.dim)
+    return torch.squeeze(z).tolist()
+
+
 @app.post("/get_shifted_images")
 async def get_shifted_images(body: GetShiftedImagesModel):
     return main_controller.get_shifted_images(body.z, body.shifts_range, body.shifts_count, body.dim)
+
+
+@app.get("/save_to_db")
+async def save_to_db():
+    return main_controller.save_to_db()
 
 
 if __name__ == "__main__":
