@@ -12,9 +12,9 @@ from src.ml.models.reconstructor import Reconstructor
 from src.ml.tools.utils import generate_noise
 
 
-class LatentDirectionDiscoverer:
+class LatentDirectionExplorer:
     def __init__(self, z_dim, directions_count, latent_dim, batch_size, device, saved_models_path='../saved_models'):
-        super(LatentDirectionDiscoverer, self).__init__()
+        super(LatentDirectionExplorer, self).__init__()
         self.min_shift = 0.5
         self.shift_scale = 6.0
         self.matrix_a_lr = 0.002

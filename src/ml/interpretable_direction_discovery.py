@@ -3,7 +3,7 @@ import sys
 
 sys.path.append('./ml/tools')
 import torch
-from latent_direction_discoverer import LatentDirectionDiscoverer
+from latent_direction_explorer import LatentDirectionExplorer
 from latent_direction_visualizer import LatentDirectionVisualizer, get_random_strip_as_numpy_array
 from tools.utils import generate_noise
 from tools.ano_mnist_dataset_generator import get_ano_mnist_dataset
@@ -18,7 +18,7 @@ transform = transforms.Compose([
 ])
 
 dataset = get_ano_mnist_dataset(transform=transform, root_dir=os.path.abspath("../data"))
-trainer = LatentDirectionDiscoverer(z_dim=100, latent_dim=100, directions_count=100, batch_size=1, device=device)
+trainer = LatentDirectionExplorer(z_dim=100, latent_dim=100, directions_count=100, batch_size=1, device=device)
 visualizer = LatentDirectionVisualizer(matrix_a=trainer.matrix_a, generator=trainer.g, device=device)
 
 trainer.load_generator(os.path.abspath("../saved_models/generator.pkl"))
