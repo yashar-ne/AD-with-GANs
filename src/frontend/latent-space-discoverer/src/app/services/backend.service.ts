@@ -4,6 +4,7 @@ import {Observable} from "rxjs";
 import {ImageStrip} from "../models/image-strip.model";
 import {GetShiftedImages} from "../models/get-shifted-images.model";
 import {GetRandomNoise} from "../models/get-random-noise.model";
+import {SaveLabelToDbModel} from "../models/save-label-to-db-model.model";
 
 @Injectable({
   providedIn: 'root'
@@ -27,8 +28,8 @@ export class BackendService {
     return this.httpClient.post<Array<ImageStrip>>(`${this.api_root}/get_shifted_images`, getShiftedImages, { responseType: 'json' })
   }
 
-  saveToDb(): Observable<boolean> {
+  saveToDb(saveLabelToDbModel: SaveLabelToDbModel): Observable<boolean> {
     console.log("Calling save_to_db endpoint")
-    return this.httpClient.get<boolean>(`${this.api_root}/save_to_db`, { responseType: 'json' })
+    return this.httpClient.post<boolean>(`${this.api_root}/save_to_db`, saveLabelToDbModel, { responseType: 'json' })
   }
 }

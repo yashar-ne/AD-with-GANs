@@ -1,5 +1,6 @@
 .latent-display{
   width: 80rem;
+  min-height: 50rem;
   background-color: #00afb9;
   display:flex;
   align-items: center;
@@ -10,11 +11,13 @@
   margin: 8rem;
   display: flex;
   flex-direction: row;
+  width: 80rem;
+  flex-wrap: wrap;
 }
 
 .latent_image {
   margin: .3rem;
-  width: 6.5rem;
+  width: 8rem;
   image-rendering: pixelated;
 }
 

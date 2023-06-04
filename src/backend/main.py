@@ -2,6 +2,7 @@ import sys
 
 import torch
 
+from src.backend.models.SaveLabelToDbModel import SaveLabelToDbModel
 from src.backend.models.GetRandomNoiseModel import GetRandomNoiseModel
 from src.backend.models.GetShiftedImagesModel import GetShiftedImagesModel
 from src.backend.controller.main_controller import MainController
@@ -39,9 +40,9 @@ async def get_shifted_images(body: GetShiftedImagesModel):
     return main_controller.get_shifted_images(body.z, body.shifts_range, body.shifts_count, body.dim)
 
 
-@app.get("/save_to_db")
-async def save_to_db():
-    return main_controller.save_to_db()
+@app.post("/save_to_db")
+async def save_to_db(body: SaveLabelToDbModel):
+    return main_controller.save_to_db(z=body.z, shifts_count=body.shifts_count, shifts_range=body.shifts_range, dim=body.dim, is_anomaly=body.is_anomaly)
 
 
 if __name__ == "__main__":

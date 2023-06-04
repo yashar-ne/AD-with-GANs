@@ -4,9 +4,8 @@ import numpy as np
 import base64
 import io
 from PIL import Image
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 
+from src.backend.db import save_to_db
 from src.ml.latent_direction_visualizer import LatentDirectionVisualizer, get_random_strip_as_numpy_array
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
@@ -22,7 +21,8 @@ class MainController:
         self.g.load_state_dict(torch.load(generator_path, map_location=torch.device(self.device)))
         self.matrix_a: MatrixALinear = MatrixALinear(input_dim=self.z_dim, output_dim=self.z_dim)
 
-    def get_image_strip(self):
+    @staticmethod
+    def get_image_strip():
         image_list = []
         img_arr = get_random_strip_as_numpy_array(os.path.abspath("../out_dir/data.npy"))
         for idx, i in enumerate(img_arr):
@@ -55,16 +55,9 @@ class MainController:
 
         return image_list
 
-    def save_to_db(self):
-        uri = "mongodb+srv://admin_lse:5bKIwnZbTM7sGDjh@cluster0.6gyi8ct.mongodb.net/?retryWrites=true&w=majority"
-        client = MongoClient(uri, server_api=ServerApi('1'))
-        try:
-            client.admin.command('ping')
-            print("Pinged your deployment. You successfully connected to MongoDB!")
-            return True
-        except Exception as e:
-            print(e)
-            return False
+    @staticmethod
+    def save_to_db(z, shifts_range, shifts_count, dim, is_anomaly):
+        save_to_db(z=z, shifts_range=shifts_range, shifts_count=shifts_count, dim=dim, is_anomaly=is_anomaly)
 
     def get_random_noise(self, z_dim):
         return generate_noise(batch_size=1, z_dim=z_dim, device=self.device)

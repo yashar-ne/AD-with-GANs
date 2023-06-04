@@ -19,6 +19,7 @@ export class LatentDisplayComponent implements OnInit, OnDestroy {
   z: number[] = []
   shiftRange: number = 5
   shiftCount: number = 5
+  dim = 0
   shiftedImages$: Observable<Array<ImageStrip>> | undefined
 
   constructor(private bs: BackendService) {}
@@ -30,8 +31,9 @@ export class LatentDisplayComponent implements OnInit, OnDestroy {
   }
 
   updateImages() {
+    this. dim = Math.floor(Math.random() * 100)
     this.shiftedImages$ = this.bs.getShiftedImages({
-      dim: Math.floor(Math.random() * 100),
+      dim: this.dim,
       z: this.z,
       shifts_count: this.shiftCount,
       shifts_range: this.shiftRange,
@@ -46,19 +48,25 @@ export class LatentDisplayComponent implements OnInit, OnDestroy {
 
   yesClickHandler() {
     console.log("YES")
-    this.saveToDb()
+    this.saveToDb(true)
     this.updateImages()
   }
 
   noClickHandler() {
     console.log("NO")
-    this.saveToDb()
+    this.saveToDb(false)
     this.updateImages()
   }
 
-  saveToDb() {
+  saveToDb(label: boolean) {
     console.log("Saving to DB")
-    this.bs.saveToDb()
+    this.bs.saveToDb({
+      z: this.z,
+      shifts_count: this.shiftCount,
+      shifts_range: this.shiftRange,
+      dim: this.dim,
+      is_anomaly: label
+    })
       .pipe(take(1))
       .subscribe((value) => {console.log(value)})
   }
