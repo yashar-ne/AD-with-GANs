@@ -1,6 +1,6 @@
 <div class="latent-display">
   <div *ngIf="shiftedImages$ | async as imageStrip else noImages">
-    <div *ngIf="dim > maxdim else sessionDone">
+    <div *ngIf="dim < maxdim else sessionDone">
       <div class="latent_image_wrapper">
         <div *ngFor="let strip of imageStrip">
           <img class="latent_image" src="{{'data:image/png;base64,' + strip.image}}">
