@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
-from ano_mnist import AnoMNIST
+from src.ml.tools.ano_mnist import AnoMNIST
 from torchvision import datasets
 import torch
 
@@ -109,6 +109,6 @@ def get_ano_mnist_dataset(transform, root_dir, include_digitals=True, labels=[])
     return dataset
 
 
-dataset = get_ano_mnist_dataset(transform=None, root_dir="../data", labels=[9])
+dataset = get_ano_mnist_dataset(transform=None, root_dir="../../data", labels=[9])
 
 print(len(dataset))

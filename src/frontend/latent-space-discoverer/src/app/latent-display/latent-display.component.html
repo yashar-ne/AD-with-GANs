@@ -1,14 +1,31 @@
 <div class="latent-display">
   <div *ngIf="shiftedImages$ | async as imageStrip else noImages">
-    <div class="latent_image_wrapper">
-      <div *ngFor="let strip of imageStrip">
-        <img class="latent_image" src="{{'data:image/png;base64,' + strip.image}}">
+    <div *ngIf="dim > maxdim else sessionDone">
+      <div class="latent_image_wrapper">
+        <div *ngFor="let strip of imageStrip">
+          <img class="latent_image" src="{{'data:image/png;base64,' + strip.image}}">
+        </div>
+<!--        <p>{{dim}}/{{maxdim}}</p>-->
       </div>
+      <latent-display-controls
+        (yesClick)="yesClickHandler()"
+        (noClick)="noClickHandler()">
+      </latent-display-controls>
     </div>
-    <latent-display-controls
-      (yesClick)="yesClickHandler()"
-      (noClick)="noClickHandler()">
-    </latent-display-controls>
+    <ng-template #sessionDone>
+      <div class="done-wrapper">
+        <div>Session done. You successfully labeled all dimensions!</div>
+        <button
+          class="button yes"
+          mat-fab
+          color="accent"
+          color="primary"
+          (click)="restartHandler()"
+        >
+          <mat-icon>replay</mat-icon>
+        </button>
+      </div>
+    </ng-template>
   </div>
   <ng-template #noImages>
     <div *ngIf="!sessionStarted else loading">

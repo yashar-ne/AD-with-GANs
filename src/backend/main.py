@@ -13,7 +13,10 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-main_controller: MainController = MainController(generator_path="../saved_models/generator.pkl", z_dim=100)
+main_controller: MainController = MainController(generator_path="../saved_models/generator.pkl",
+                                                 matrix_a_path="../saved_models/matrix_a_after_pca.pkl",
+                                                 z_dim=100,
+                                                 )
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,

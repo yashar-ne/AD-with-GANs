@@ -7,7 +7,7 @@ import torch
 
 from torchvision.utils import make_grid
 from src.ml.models.generator import Generator
-from src.ml.models.matrix_a import MatrixA
+from src.ml.models.matrix_a_linear import MatrixALinear
 from src.ml.tools.utils import one_hot, to_image, generate_noise
 from PIL import Image
 
@@ -21,10 +21,10 @@ def get_random_strip_as_numpy_array(file_path):
 
 
 class LatentDirectionVisualizer:
-    def __init__(self, generator: Generator, matrix_a: MatrixA, device):
+    def __init__(self, generator: Generator, matrix_a_linear: MatrixALinear, device):
         super(LatentDirectionVisualizer, self).__init__()
         self.g: Generator = generator
-        self.matrix_a: MatrixA = matrix_a
+        self.matrix_a_linear: MatrixALinear = matrix_a_linear
         self.dim = self.g.size_z
         self.device = device
         self.data = []
@@ -91,7 +91,7 @@ class LatentDirectionVisualizer:
             ax.imshow(to_image(make_grid(shifts_images, nrow=(2 * shifts_count + 1), padding=1)))
             ax.text(-20, 21, str(text), fontsize=10)
 
-        self.matrix_a.train()
+        self.matrix_a_linear.train()
 
         return fig, images
 
@@ -99,7 +99,11 @@ class LatentDirectionVisualizer:
     def create_shifted_images(self, z, shifts_range, shifts_count, dim):
         shifted_images = []
         for shift in np.arange(-shifts_range, shifts_range + 1e-9, shifts_range / shifts_count):
-            latent_shift = self.matrix_a(one_hot(dims=self.matrix_a.input_dim, value=shift, index=dim).to(self.device))
+            # one_hot obtains a vector with the shift value at the dimension that is supposed to be shifted
+            # since matrix_a_linear is only a linear transformation of that vector, the result will be the by value shifted vector
+            # at the dimension (index) of the value in the one-hot vector
+            shift_vector = one_hot(dims=self.matrix_a_linear.input_dim, value=shift, index=dim).to(self.device)
+            latent_shift = self.matrix_a_linear(shift_vector)
             shifted_image = self.g.gen_shifted(z, latent_shift).cpu()[0]
             shifted_images.append(shifted_image)
 

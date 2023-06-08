@@ -14,12 +14,13 @@ from src.ml.tools.utils import generate_noise
 
 
 class MainController:
-    def __init__(self, generator_path, z_dim):
+    def __init__(self, generator_path, matrix_a_path, z_dim, bias=False):
         self.z_dim = z_dim
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.g: Generator = Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1)
         self.g.load_state_dict(torch.load(generator_path, map_location=torch.device(self.device)))
-        self.matrix_a: MatrixALinear = MatrixALinear(input_dim=self.z_dim, output_dim=self.z_dim)
+        self.matrix_a_linear: MatrixALinear = MatrixALinear(input_dim=10, output_dim=100, bias=bias)
+        self.matrix_a_linear.load_state_dict(torch.load(matrix_a_path, map_location=torch.device(self.device)))
 
     @staticmethod
     def get_image_strip():
@@ -40,7 +41,7 @@ class MainController:
     def get_shifted_images(self, z, shifts_range, shifts_count, dim):
         image_list = []
         z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(z), 0), -1), 2)
-        visualizer = LatentDirectionVisualizer(matrix_a=self.matrix_a, generator=self.g, device=self.device)
+        visualizer = LatentDirectionVisualizer(matrix_a_linear=self.matrix_a_linear, generator=self.g, device=self.device)
         shifted_images = visualizer.create_shifted_images(z, shifts_range, shifts_count, dim)
 
         for idx, i in enumerate(shifted_images):

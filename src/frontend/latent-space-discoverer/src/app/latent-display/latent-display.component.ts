@@ -11,15 +11,16 @@ import {ImageStrip} from "../models/image-strip.model";
 export class LatentDisplayComponent implements OnInit, OnDestroy {
 
   sessionStarted: boolean = false
-  shiftRangeSelectOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-  shiftCountSelectOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  shiftRangeSelectOptions: number[] = Array.from(Array(100).keys())
+  shiftCountSelectOptions: number[] = Array.from(Array(11).keys())
 
   subscriptionZ$: Subscription | undefined
 
   z: number[] = []
-  shiftRange: number = 5
+  shiftRange: number = 20
   shiftCount: number = 5
-  dim = 0
+  dim: number = -1
+  maxdim: number = 9
   shiftedImages$: Observable<Array<ImageStrip>> | undefined
 
   constructor(private bs: BackendService) {}
@@ -31,7 +32,7 @@ export class LatentDisplayComponent implements OnInit, OnDestroy {
   }
 
   updateImages() {
-    this. dim = Math.floor(Math.random() * 100)
+    this.dim = ++this.dim
     this.shiftedImages$ = this.bs.getShiftedImages({
       dim: this.dim,
       z: this.z,
@@ -69,6 +70,10 @@ export class LatentDisplayComponent implements OnInit, OnDestroy {
     })
       .pipe(take(1))
       .subscribe((value) => {console.log(value)})
+  }
+
+  restartHandler() {
+    location.reload()
   }
 
   ngOnDestroy(): void {

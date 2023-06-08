@@ -13,7 +13,8 @@ from src.ml.tools.utils import generate_noise
 
 
 class LatentDirectionExplorer:
-    def __init__(self, z_dim, directions_count, latent_dim, batch_size, device, saved_models_path='../saved_models'):
+    def __init__(self, z_dim, directions_count, latent_dim, batch_size, device, bias=True,
+                 saved_models_path='../../saved_models'):
         super(LatentDirectionExplorer, self).__init__()
         self.min_shift = 0.5
         self.shift_scale = 6.0
@@ -33,7 +34,7 @@ class LatentDirectionExplorer:
         self.g: Generator = Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1)
 
         # init MatrixA
-        self.matrix_a = MatrixALinear(input_dim=self.directions_count, output_dim=latent_dim)
+        self.matrix_a = MatrixALinear(input_dim=self.directions_count, bias=bias, output_dim=latent_dim)
 
         # init Reconstructor
         self.reconstructor = Reconstructor(dim=self.matrix_a.input_dim)
@@ -59,22 +60,15 @@ class LatentDirectionExplorer:
 
             # cast random noise z
             z = generate_noise(batch_size=self.batch_size, z_dim=self.z_dim, device=self.device)
-            target_indices, shifts, basis_shift = self.__make_shifts(self.matrix_a.input_dim,
-                                                                     self.batch_size)
 
+            # generate shifts
             # cast random integer that represents the k^th column  --> e_k
+            target_indices, shifts, basis_shift = self.__make_shifts(self.matrix_a.input_dim, self.batch_size)
             shift = self.matrix_a(basis_shift)
 
             # generate images --> from z and from z + A(epsilon * e_k)
             images = self.g(z)
             images_shifted = self.g.gen_shifted(z, shift)
-
-            # n = transforms.Normalize(mean=(.5,), std=(.5,))
-            # to_pil = transforms.ToPILImage()
-            #
-            # img = n(images[0])
-            # img = to_pil(img)
-            # img.show()
 
             logits, shift_prediction = self.reconstructor(images, images_shifted)
             logit_loss = self.label_weight * self.cross_entropy(logits, target_indices)
@@ -102,7 +96,10 @@ class LatentDirectionExplorer:
 
     def __make_shifts(self, latent_dim, batch_size):
         target_indices = torch.randint(0, self.directions_count, [batch_size])
-        shifts = 2.0 * torch.rand(target_indices.shape) - 1.0
+
+        # Casting from uniform distribution
+        # See https://github.com/anvoynov/GANLatentDiscovery/blob/5ca8d67bce8dcb9a51de07c98e2d3a0d6ab69fe3/trainer.py#L75
+        shifts = 2.0 * torch.rand(target_indices.shape, device=self.device) - 1.0
 
         shifts = self.shift_scale * shifts
         shifts[(shifts < self.min_shift) & (shifts > 0)] = self.min_shift
@@ -115,6 +112,7 @@ class LatentDirectionExplorer:
         return target_indices, shifts, z_shift
 
     def __save_models(self):
+        print("Saving models...")
         torch.save(self.matrix_a.state_dict(), f'{self.saved_models_path}/matrix_a.pkl')
         torch.save(self.reconstructor.state_dict(), f'{self.saved_models_path}/reconstructor.pkl')
 
@@ -123,5 +121,6 @@ class LatentDirectionExplorer:
         torch.save(self.reconstructor.state_dict(),
                    f'{self.saved_models_path}/cp/reconstructor_{time.time()}_{iteration}.pkl')
 
+    @staticmethod
     def __load_models_from_checkpoints(self):
         print("loading models...")
