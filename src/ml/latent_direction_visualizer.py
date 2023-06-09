@@ -102,8 +102,11 @@ class LatentDirectionVisualizer:
             # one_hot obtains a vector with the shift value at the dimension that is supposed to be shifted
             # since matrix_a_linear is only a linear transformation of that vector, the result will be the by value shifted vector
             # at the dimension (index) of the value in the one-hot vector
+
             shift_vector = one_hot(dims=self.matrix_a_linear.input_dim, value=shift, index=dim).to(self.device)
             latent_shift = self.matrix_a_linear(shift_vector)
+
+
             shifted_image = self.g.gen_shifted(z, latent_shift).cpu()[0]
             shifted_images.append(shifted_image)
 

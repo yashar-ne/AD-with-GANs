@@ -10,18 +10,18 @@ import {ImageStrip} from "../models/image-strip.model";
 })
 export class LatentDisplayComponent implements OnInit, OnDestroy {
 
+  subscriptionZ$: Subscription | undefined
+  shiftedImages$: Observable<Array<ImageStrip>> | undefined
+
   sessionStarted: boolean = false
   shiftRangeSelectOptions: number[] = Array.from(Array(100).keys())
   shiftCountSelectOptions: number[] = Array.from(Array(11).keys())
-
-  subscriptionZ$: Subscription | undefined
 
   z: number[] = []
   shiftRange: number = 20
   shiftCount: number = 5
   dim: number = -1
   maxdim: number = 9
-  shiftedImages$: Observable<Array<ImageStrip>> | undefined
 
   constructor(private bs: BackendService) {}
 
