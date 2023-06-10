@@ -1,22 +1,13 @@
-.latent-display{
-  min-height: 50rem;
-  background-color: #00afb9;
-  display:flex;
-  align-items: center;
+.session-label-counter {
+  margin-top: 5rem;
+  display: flex;
   justify-content: center;
-  border-radius: 10px;
-
-  .session-label-counter {
-    margin-top: 5rem;
-    display: flex;
-    justify-content: center;
-    color: azure;
-    font-size: large;
-  }
+  color: azure;
+  font-size: large;
 }
 
 .latent_image_wrapper {
-  margin: 8rem;
+  margin: 5rem;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;

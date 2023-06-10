@@ -7,8 +7,14 @@
   align-items: center;
   justify-content: center;
 
-  latent-display {
+  .content-wrapper {
     width: 80%;
+    min-height: 50rem;
+    background-color: #00afb9;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
   }
 }
 

@@ -1,3 +1,25 @@
 <div class="content">
-  <latent-display></latent-display>
+  <div class="content-wrapper">
+    <ng-container *ngIf="!sessionStarted">
+      <configuration
+        [shiftCount]="shiftCount"
+        [shiftRange]="shiftRange"
+        [shiftCountSelectOptions]="shiftCountSelectOptions"
+        [shiftRangeSelectOptions]="shiftRangeSelectOptions"
+        (startHandler)="startHandler()">
+      </configuration>
+    </ng-container>
+    <ng-container *ngIf="sessionStarted">
+      <latent-display
+        [shiftedImages$]="shiftedImages$"
+        [dim]="dim"
+        [maxdim]="maxdim"
+        [shiftCount]="shiftCount"
+        [shiftRange]="shiftRange"
+        [shiftCountSelectOptions]="shiftCountSelectOptions"
+        [shiftRangeSelectOptions]="shiftRangeSelectOptions"
+        (updateImages)="updateImages()"
+      ></latent-display>
+    </ng-container>
+  </div>
 </div>

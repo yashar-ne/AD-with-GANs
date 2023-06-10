@@ -28,29 +28,6 @@
     </ng-template>
   </div>
   <ng-template #noImages>
-    <div *ngIf="!sessionStarted else loading">
-      <div class="latent-display-parameter-settings-wrapper">
-        <mat-form-field>
-          <mat-label>Select the range of shifts</mat-label>
-          <mat-select [(value)]="shiftRange">
-            <mat-option *ngFor="let option of shiftRangeSelectOptions"
-            [value]="option">
-              {{option}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field>
-          <mat-label>Select the number of shifts</mat-label>
-          <mat-select [(value)]="shiftCount">
-            <mat-option *ngFor="let option of shiftCountSelectOptions"
-            [value]="option">
-              {{option}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <button mat-raised-button color="primary" (click)="startHandler()">Start</button>
-      </div>
-    </div>
     <ng-template #loading>
       <p class="loading-wrapper">loading next images...</p>
     </ng-template>

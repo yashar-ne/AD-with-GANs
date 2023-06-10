@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {BackendService} from "../services/backend.service";
 import {map, Observable, Subscription, take} from "rxjs";
 import {ImageStrip} from "../models/image-strip.model";
@@ -8,59 +8,33 @@ import {ImageStrip} from "../models/image-strip.model";
   templateUrl: './latent-display.component.html',
   styleUrls: ['./latent-display.component.scss']
 })
-export class LatentDisplayComponent implements OnInit, OnDestroy {
+export class LatentDisplayComponent {
 
-  subscriptionZ$: Subscription | undefined
-  shiftedImages$: Observable<Array<ImageStrip>> | undefined
+  @Input() shiftedImages$: Observable<Array<ImageStrip>> | undefined
 
-  sessionStarted: boolean = false
-  shiftRangeSelectOptions: number[] = Array.from(Array(100).keys())
-  shiftCountSelectOptions: number[] = Array.from(Array(21).keys())
+  @Input() z: number[] = [];
+  @Input() shiftRange: number = 0;
+  @Input() shiftRangeSelectOptions: number[] = [];
+  @Input() shiftCount: number = 0;
+  @Input() shiftCountSelectOptions: number[] = [];
+  @Input() dim: number = 0;
+  @Input() maxdim: number = 0;
 
-  z: number[] = []
-  shiftRange: number = 20
-  shiftCount: number = 10
-  dim: number = -1
-  maxdim: number = 10
+  @Output() updateImages: EventEmitter<any> = new EventEmitter();
 
   constructor(private bs: BackendService) {}
 
-  ngOnInit(): void {
-    this.subscriptionZ$ = this.bs.getRandomNoise({dim: 100})
-      .pipe(take(1))
-      .subscribe((z) => {this.z = z; console.log(z)})
-  }
-
-  updateImages() {
-    this.shiftedImages$ = this.bs.getShiftedImages({
-      dim: this.dim,
-      z: this.z,
-      shifts_count: this.shiftCount,
-      shifts_range: this.shiftRange,
-    })
-    this.dim++
-  }
-
-  startHandler() {
-    this.sessionStarted = true
-    this.updateImages()
-  }
-
-
   yesClickHandler() {
-    console.log("YES")
     this.saveToDb(true)
-    this.updateImages()
+    this.updateImages.emit()
   }
 
   noClickHandler() {
-    console.log("NO")
     this.saveToDb(false)
-    this.updateImages()
+    this.updateImages.emit()
   }
 
   saveToDb(label: boolean) {
-    console.log("Saving to DB")
     this.bs.saveToDb({
       z: this.z,
       shifts_count: this.shiftCount,
@@ -74,9 +48,5 @@ export class LatentDisplayComponent implements OnInit, OnDestroy {
 
   restartHandler() {
     location.reload()
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptionZ$?.unsubscribe()
   }
 }
