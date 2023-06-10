@@ -15,13 +15,13 @@ export class LatentDisplayComponent implements OnInit, OnDestroy {
 
   sessionStarted: boolean = false
   shiftRangeSelectOptions: number[] = Array.from(Array(100).keys())
-  shiftCountSelectOptions: number[] = Array.from(Array(11).keys())
+  shiftCountSelectOptions: number[] = Array.from(Array(21).keys())
 
   z: number[] = []
   shiftRange: number = 20
-  shiftCount: number = 5
+  shiftCount: number = 10
   dim: number = -1
-  maxdim: number = 9
+  maxdim: number = 10
 
   constructor(private bs: BackendService) {}
 
@@ -32,13 +32,13 @@ export class LatentDisplayComponent implements OnInit, OnDestroy {
   }
 
   updateImages() {
-    this.dim = ++this.dim
     this.shiftedImages$ = this.bs.getShiftedImages({
       dim: this.dim,
       z: this.z,
       shifts_count: this.shiftCount,
       shifts_range: this.shiftRange,
     })
+    this.dim++
   }
 
   startHandler() {
