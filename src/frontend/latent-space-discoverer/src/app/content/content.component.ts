@@ -20,12 +20,12 @@ export class ContentComponent implements OnInit, OnDestroy {
   shiftRange: number = 10
   shiftCount: number = 10
   dim: number = -1
-  maxdim: number = 0
+  maxdim: number = 100
 
-  usePCA: boolean = false
+  usePCA: boolean = true
   pcaComponentCount: number = 20
   pcaSkippedComponentsCount: number = 3
-  pcaUseStandardScaler: boolean = false
+  pcaUseStandardScaler: boolean = true
 
   constructor(private bs: BackendService) {}
 

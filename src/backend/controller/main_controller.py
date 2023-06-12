@@ -10,9 +10,7 @@ from src.ml.latent_direction_visualizer import LatentDirectionVisualizer, get_ra
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
 from src.backend.models.ImageStripModel import ImageStripModel
-from src.ml.tools.utils import generate_noise
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
+from src.ml.tools.utils import generate_noise, apply_pca
 
 
 class MainController:
@@ -24,31 +22,13 @@ class MainController:
         self.matrix_a_linear: MatrixALinear = MatrixALinear(input_dim=100, output_dim=100, bias=bias)
         self.matrix_a_linear.load_state_dict(torch.load(matrix_a_path, map_location=torch.device(self.device)))
 
-    @staticmethod
-    def get_image_strip():
-        image_list = []
-        img_arr = get_random_strip_as_numpy_array(os.path.abspath("../out_dir/data.npy"))
-        for idx, i in enumerate(img_arr):
-            two_d = (np.reshape(i, (28, 28)) * 255).astype(np.uint8)
-            img = Image.fromarray(two_d, 'L')
-
-            with io.BytesIO() as buf:
-                img.save(buf, format='PNG')
-                img_str = base64.b64encode(buf.getvalue())
-
-            image_list.append(ImageStripModel(position=idx, image=img_str))
-
-        return image_list
-
     def get_shifted_images(self, z, shifts_range, shifts_count, dim, pca_component_count=0,
                            pca_skipped_components_count=0, pca_apply_standard_scaler=False):
         image_list = []
         z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(z), 0), -1), 2)
-
-        if pca_component_count > 0:
-            a = self.__apply_pca(pca_component_count, pca_skipped_components_count, pca_apply_standard_scaler)
-        else:
-            a = self.matrix_a_linear
+        a = apply_pca(self.matrix_a_linear, pca_component_count, pca_skipped_components_count, pca_apply_standard_scaler)\
+            if pca_component_count > 0\
+            else self.matrix_a_linear
 
         visualizer = LatentDirectionVisualizer(matrix_a_linear=a, generator=self.g, device=self.device)
         shifted_images = visualizer.create_shifted_images(z, shifts_range, shifts_count, dim)
@@ -65,23 +45,21 @@ class MainController:
 
         return image_list
 
-    def __apply_pca(self, component_count, skipped_components_count, apply_standard_scaler):
-        matrix_a_np = self.matrix_a_linear.linear.weight.data.numpy()
+    @staticmethod
+    def get_image_strip_from_prerendered_sample():
+        image_list = []
+        img_arr = get_random_strip_as_numpy_array(os.path.abspath("../out_dir/data.npy"))
+        for idx, i in enumerate(img_arr):
+            two_d = (np.reshape(i, (28, 28)) * 255).astype(np.uint8)
+            img = Image.fromarray(two_d, 'L')
 
-        if apply_standard_scaler:
-            matrix_a_np = StandardScaler().fit_transform(matrix_a_np)
-        pca = PCA(n_components=component_count+skipped_components_count)
-        principal_components = pca.fit_transform(matrix_a_np)
-        principal_components = principal_components[:, skipped_components_count:]
+            with io.BytesIO() as buf:
+                img.save(buf, format='PNG')
+                img_str = base64.b64encode(buf.getvalue())
 
-        new_weights = torch.from_numpy(principal_components)
-        matrix_a_linear_after_pca = MatrixALinear(input_dim=component_count, output_dim=100, bias=False)
-        new_dict = {
-            'linear.weight': new_weights
-        }
-        matrix_a_linear_after_pca.load_state_dict(new_dict)
+            image_list.append(ImageStripModel(position=idx, image=img_str))
 
-        return matrix_a_linear_after_pca
+        return image_list
 
     @staticmethod
     def save_to_db(z, shifts_range, shifts_count, dim, is_anomaly):

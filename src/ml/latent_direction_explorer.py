@@ -39,7 +39,7 @@ class LatentDirectionExplorer:
         # init Reconstructor
         self.reconstructor = Reconstructor(dim=self.matrix_a.input_dim)
 
-    def train(self, num_steps=1000):
+    def train_and_save(self, num_steps=1000):
         # init optimizers for MatrixA, Reconstructor
         matrix_a_opt = torch.optim.Adam(self.matrix_a.parameters(), lr=self.matrix_a_lr)
         reconstructor_opt = torch.optim.Adam(self.reconstructor.parameters(), lr=self.reconstructor_lr)

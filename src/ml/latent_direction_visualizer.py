@@ -4,6 +4,7 @@ import random
 from matplotlib import pyplot as plt
 import numpy as np
 import torch
+from torch.nn.functional import normalize
 
 from torchvision.utils import make_grid
 from src.ml.models.generator import Generator
@@ -105,7 +106,6 @@ class LatentDirectionVisualizer:
 
             shift_vector = one_hot(dims=self.matrix_a_linear.input_dim, value=shift, index=dim).to(self.device)
             latent_shift = self.matrix_a_linear(shift_vector)
-
 
             shifted_image = self.g.gen_shifted(z, latent_shift).cpu()[0]
             shifted_images.append(shifted_image)

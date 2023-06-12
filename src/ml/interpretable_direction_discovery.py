@@ -26,7 +26,7 @@ trainer = LatentDirectionExplorer(z_dim=100, latent_dim=100, directions_count=10
 visualizer = LatentDirectionVisualizer(matrix_a_linear=trainer.matrix_a, generator=trainer.g, device=device)
 
 trainer.load_generator(os.path.abspath("../../saved_models/generator.pkl"))
-trainer.train(num_steps=10000)
+trainer.train_and_save(num_steps=5000)
 
 # noise_batches = generate_noise(batch_size=4, z_dim=100, device=device)
 # visualizer.visualize(noise_batches=noise_batches, shifts_range=10, output_directory=os.path.abspath("../out_dir"))

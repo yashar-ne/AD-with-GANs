@@ -13,11 +13,6 @@ export class BackendService {
   api_root: string = 'http://127.0.0.1:8000'
   constructor(private httpClient: HttpClient) { }
 
-  getImageStrip(): Observable<Array<ImageStrip>> {
-    console.log("Getting Image-Strip")
-    return this.httpClient.get<Array<ImageStrip>>(`${this.api_root}/get_image_strip`, { responseType: 'json' })
-  }
-
   getRandomNoise(getRandomNoise: GetRandomNoise): Observable<Array<number>> {
     console.log("Getting Random Noise")
     return this.httpClient.post<Array<number>>(`${this.api_root}/get_random_noise`, getRandomNoise, { responseType: 'json' })
@@ -31,5 +26,10 @@ export class BackendService {
   saveToDb(saveLabelToDbModel: SaveLabelToDbModel): Observable<boolean> {
     console.log("Calling save_to_db endpoint")
     return this.httpClient.post<boolean>(`${this.api_root}/save_to_db`, saveLabelToDbModel, { responseType: 'json' })
+  }
+
+  getImageStripFromPrerenderedSample(): Observable<Array<ImageStrip>> {
+    console.log("Getting Image-Strip")
+    return this.httpClient.get<Array<ImageStrip>>(`${this.api_root}/get_image_strip_from_prerendered_sample`, { responseType: 'json' })
   }
 }
