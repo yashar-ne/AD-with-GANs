@@ -1,7 +1,7 @@
 <div class="latent-display-parameter-settings-wrapper">
   <mat-form-field>
     <mat-label>Select the range of shifts</mat-label>
-    <mat-select [(value)]="shiftRange">
+    <mat-select [(ngModel)]="shiftRange" (selectionChange)="onShiftRangeChange($event)">
       <mat-option *ngFor="let option of shiftRangeSelectOptions" [value]="option">
         {{option}}
       </mat-option>
@@ -9,11 +9,24 @@
   </mat-form-field>
   <mat-form-field>
     <mat-label>Select the number of shifts</mat-label>
-    <mat-select [(value)]="shiftCount">
+    <mat-select [(ngModel)]="shiftCount" (selectionChange)="onShiftCountChange($event)">
       <mat-option *ngFor="let option of shiftCountSelectOptions" [value]="option">
         {{option}}
       </mat-option>
     </mat-select>
   </mat-form-field>
+  <mat-checkbox [(ngModel)]="usePCA" (change)="onUsePCAChange($event)">Use PCA</mat-checkbox>
+  <ng-container *ngIf="usePCA">
+    <mat-form-field class="example-full-width">
+      <mat-label>PCA Components</mat-label>
+      <input [(ngModel)]="pcaComponentCount" (ngModelChange)="onPcaComponentCountChange($event)" matInput type="number" min="1" max="100">
+    </mat-form-field>
+    <mat-form-field class="example-full-width">
+      <mat-label>Skip Components</mat-label>
+      <input [(ngModel)]="pcaSkippedComponentsCount" (ngModelChange)="onPcaSkippedComponentCountChange($event)" matInput type="number" min="0" max="100">
+    </mat-form-field>
+    <mat-checkbox [(ngModel)]="pcaUseStandardScaler" (change)="onUseStandardScalerChange($event)">Use Scaler</mat-checkbox>
+  </ng-container>
+
   <button mat-raised-button color="primary" (click)="startHandlerClick()">Start</button>
 </div>

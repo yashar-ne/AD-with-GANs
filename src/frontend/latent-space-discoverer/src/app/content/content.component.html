@@ -2,10 +2,14 @@
   <div class="content-wrapper">
     <ng-container *ngIf="!sessionStarted">
       <configuration
-        [shiftCount]="shiftCount"
-        [shiftRange]="shiftRange"
+        [(shiftRange)]="shiftRange"
+        [(shiftCount)]="shiftCount"
         [shiftCountSelectOptions]="shiftCountSelectOptions"
         [shiftRangeSelectOptions]="shiftRangeSelectOptions"
+        [(usePCA)]="usePCA"
+        [(pcaComponentCount)]="pcaComponentCount"
+        [(pcaSkippedComponentsCount)]="pcaSkippedComponentsCount"
+        [(pcaUseStandardScaler)]="pcaUseStandardScaler"
         (startHandler)="startHandler()">
       </configuration>
     </ng-container>

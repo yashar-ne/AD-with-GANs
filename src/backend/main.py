@@ -14,9 +14,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 main_controller: MainController = MainController(generator_path="../saved_models/generator.pkl",
-                                                 matrix_a_path="../saved_models/matrix_a_after_pca.pkl",
-                                                 z_dim=100,
-                                                 )
+                                                 matrix_a_path="../saved_models/matrix_a.pkl",
+                                                 z_dim=100)
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -40,12 +39,21 @@ async def get_shifted_images(body: GetRandomNoiseModel):
 
 @app.post("/get_shifted_images")
 async def get_shifted_images(body: GetShiftedImagesModel):
-    return main_controller.get_shifted_images(body.z, body.shifts_range, body.shifts_count, body.dim)
+    return main_controller.get_shifted_images(body.z,
+                                              body.shifts_range,
+                                              body.shifts_count,
+                                              body.dim,
+                                              body.pca_component_count,
+                                              body.pca_skipped_components_count,
+                                              body.pca_apply_standard_scaler)
 
 
 @app.post("/save_to_db")
 async def save_to_db(body: SaveLabelToDbModel):
-    return main_controller.save_to_db(z=body.z, shifts_count=body.shifts_count, shifts_range=body.shifts_range, dim=body.dim, is_anomaly=body.is_anomaly)
+    return main_controller.save_to_db(z=body.z,
+                                      shifts_count=body.shifts_count,
+                                      shifts_range=body.shifts_range,
+                                      dim=body.dim, is_anomaly=body.is_anomaly)
 
 
 if __name__ == "__main__":
