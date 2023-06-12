@@ -6,6 +6,7 @@ import io
 from PIL import Image
 
 from src.backend.db import save_to_db
+from src.backend.models.GetShiftedImagesFromDimensionLabelsModel import GetShiftedImagesFromDimensionLabelsModel
 from src.ml.latent_direction_visualizer import LatentDirectionVisualizer, get_random_strip_as_numpy_array
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
@@ -44,6 +45,9 @@ class MainController:
             image_list.append(ImageStripModel(position=idx, image=img_str))
 
         return image_list
+
+    def get_shifted_images_from_dimension_labels(self, data: GetShiftedImagesFromDimensionLabelsModel):
+        print(data)
 
     @staticmethod
     def get_image_strip_from_prerendered_sample():

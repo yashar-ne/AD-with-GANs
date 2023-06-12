@@ -27,8 +27,7 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   pcaSkippedComponentsCount: number = 3
   pcaUseStandardScaler: boolean = true
 
-  constructor(private bs: BackendService) {
-  }
+  constructor(private bs: BackendService) { }
 
   ngOnInit(): void {
     this.subscriptionZ$ = this.bs.getRandomNoise({dim: 100})

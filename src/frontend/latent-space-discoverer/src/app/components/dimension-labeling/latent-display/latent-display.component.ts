@@ -3,6 +3,7 @@ import {BackendService} from "../../../services/backend.service";
 import {Observable, take} from "rxjs";
 import {ImageStrip} from "../../../models/image-strip.model";
 import {SaveLabelToDbModel} from "../../../models/save-label-to-db-model.model";
+import {LabelingService} from "../../../services/labeling.service";
 
 @Component({
   selector: 'latent-display',
@@ -23,9 +24,7 @@ export class LatentDisplayComponent {
 
   @Output() updateImages: EventEmitter<any> = new EventEmitter();
 
-  localLabels: SaveLabelToDbModel[] = []
-
-  constructor(private bs: BackendService) {}
+  constructor(private bs: BackendService, private ls: LabelingService) {}
 
   yesClickHandler() {
     this.save(true)
@@ -45,14 +44,8 @@ export class LatentDisplayComponent {
       dim: this.dim,
       is_anomaly: label
     }
-    this.saveToLocalLabels(data)
+    this.ls.addToLocalLabels(data)
     this.saveToDb(data)
-
-    console.log(this.localLabels)
-  }
-
-  saveToLocalLabels(data: SaveLabelToDbModel) {
-    this.localLabels.push(data)
   }
 
   saveToDb(data: SaveLabelToDbModel) {

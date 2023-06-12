@@ -3,6 +3,7 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from src.backend.models.GetShiftedImagesFromDimensionLabelsModel import GetShiftedImagesFromDimensionLabelsModel
 from src.backend.models.SaveLabelToDbModel import SaveLabelToDbModel
 from src.backend.models.GetRandomNoiseModel import GetRandomNoiseModel
 from src.backend.models.GetShiftedImagesModel import GetShiftedImagesModel
@@ -30,6 +31,11 @@ async def get_shifted_images(body: GetShiftedImagesModel):
                                               body.pca_component_count,
                                               body.pca_skipped_components_count,
                                               body.pca_apply_standard_scaler)
+
+
+@app.post("/get_shifted_images_from_dimension_labels")
+async def get_shifted_images_from_dimension_labels(body: GetShiftedImagesFromDimensionLabelsModel):
+    return main_controller.get_shifted_images_from_dimension_labels(body)
 
 
 @app.post("/get_random_noise")
