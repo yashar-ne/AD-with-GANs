@@ -1,0 +1,26 @@
+<ng-container *ngIf="!sessionStarted">
+  <configuration
+    [(shiftRange)]="shiftRange"
+    [(shiftCount)]="shiftCount"
+    [shiftCountSelectOptions]="shiftCountSelectOptions"
+    [shiftRangeSelectOptions]="shiftRangeSelectOptions"
+    [(usePCA)]="usePCA"
+    [(pcaComponentCount)]="pcaComponentCount"
+    [(pcaSkippedComponentsCount)]="pcaSkippedComponentsCount"
+    [(pcaUseStandardScaler)]="pcaUseStandardScaler"
+    (startHandler)="startHandler()">
+  </configuration>
+</ng-container>
+<ng-container *ngIf="sessionStarted">
+  <latent-display
+    [z]="z"
+    [shiftedImages$]="shiftedImages$"
+    [dim]="dim"
+    [maxdim]="maxdim"
+    [shiftCount]="shiftCount"
+    [shiftRange]="shiftRange"
+    [shiftCountSelectOptions]="shiftCountSelectOptions"
+    [shiftRangeSelectOptions]="shiftRangeSelectOptions"
+    (updateImages)="updateImages()"
+  ></latent-display>
+</ng-container>

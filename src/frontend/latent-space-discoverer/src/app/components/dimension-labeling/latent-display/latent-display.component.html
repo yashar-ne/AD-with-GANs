@@ -1,12 +1,10 @@
 <div class="latent-display">
-  <div *ngIf="shiftedImages$ | async as imageStrip else noImages">
+  <ng-container *ngIf="shiftedImages$ | async as shiftedImages else noImages">
     <div *ngIf="dim < maxdim else sessionDone">
       <div *ngIf="dim < maxdim" class="session-label-counter">Labeled directions: {{dim+1}}/{{maxdim}}</div>
-      <div class="latent_image_wrapper">
-        <div *ngFor="let strip of imageStrip">
-          <img class="latent_image" src="{{'data:image/png;base64,' + strip.image}}">
-        </div>
-      </div>
+      <image-strip
+        [images]="shiftedImages"
+      ></image-strip>
       <latent-display-controls
         (yesClick)="yesClickHandler()"
         (noClick)="noClickHandler()">
@@ -26,9 +24,8 @@
         </button>
       </div>
     </ng-template>
-  </div>
+  </ng-container>
   <ng-template #noImages>
       <p class="loading-wrapper">loading images...</p>
   </ng-template>
-
 </div>

@@ -1,14 +1,14 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable, Subscription, take} from "rxjs";
-import {ImageStrip} from "../models/image-strip.model";
-import {BackendService} from "../services/backend.service";
+import {ImageStrip} from "../../models/image-strip.model";
+import {BackendService} from "../../services/backend.service";
 
 @Component({
-  selector: 'content',
-  templateUrl: './content.component.html',
-  styleUrls: ['./content.component.scss']
+  selector: 'dimension-labeling',
+  templateUrl: './dimension-labeling.component.html',
+  styleUrls: ['./dimension-labeling.component.scss']
 })
-export class ContentComponent implements OnInit, OnDestroy {
+export class DimensionLabelingComponent implements OnInit, OnDestroy {
   subscriptionZ$: Subscription | undefined
   shiftedImages$: Observable<Array<ImageStrip>> | undefined
 
@@ -27,7 +27,8 @@ export class ContentComponent implements OnInit, OnDestroy {
   pcaSkippedComponentsCount: number = 3
   pcaUseStandardScaler: boolean = true
 
-  constructor(private bs: BackendService) {}
+  constructor(private bs: BackendService) {
+  }
 
   ngOnInit(): void {
     this.subscriptionZ$ = this.bs.getRandomNoise({dim: 100})

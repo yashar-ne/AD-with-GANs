@@ -1,0 +1,12 @@
+.latent_image_wrapper {
+  margin: 5rem;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.latent_image {
+  margin: .3rem;
+  width: 8rem;
+  image-rendering: pixelated;
+}

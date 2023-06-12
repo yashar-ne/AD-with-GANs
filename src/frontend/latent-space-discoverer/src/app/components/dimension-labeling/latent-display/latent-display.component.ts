@@ -1,8 +1,8 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {BackendService} from "../services/backend.service";
+import {BackendService} from "../../../services/backend.service";
 import {Observable, take} from "rxjs";
-import {ImageStrip} from "../models/image-strip.model";
-import {SaveLabelToDbModel} from "../models/save-label-to-db-model.model";
+import {ImageStrip} from "../../../models/image-strip.model";
+import {SaveLabelToDbModel} from "../../../models/save-label-to-db-model.model";
 
 @Component({
   selector: 'latent-display',

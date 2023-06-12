@@ -3,31 +3,33 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { ToolbarComponent } from './toolbar/toolbar.component';
-import { ContentComponent } from './content/content.component';
-import { LatentDisplayComponent } from './latent-display/latent-display.component';
+import { ToolbarComponent } from './components/toolbar/toolbar.component';
+import { LatentDisplayComponent } from './components/dimension-labeling/latent-display/latent-display.component';
 import {HttpClientModule} from "@angular/common/http";
 import {NgOptimizedImage} from "@angular/common";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatButtonModule} from "@angular/material/button";
-import { LatentDisplayControlsComponent } from './latent-display/latent-display-controls/latent-display-controls.component';
+import { LatentDisplayControlsComponent } from './components/dimension-labeling/latent-display/latent-display-controls/latent-display-controls.component';
 import {MatIconModule} from "@angular/material/icon";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatSelectModule} from "@angular/material/select";
 import {FormsModule} from "@angular/forms";
-import { ConfigurationComponent } from './configuration/configuration.component';
+import { ConfigurationComponent } from './components/configuration/configuration.component';
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatInputModule} from "@angular/material/input";
+import { ImageStripComponent } from './components/image-strip/image-strip.component';
+import { DimensionLabelingComponent } from './components/dimension-labeling/dimension-labeling.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ToolbarComponent,
-    ContentComponent,
     LatentDisplayComponent,
     LatentDisplayControlsComponent,
-    ConfigurationComponent
+    ConfigurationComponent,
+    ImageStripComponent,
+    DimensionLabelingComponent
   ],
   imports: [
     BrowserModule,
