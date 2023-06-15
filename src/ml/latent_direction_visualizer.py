@@ -7,6 +7,8 @@ import torch
 from torch.nn.functional import normalize
 
 from torchvision.utils import make_grid
+
+from src.backend.models.SessionLabelsModel import SessionLabelsModel
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
 from src.ml.tools.utils import one_hot, to_image, generate_noise
@@ -106,6 +108,24 @@ class LatentDirectionVisualizer:
 
             shift_vector = one_hot(dims=self.matrix_a_linear.input_dim, value=shift, index=dim).to(self.device)
             latent_shift = self.matrix_a_linear(shift_vector)
+
+            shifted_image = self.g.gen_shifted(z, latent_shift).cpu()[0]
+            shifted_images.append(shifted_image)
+
+        return shifted_images
+
+    @torch.no_grad()
+    def create_shifted_images_from_dimension_labels(self, data: SessionLabelsModel):
+        shifted_images = []
+        z = torch.tensor(data.z)
+        shift_vector = torch.zeros(len(z))
+        for label in data.labels:
+            if label.is_anomaly:
+                shift_vector[label.dim] = 1
+
+        for shift in np.arange(-data.labels[0].shifts_range, data.labels[0].shifts_range + 1e-9, data.labels[0].shifts_range / data.labels[0].shifts_count):
+
+            latent_shift = self.matrix_a_linear(shift*shift_vector)
 
             shifted_image = self.g.gen_shifted(z, latent_shift).cpu()[0]
             shifted_images.append(shifted_image)

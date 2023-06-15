@@ -3,11 +3,11 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.backend.models.GetShiftedImagesFromDimensionLabelsModel import GetShiftedImagesFromDimensionLabelsModel
 from src.backend.models.SaveLabelToDbModel import SaveLabelToDbModel
 from src.backend.models.GetRandomNoiseModel import GetRandomNoiseModel
 from src.backend.models.GetShiftedImagesModel import GetShiftedImagesModel
 from src.backend.controller.main_controller import MainController
+from src.backend.models.SessionLabelsModel import SessionLabelsModel
 
 main_controller: MainController = MainController(generator_path="../saved_models/generator.pkl",
                                                  matrix_a_path="../saved_models/matrix_a.pkl",
@@ -34,7 +34,7 @@ async def get_shifted_images(body: GetShiftedImagesModel):
 
 
 @app.post("/get_shifted_images_from_dimension_labels")
-async def get_shifted_images_from_dimension_labels(body: GetShiftedImagesFromDimensionLabelsModel):
+async def get_shifted_images_from_dimension_labels(body: SessionLabelsModel):
     return main_controller.get_shifted_images_from_dimension_labels(body)
 
 
@@ -50,6 +50,12 @@ async def save_to_db(body: SaveLabelToDbModel):
                                       shifts_count=body.shifts_count,
                                       shifts_range=body.shifts_range,
                                       dim=body.dim, is_anomaly=body.is_anomaly)
+
+
+@app.post("/save_session_labels_to_db")
+async def save_to_db(body: SessionLabelsModel):
+    return main_controller.save_session_labels_to_db(z=body.z,
+                                                     labels=body.labels)
 
 
 @app.get("/get_image_strip_from_prerendered_sample")

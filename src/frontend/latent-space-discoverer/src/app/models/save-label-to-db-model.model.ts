@@ -1,5 +1,4 @@
-export interface SaveLabelToDbModel {
-  z: number[]
+export interface SaveLabelModel {
   shifts_range: number
   shifts_count: number
   dim: number

@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angula
 import {BackendService} from "../../../services/backend.service";
 import {Observable, take} from "rxjs";
 import {ImageStrip} from "../../../models/image-strip.model";
-import {SaveLabelToDbModel} from "../../../models/save-label-to-db-model.model";
+import {SaveLabelModel} from "../../../models/save-label-to-db-model.model";
 import {LabelingService} from "../../../services/labeling.service";
 
 @Component({
@@ -14,7 +14,6 @@ export class LatentDisplayComponent {
 
   @Input() shiftedImages$: Observable<Array<ImageStrip>> | undefined
 
-  @Input() z: number[] = []
   @Input() shiftRange: number = 0
   @Input() shiftRangeSelectOptions: number[] = []
   @Input() shiftCount: number = 0
@@ -27,28 +26,25 @@ export class LatentDisplayComponent {
   constructor(private bs: BackendService, private ls: LabelingService) {}
 
   yesClickHandler() {
-    this.save(true)
+    this.saveLabel(true)
     this.updateImages.emit()
   }
 
   noClickHandler() {
-    this.save(false)
+    this.saveLabel(false)
     this.updateImages.emit()
   }
 
-  save(label: boolean) {
-    const data = {
-      z: this.z,
+  saveLabel(label: boolean) {
+    this.ls.addToLocalLabels({
       shifts_count: this.shiftCount,
       shifts_range: this.shiftRange,
       dim: this.dim,
       is_anomaly: label
-    }
-    this.ls.addToLocalLabels(data)
-    this.saveToDb(data)
+    })
   }
 
-  saveToDb(data: SaveLabelToDbModel) {
+  saveToDb(data: SaveLabelModel) {
     this.bs.saveToDb(data)
       .pipe(take(1))
       .subscribe((value) => {console.log(value)})

@@ -1,19 +1,32 @@
 import { Injectable } from '@angular/core';
-import {SaveLabelToDbModel} from "../models/save-label-to-db-model.model";
+import {SaveLabelModel} from "../models/save-label-to-db-model.model";
+import {SessionLabelsModel} from "../models/session-labels.model";
 
 @Injectable({
   providedIn: 'root'
 })
 export class LabelingService {
 
-  labels: SaveLabelToDbModel[] = []
+  data: SessionLabelsModel = {
+    z: [],
+    labels: []
+  }
   constructor() { }
 
-  getLocalLabels() {
-    return this.labels
+  getData() {
+    return this.data
   }
 
-  addToLocalLabels(data: SaveLabelToDbModel) {
-    this.labels.push(data)
+  getNoiseArray() {
+    return this.data.z
+  }
+
+  setNoiseArray(z: number[]) {
+    this.data.z = z
+  }
+
+  addToLocalLabels(data: SaveLabelModel) {
+    this.data.labels.push(data)
+    console.log("addToLocalLabels", this.data)
   }
 }

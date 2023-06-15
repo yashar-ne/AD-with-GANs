@@ -1,6 +1,6 @@
 <div class="latent-display">
   <ng-container *ngIf="shiftedImages$ | async as shiftedImages else noImages">
-    <div *ngIf="dim < maxdim else sessionDone">
+    <div>
       <div *ngIf="dim < maxdim" class="session-label-counter">Labeled directions: {{dim+1}}/{{maxdim}}</div>
       <image-strip
         [images]="shiftedImages"

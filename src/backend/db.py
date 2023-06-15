@@ -1,5 +1,6 @@
 from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
+
+from src.backend.models.SaveLabelToDbModel import SaveLabelToDbModel
 
 
 def get_database():
@@ -21,6 +22,19 @@ def save_to_db(z, shifts_range, shifts_count, dim, is_anomaly):
             "shifts_count": shifts_count,
             "dim": dim,
             "is_anomaly": is_anomaly
+        }
+        get_client().insert_one(data)
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+
+def save_session_labels_to_db(z: list[float], labels: SaveLabelToDbModel):
+    try:
+        data = {
+            "z": z,
+            "labels": [label.dict() for label in labels]
         }
         get_client().insert_one(data)
         return True

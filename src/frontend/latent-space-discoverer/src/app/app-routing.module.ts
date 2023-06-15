@@ -5,6 +5,7 @@ import {ShiftLabelingComponent} from "./components/shift-labeling/shift-labeling
 
 const routes: Routes = [
   {path: '', component: DimensionLabelingComponent},
+  {path: 'dimension-labeling', component: DimensionLabelingComponent},
   {path: 'shift-labeling', component: ShiftLabelingComponent},
 ];
 

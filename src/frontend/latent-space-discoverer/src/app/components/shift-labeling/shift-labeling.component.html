@@ -1,1 +1,5 @@
-<p>shift-labeling works!</p>
+<ng-container *ngIf="images$ | async as images">
+  <image-strip
+    [images]="images"
+  ></image-strip>
+</ng-container>
