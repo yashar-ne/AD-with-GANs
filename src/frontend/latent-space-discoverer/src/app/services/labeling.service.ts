@@ -9,12 +9,22 @@ export class LabelingService {
 
   data: SessionLabelsModel = {
     z: [],
-    labels: []
+    anomalous_dims: [],
+    shifts_range: 0,
+    shifts_count: 0,
+    use_pca: true,
+    pca_component_count: 0,
+    pca_skipped_components_count: 0,
+    pca_use_standard_scaler: true
   }
   constructor() { }
 
   getData() {
     return this.data
+  }
+
+  setData(data: SessionLabelsModel) {
+    this.data = data
   }
 
   getNoiseArray() {
@@ -25,7 +35,7 @@ export class LabelingService {
     this.data.z = z
   }
 
-  addToLocalLabels(data: SaveLabelModel) {
-    this.data.labels.push(data)
+  addToLocalLabels(dim: number) {
+    this.data.anomalous_dims.push(dim)
   }
 }

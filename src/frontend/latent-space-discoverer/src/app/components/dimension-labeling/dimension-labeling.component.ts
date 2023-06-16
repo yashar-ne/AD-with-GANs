@@ -33,13 +33,13 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscriptionZ$ = this.bs.getRandomNoise({dim: 100})
       .pipe(take(1))
-      .subscribe((z) => {
-        this.ls.setNoiseArray(z)
+      .subscribe((z: number[]) => {
+        this.ls.data.z = z
       })
   }
 
   updateImages() {
-    if (this.dim === this.maxdim) {
+    if (this.dim === this.maxdim-1) {
       console.log("Labeling Done. Navigating to Shift-Labeling")
       this.router.navigate(['/shift-labeling'])
       return
@@ -62,6 +62,17 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
     if (this.usePCA && (this.pcaComponentCount <= this.pcaSkippedComponentsCount)){
       alert("PCA Components must be larger than Skip Components")
     } else {
+      this.ls.setData({
+        z: this.ls.data.z,
+        anomalous_dims: [],
+        shifts_count: this.shiftCount,
+        shifts_range: this.shiftRange,
+        use_pca: this.usePCA,
+        pca_component_count: this.pcaComponentCount,
+        pca_skipped_components_count: this.pcaSkippedComponentsCount,
+        pca_use_standard_scaler: this.pcaUseStandardScaler
+      })
+
       this.sessionStarted = true
       this.maxdim = this.usePCA ? this.pcaComponentCount : this.maxdim
       this.updateImages()

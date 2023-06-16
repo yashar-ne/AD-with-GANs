@@ -53,9 +53,8 @@ async def save_to_db(body: SaveLabelToDbModel):
 
 
 @app.post("/save_session_labels_to_db")
-async def save_to_db(body: SessionLabelsModel):
-    return main_controller.save_session_labels_to_db(z=body.z,
-                                                     labels=body.labels)
+async def save_session_labels_to_db(body: SessionLabelsModel):
+    return main_controller.save_session_labels_to_db(session_labels=body)
 
 
 @app.get("/get_image_strip_from_prerendered_sample")

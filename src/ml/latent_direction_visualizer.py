@@ -11,7 +11,7 @@ from torchvision.utils import make_grid
 from src.backend.models.SessionLabelsModel import SessionLabelsModel
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
-from src.ml.tools.utils import one_hot, to_image, generate_noise
+from src.ml.tools.utils import one_hot, to_image, generate_noise, apply_pca
 from PIL import Image
 
 
@@ -116,18 +116,32 @@ class LatentDirectionVisualizer:
 
     @torch.no_grad()
     def create_shifted_images_from_dimension_labels(self, data: SessionLabelsModel):
-        shifted_images = []
-        shift_vector = torch.zeros(len(data.z))
         z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(data.z), 0), -1), 2)
-        for label in data.labels:
-            if label.is_anomaly:
-                shift_vector[label.dim] = 1
+        latent_shift = torch.zeros_like(z)
 
-        for shift in np.arange(-data.labels[0].shifts_range, data.labels[0].shifts_range + 1e-9, data.labels[0].shifts_range / data.labels[0].shifts_count):
-            s = shift*shift_vector
-            latent_shift = self.matrix_a_linear(s)
+        # 1. Apply PCA to matrix_a if needed
+        matrix_a = apply_pca(self.matrix_a_linear,
+                             data.pca_component_count,
+                             data.pca_skipped_components_count,
+                             data.pca_use_standard_scaler) if data.use_pca else self.matrix_a_linear
 
-            shifted_image = self.g.gen_shifted(z, latent_shift).cpu()[0]
+        # 2. Iterate list of dims with positive anomaly flag and calculate the latent_shift for that dimension
+        #    Update the global latent_shift by calculating the average from the current global latent_shift and
+        #    the new one
+        for dim in data.anomalous_dims:
+            local_shift_vector = torch.zeros(matrix_a.input_dim)
+            local_shift_vector[dim] = 1
+            local_shift = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(matrix_a(local_shift_vector), -1), 1), 0)
+            concat_shifts = torch.cat((latent_shift, local_shift), 0)
+            latent_shift = torch.unsqueeze(torch.mean(concat_shifts, 0), 0)
+
+        # 3. Use z and the latent_shift to generate new shifted images
+        latent_shift = torch.squeeze(latent_shift)
+        shifted_images = []
+        for shift in np.arange(-data.shifts_range, data.shifts_range + 1e-9,
+                               data.shifts_range / data.shifts_count):
+            s = latent_shift
+            shifted_image = self.g.gen_shifted(z, s).cpu()[0]
             shifted_images.append(shifted_image)
 
         return shifted_images

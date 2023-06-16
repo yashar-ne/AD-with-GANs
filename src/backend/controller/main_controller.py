@@ -45,6 +45,7 @@ class MainController:
             if pca_component_count > 0 \
             else self.matrix_a_linear
         visualizer = LatentDirectionVisualizer(matrix_a_linear=a, generator=self.g, device=self.device)
+        # shifted_images = visualizer.create_shifted_images_from_dimension_labels(data)
         shifted_images = visualizer.create_shifted_images_from_dimension_labels(data)
 
         return generate_base64_images_from_tensor_list(shifted_images)
@@ -70,8 +71,8 @@ class MainController:
         save_to_db(z=z, shifts_range=shifts_range, shifts_count=shifts_count, dim=dim, is_anomaly=is_anomaly)
 
     @staticmethod
-    def save_session_labels_to_db(z: list[float], labels: SaveLabelToDbModel):
-        save_session_labels_to_db(z=z, labels=labels)
+    def save_session_labels_to_db(session_labels: SessionLabelsModel):
+        save_session_labels_to_db(session_labels=session_labels)
 
     def get_random_noise(self, z_dim):
         return generate_noise(batch_size=1, z_dim=z_dim, device=self.device)

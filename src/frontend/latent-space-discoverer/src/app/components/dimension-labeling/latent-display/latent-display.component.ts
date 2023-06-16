@@ -26,31 +26,11 @@ export class LatentDisplayComponent {
   constructor(private bs: BackendService, private ls: LabelingService) {}
 
   yesClickHandler() {
-    this.saveLabel(true)
+    this.ls.addToLocalLabels(this.dim)
     this.updateImages.emit()
   }
 
   noClickHandler() {
-    this.saveLabel(false)
     this.updateImages.emit()
-  }
-
-  saveLabel(label: boolean) {
-    this.ls.addToLocalLabels({
-      shifts_count: this.shiftCount,
-      shifts_range: this.shiftRange,
-      dim: this.dim,
-      is_anomaly: label
-    })
-  }
-
-  saveToDb(data: SaveLabelModel) {
-    this.bs.saveToDb(data)
-      .pipe(take(1))
-      .subscribe((value) => {console.log(value)})
-  }
-
-  restartHandler() {
-    location.reload()
   }
 }
