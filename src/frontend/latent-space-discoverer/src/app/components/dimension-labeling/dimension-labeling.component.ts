@@ -59,9 +59,13 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   }
 
   startHandler() {
-    this.sessionStarted = true
-    this.maxdim = this.usePCA ? this.pcaComponentCount : this.maxdim
-    this.updateImages()
+    if (this.usePCA && (this.pcaComponentCount <= this.pcaSkippedComponentsCount)){
+      alert("PCA Components must be larger than Skip Components")
+    } else {
+      this.sessionStarted = true
+      this.maxdim = this.usePCA ? this.pcaComponentCount : this.maxdim
+      this.updateImages()
+    }
   }
 
   ngOnDestroy(): void {

@@ -1,5 +1,20 @@
-<ng-container *ngIf="images$ | async as images">
-  <image-strip
-    [images]="images"
-  ></image-strip>
-</ng-container>
+<div class="done-wrapper">
+  <ng-container *ngIf="images$ | async as images else imagesLoading">
+      <div>Session done. You successfully labeled all dimensions!</div>
+      <image-strip
+        [images]="images"
+      ></image-strip>
+  </ng-container>
+  <ng-template #imagesLoading>
+    <div>Calculating anomalous shift...</div>
+  </ng-template>
+  <button
+    class="button yes"
+    mat-fab
+    color="accent"
+    color="primary"
+    (click)="restartHandler()"
+  >
+    <mat-icon>replay</mat-icon>
+  </button>
+</div>

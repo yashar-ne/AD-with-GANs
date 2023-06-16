@@ -27,6 +27,5 @@ export class LabelingService {
 
   addToLocalLabels(data: SaveLabelModel) {
     this.data.labels.push(data)
-    console.log("addToLocalLabels", this.data)
   }
 }

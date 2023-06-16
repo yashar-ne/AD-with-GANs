@@ -3,6 +3,7 @@ import {BackendService} from "../../services/backend.service";
 import {LabelingService} from "../../services/labeling.service";
 import {Observable, take} from "rxjs";
 import {ImageStrip} from "../../models/image-strip.model";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'shift-labeling',
@@ -12,7 +13,11 @@ import {ImageStrip} from "../../models/image-strip.model";
 export class ShiftLabelingComponent implements OnInit {
   images$: Observable<Array<ImageStrip>> | undefined
 
-  constructor(private bs: BackendService, private ls: LabelingService) {}
+  constructor(private router: Router, private bs: BackendService, private ls: LabelingService) {}
+
+  restartHandler() {
+    this.router.navigate(['/'])
+  }
 
   ngOnInit(): void {
     this.bs.saveSessionLabelsToDb(this.ls.getData())

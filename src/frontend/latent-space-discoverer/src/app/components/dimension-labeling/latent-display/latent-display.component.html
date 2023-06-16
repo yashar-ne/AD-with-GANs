@@ -10,20 +10,6 @@
         (noClick)="noClickHandler()">
       </latent-display-controls>
     </div>
-    <ng-template #sessionDone>
-      <div class="done-wrapper">
-        <div>Session done. You successfully labeled all dimensions!</div>
-        <button
-          class="button yes"
-          mat-fab
-          color="accent"
-          color="primary"
-          (click)="restartHandler()"
-        >
-          <mat-icon>replay</mat-icon>
-        </button>
-      </div>
-    </ng-template>
   </ng-container>
   <ng-template #noImages>
       <p class="loading-wrapper">loading images...</p>

@@ -117,15 +117,15 @@ class LatentDirectionVisualizer:
     @torch.no_grad()
     def create_shifted_images_from_dimension_labels(self, data: SessionLabelsModel):
         shifted_images = []
-        z = torch.tensor(data.z)
-        shift_vector = torch.zeros(len(z))
+        shift_vector = torch.zeros(len(data.z))
+        z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(data.z), 0), -1), 2)
         for label in data.labels:
             if label.is_anomaly:
                 shift_vector[label.dim] = 1
 
         for shift in np.arange(-data.labels[0].shifts_range, data.labels[0].shifts_range + 1e-9, data.labels[0].shifts_range / data.labels[0].shifts_count):
-
-            latent_shift = self.matrix_a_linear(shift*shift_vector)
+            s = shift*shift_vector
+            latent_shift = self.matrix_a_linear(s)
 
             shifted_image = self.g.gen_shifted(z, latent_shift).cpu()[0]
             shifted_images.append(shifted_image)

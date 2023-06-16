@@ -12,7 +12,7 @@ from src.ml.latent_direction_visualizer import LatentDirectionVisualizer, get_ra
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
 from src.backend.models.ImageStripModel import ImageStripModel
-from src.ml.tools.utils import generate_noise, apply_pca
+from src.ml.tools.utils import generate_noise, apply_pca, generate_base64_images_from_tensor_list
 
 
 class MainController:
@@ -26,7 +26,7 @@ class MainController:
 
     def get_shifted_images(self, z, shifts_range, shifts_count, dim, pca_component_count=0,
                            pca_skipped_components_count=0, pca_apply_standard_scaler=False):
-        image_list = []
+
         z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(z), 0), -1), 2)
         a = apply_pca(self.matrix_a_linear, pca_component_count, pca_skipped_components_count,
                       pca_apply_standard_scaler) \
@@ -36,17 +36,7 @@ class MainController:
         visualizer = LatentDirectionVisualizer(matrix_a_linear=a, generator=self.g, device=self.device)
         shifted_images = visualizer.create_shifted_images(z, shifts_range, shifts_count, dim)
 
-        for idx, i in enumerate(shifted_images):
-            two_d = (np.reshape(i.numpy(), (28, 28)) * 255).astype(np.uint8)
-            img = Image.fromarray(two_d, 'L')
-
-            with io.BytesIO() as buf:
-                img.save(buf, format='PNG')
-                img_str = base64.b64encode(buf.getvalue())
-
-            image_list.append(ImageStripModel(position=idx, image=img_str))
-
-        return image_list
+        return generate_base64_images_from_tensor_list(shifted_images)
 
     def get_shifted_images_from_dimension_labels(self, data: SessionLabelsModel, pca_component_count=0,
                                                  pca_skipped_components_count=0, pca_apply_standard_scaler=False):
@@ -55,7 +45,9 @@ class MainController:
             if pca_component_count > 0 \
             else self.matrix_a_linear
         visualizer = LatentDirectionVisualizer(matrix_a_linear=a, generator=self.g, device=self.device)
-        visualizer.create_shifted_images_from_dimension_labels(data)
+        shifted_images = visualizer.create_shifted_images_from_dimension_labels(data)
+
+        return generate_base64_images_from_tensor_list(shifted_images)
 
     @staticmethod
     def get_image_strip_from_prerendered_sample():
