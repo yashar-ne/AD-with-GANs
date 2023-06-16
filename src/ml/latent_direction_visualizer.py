@@ -115,7 +115,7 @@ class LatentDirectionVisualizer:
         return shifted_images
 
     @torch.no_grad()
-    def create_shifted_images_from_dimension_labels(self, data: SessionLabelsModel):
+    def create_shifted_image_from_dimension_labels(self, data: SessionLabelsModel):
         z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(data.z), 0), -1), 2)
         latent_shift = torch.zeros_like(z)
 
@@ -136,15 +136,16 @@ class LatentDirectionVisualizer:
             latent_shift = torch.unsqueeze(torch.mean(concat_shifts, 0), 0)
 
         # 3. Use z and the latent_shift to generate new shifted images
-        latent_shift = torch.squeeze(latent_shift)
-        shifted_images = []
-        for shift in np.arange(-data.shifts_range, data.shifts_range + 1e-9,
-                               data.shifts_range / data.shifts_count):
-            s = latent_shift
-            shifted_image = self.g.gen_shifted(z, s).cpu()[0]
-            shifted_images.append(shifted_image)
+        return self.g(latent_shift)
 
-        return shifted_images
+        # shifted_images = []
+        # for shift in np.arange(-data.shifts_range, data.shifts_range + 1e-9,
+        #                        data.shifts_range / data.shifts_count):
+        #     s = latent_shift
+        #     shifted_image = self.g.gen_shifted(z, s).cpu()[0]
+        #     shifted_images.append(shifted_image)
+        #
+        # return shifted_images
 
     def __generate_dim_images(self, max_dim, step, noise_batches, shifts_range, shifts_count):
         images = []

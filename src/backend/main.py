@@ -35,7 +35,7 @@ async def get_shifted_images(body: GetShiftedImagesModel):
 
 @app.post("/get_shifted_images_from_dimension_labels")
 async def get_shifted_images_from_dimension_labels(body: SessionLabelsModel):
-    return main_controller.get_shifted_images_from_dimension_labels(body)
+    return main_controller.get_shifted_image_from_dimension_labels(body)
 
 
 @app.post("/get_random_noise")

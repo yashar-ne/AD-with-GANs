@@ -12,7 +12,8 @@ from src.ml.latent_direction_visualizer import LatentDirectionVisualizer, get_ra
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
 from src.backend.models.ImageStripModel import ImageStripModel
-from src.ml.tools.utils import generate_noise, apply_pca, generate_base64_images_from_tensor_list
+from src.ml.tools.utils import generate_noise, apply_pca, generate_base64_images_from_tensor_list, \
+    generate_base64_images_from_tensor
 
 
 class MainController:
@@ -38,17 +39,16 @@ class MainController:
 
         return generate_base64_images_from_tensor_list(shifted_images)
 
-    def get_shifted_images_from_dimension_labels(self, data: SessionLabelsModel, pca_component_count=0,
-                                                 pca_skipped_components_count=0, pca_apply_standard_scaler=False):
+    def get_shifted_image_from_dimension_labels(self, data: SessionLabelsModel, pca_component_count=0,
+                                                pca_skipped_components_count=0, pca_apply_standard_scaler=False):
         a = apply_pca(self.matrix_a_linear, pca_component_count, pca_skipped_components_count,
                       pca_apply_standard_scaler) \
             if pca_component_count > 0 \
             else self.matrix_a_linear
         visualizer = LatentDirectionVisualizer(matrix_a_linear=a, generator=self.g, device=self.device)
-        # shifted_images = visualizer.create_shifted_images_from_dimension_labels(data)
-        shifted_images = visualizer.create_shifted_images_from_dimension_labels(data)
+        shifted_images = visualizer.create_shifted_image_from_dimension_labels(data)
 
-        return generate_base64_images_from_tensor_list(shifted_images)
+        return [ImageStripModel(position=0, image=generate_base64_images_from_tensor(shifted_images))]
 
     @staticmethod
     def get_image_strip_from_prerendered_sample():
