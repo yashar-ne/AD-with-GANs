@@ -135,17 +135,8 @@ class LatentDirectionVisualizer:
             concat_shifts = torch.cat((latent_shift, local_shift), 0)
             latent_shift = torch.unsqueeze(torch.mean(concat_shifts, 0), 0)
 
-        # 3. Use z and the latent_shift to generate new shifted images
+        # 3. Use latent_shift to generate new shifted image
         return self.g(latent_shift)
-
-        # shifted_images = []
-        # for shift in np.arange(-data.shifts_range, data.shifts_range + 1e-9,
-        #                        data.shifts_range / data.shifts_count):
-        #     s = latent_shift
-        #     shifted_image = self.g.gen_shifted(z, s).cpu()[0]
-        #     shifted_images.append(shifted_image)
-        #
-        # return shifted_images
 
     def __generate_dim_images(self, max_dim, step, noise_batches, shifts_range, shifts_count):
         images = []
