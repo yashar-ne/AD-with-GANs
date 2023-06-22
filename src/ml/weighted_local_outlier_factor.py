@@ -7,6 +7,8 @@ import numpy as np
 import torch
 from sklearn.preprocessing import StandardScaler
 
+from src.ml.latent_space_mapper import LatentSpaceMapper
+
 
 class WeightedLocalOutlierFactor:
     def __init__(self, weighted_dims, weight_factor=10, n_neighbours=50, pca_component_count=0, skipped_components_count=0):
@@ -20,7 +22,8 @@ class WeightedLocalOutlierFactor:
         for dim in weighted_dims:
             self.weights[dim] = weight_factor
         self.lof = LocalOutlierFactor(n_neighbors=n_neighbours,
-                                      metric=self.element_weighted_euclidean_distance)
+                                      metric=self.__element_weighted_euclidean_distance,
+                                      novelty=True)
         self.pca_component_count = pca_component_count
         self.skipped_components_count = skipped_components_count
 
@@ -32,9 +35,7 @@ class WeightedLocalOutlierFactor:
 
     def fit(self):
         data_as_array = np.array(self.data)
-        print(data_as_array.shape)
-        self.lof.fit_predict(data_as_array)
-        print(self.lof.negative_outlier_factor_)
+        self.lof.fit(data_as_array)
 
     def load_datapoints(self, root_dir):
         directory = os.fsencode(root_dir)
@@ -59,7 +60,7 @@ class WeightedLocalOutlierFactor:
     def __pca_transform(self, data_point):
         return self.pca.transform(data_point)[:, self.skipped_components_count:]
 
-    def element_weighted_euclidean_distance(self, u, v):
+    def __element_weighted_euclidean_distance(self, u, v):
         return np.linalg.norm(u - (np.multiply(v, self.weights)))
 
 
@@ -68,10 +69,9 @@ class WeightedLocalOutlierFactor:
 # lof.load_datapoints("../../data/latent_space_mappings")
 # lof.fit()
 #
-# dat = torch.load("/home/yashar/git/python/AD-with-GANs/data/latent_space_mappings/mapped_z_4461.pt", map_location=torch.device('cpu')).detach().numpy().reshape(1, 100)
-# print(dat.shape)
-# p = lof.pca_transform(dat)
-# print(p)
+# dat = torch.load("/home/yashar/git/python/AD-with-GANs/data/latent_space_mappings/mapped_z_5506.pt", map_location=torch.device('cpu')).detach().numpy().reshape(1, 100)
+# print(lof.predict(dat))
+
 
 
 
