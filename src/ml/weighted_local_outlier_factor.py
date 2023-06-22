@@ -7,8 +7,6 @@ import numpy as np
 import torch
 from sklearn.preprocessing import StandardScaler
 
-from src.ml.latent_space_mapper import LatentSpaceMapper
-
 
 class WeightedLocalOutlierFactor:
     def __init__(self, weighted_dims, weight_factor=10, n_neighbours=50, pca_component_count=0, skipped_components_count=0):
