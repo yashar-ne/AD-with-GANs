@@ -12,7 +12,7 @@ from src.ml.latent_direction_visualizer import LatentDirectionVisualizer, get_ra
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
 from src.backend.models.ImageStripModel import ImageStripModel
-from src.ml.tools.utils import generate_noise, apply_pca, generate_base64_images_from_tensor_list, \
+from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
     generate_base64_images_from_tensor
 
 
@@ -29,8 +29,8 @@ class MainController:
                            pca_skipped_components_count=0, pca_apply_standard_scaler=False):
 
         z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(z), 0), -1), 2)
-        a = apply_pca(self.matrix_a_linear, pca_component_count, pca_skipped_components_count,
-                      pca_apply_standard_scaler) \
+        a = apply_pca_to_matrix_a(self.matrix_a_linear, pca_component_count, pca_skipped_components_count,
+                                  pca_apply_standard_scaler) \
             if pca_component_count > 0 \
             else self.matrix_a_linear
 
@@ -41,8 +41,8 @@ class MainController:
 
     def get_shifted_image_from_dimension_labels(self, data: SessionLabelsModel, pca_component_count=0,
                                                 pca_skipped_components_count=0, pca_apply_standard_scaler=False):
-        a = apply_pca(self.matrix_a_linear, pca_component_count, pca_skipped_components_count,
-                      pca_apply_standard_scaler) \
+        a = apply_pca_to_matrix_a(self.matrix_a_linear, pca_component_count, pca_skipped_components_count,
+                                  pca_apply_standard_scaler) \
             if pca_component_count > 0 \
             else self.matrix_a_linear
         visualizer = LatentDirectionVisualizer(matrix_a_linear=a, generator=self.g, device=self.device)

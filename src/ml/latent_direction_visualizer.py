@@ -11,7 +11,7 @@ from torchvision.utils import make_grid
 from src.backend.models.SessionLabelsModel import SessionLabelsModel
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
-from src.ml.tools.utils import one_hot, to_image, generate_noise, apply_pca
+from src.ml.tools.utils import one_hot, to_image, generate_noise, apply_pca_to_matrix_a
 from PIL import Image
 
 
@@ -120,10 +120,10 @@ class LatentDirectionVisualizer:
         latent_shift = torch.zeros_like(z)
 
         # 1. Apply PCA to matrix_a if needed
-        matrix_a = apply_pca(self.matrix_a_linear,
-                             data.pca_component_count,
-                             data.pca_skipped_components_count,
-                             data.pca_use_standard_scaler) if data.use_pca else self.matrix_a_linear
+        matrix_a = apply_pca_to_matrix_a(self.matrix_a_linear,
+                                         data.pca_component_count,
+                                         data.pca_skipped_components_count,
+                                         data.pca_use_standard_scaler) if data.use_pca else self.matrix_a_linear
 
         # 2. Iterate list of dims with positive anomaly flag and calculate the latent_shift for that dimension
         #    Update the global latent_shift by calculating the average from the current global latent_shift and

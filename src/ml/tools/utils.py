@@ -31,7 +31,7 @@ def one_hot(dims, value, index):
     return vec
 
 
-def apply_pca(matrix_a_linear, component_count, skipped_components_count, apply_standard_scaler):
+def apply_pca_to_matrix_a(matrix_a_linear, component_count, skipped_components_count, apply_standard_scaler):
     matrix_a_np = matrix_a_linear.linear.weight.data.numpy()
 
     if apply_standard_scaler:
