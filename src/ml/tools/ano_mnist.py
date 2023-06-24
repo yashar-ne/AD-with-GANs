@@ -17,7 +17,7 @@ class AnoMNIST(Dataset):
 
     def __getitem__(self, idx):
         img_name = os.path.join(self.root_dir, self.label.iloc[idx, 0])
-        image_label = self.label.iloc[idx, 1]
+        image_label = {"label": self.label.iloc[idx, 1], "anomaly": self.label.iloc[idx, 2]}
         image = Image.open(img_name)
 
         if self.transform:
