@@ -26,6 +26,7 @@ export class LatentDisplayComponent {
   constructor(private bs: BackendService, private ls: LabelingService) {}
 
   yesClickHandler() {
+    console.log("Adding dimension", this.dim)
     this.ls.addToLocalLabels(this.dim)
     this.updateImages.emit()
   }

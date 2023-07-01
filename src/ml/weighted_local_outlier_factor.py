@@ -9,34 +9,27 @@ from sklearn.preprocessing import StandardScaler
 
 
 class WeightedLocalOutlierFactor:
-    def __init__(self, weighted_dims, contamination="auto", weight_factor=1, n_neighbours=20, pca_component_count=0,
-                 skipped_components_count=0):
+    def __init__(self, weighted_dims, n_neighbours, weight_factor=10, pca_component_count=0,
+                 skipped_components_count=0, ignore_unlabeled_dims=False):
         self.data = []
         if pca_component_count > 0:
-            self.weights = np.zeros(pca_component_count)
+            self.weights = np.ones(pca_component_count) if not ignore_unlabeled_dims else np.zeros(pca_component_count)
             self.pca = PCA(n_components=pca_component_count + skipped_components_count)
         else:
-            self.weights = np.zeros(100)
+            self.weights = np.ones(100) if not ignore_unlabeled_dims else np.zeros(100)
 
         for dim in weighted_dims:
-            self.weights[dim] = weight_factor
+            self.weights[dim] = weight_factor if not ignore_unlabeled_dims else 1
 
         self.lof = LocalOutlierFactor(n_neighbors=n_neighbours,
                                       metric=self.__element_weighted_euclidean_distance,
-                                      novelty=True,
-                                      contamination=contamination)
+                                      contamination=0.1)
         self.pca_component_count = pca_component_count
         self.skipped_components_count = skipped_components_count
 
-    def predict(self, x):
-        if self.pca_component_count > 0:
-            x = self.__pca_transform(x)
-
-        return self.lof.predict(x)
-
     def fit(self):
         data_as_array = np.array(self.data)
-        self.lof.fit(data_as_array)
+        self.lof.fit_predict(data_as_array)
 
     def load_latent_space_datapoints(self, data=[], root_dir=''):
 
@@ -64,16 +57,5 @@ class WeightedLocalOutlierFactor:
     def get_negative_outlier_factor(self):
         return self.lof.negative_outlier_factor_
 
-    def __pca_transform(self, data_point):
-        return self.pca.transform(data_point)[:, self.skipped_components_count:]
-
     def __element_weighted_euclidean_distance(self, u, v):
         return np.linalg.norm((np.multiply(u - v, self.weights)))
-
-# USAGE Example:
-# lof = WeightedLocalOutlierFactor([4, 8, 11], pca_component_count=20, skipped_components_count=4)
-# lof.load_datapoints("../../data/LatentSpaceMNIST")
-# lof.fit()
-#
-# dat = torch.load("/home/yashar/git/python/AD-with-GANs/data/LatentSpaceMNIST/mapped_z_5506.pt", map_location=torch.device('cpu')).detach().numpy().reshape(1, 100)
-# print(lof.predict(dat))

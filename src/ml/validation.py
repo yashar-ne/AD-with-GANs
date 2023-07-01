@@ -81,7 +81,7 @@ def get_ano_mnist_data(base_url, num=1308):
 
 
 def get_roc_auc_for_given_dims(weighted_dims, latent_space_data_points, latent_space_data_labels, pca_component_count,
-                               skipped_components_count, n_neighbours=20):
+                               skipped_components_count, n_neighbours):
     weighted_lof = WeightedLocalOutlierFactor(weighted_dims=weighted_dims,
                                               n_neighbours=n_neighbours,
                                               pca_component_count=pca_component_count,
@@ -90,8 +90,36 @@ def get_roc_auc_for_given_dims(weighted_dims, latent_space_data_points, latent_s
     weighted_lof.load_latent_space_datapoints(data=latent_space_data_points)
     weighted_lof.fit()
 
-    y = np.array([-1 if d == "False" else 1 for d in latent_space_data_labels])
+    y = np.array([1 if d == "False" else -1 for d in latent_space_data_labels])
     return get_roc_curve_as_base64(y, weighted_lof.get_negative_outlier_factor())
+
+
+# Just to test the implementations for LOF and ROC-AUC
+def test_roc_auc_and_lof():
+    X = [[-1.1, 2.1, 4.2, -862.4], [0.2, 2.1, 4.2, -8.4], [101.1, 88.1, 4.2, -8.4], [-81.2, 105.1, 4.2, -8.4], [0.3, 2.1, 4.2, -8.4], [1.5, 2.1, 4.2, -8.4], [2.1, 2.1, 4.2, -8.4], [-1.6, 2.1, 4.2, -8.4], [-3.6, 2.1, 4.2, -8.4]]
+    y = [-1, 1, -1, -1, 1, 1, 1, 1, 1]
+    clf = LocalOutlierFactor(n_neighbors=1,
+                             metric=element_weighted_euclidean_distance)
+    y_pred = clf.fit_predict(X)
+    print(y)
+    print(y_pred)
+    print(clf.negative_outlier_factor_)
+    print(y == y_pred)
+
+    fpr, tpr, thresholds = metrics.roc_curve(y, clf.negative_outlier_factor_)
+    roc_auc = metrics.auc(fpr, tpr)
+    display = metrics.RocCurveDisplay(fpr=fpr, tpr=tpr, roc_auc=roc_auc,
+                                      estimator_name='LOF')
+    display.plot()
+    plt.show()
+
+
+def element_weighted_euclidean_distance(u, v):
+    weights = [1, 1, 0, 1]
+    return np.linalg.norm((np.multiply(u - v, weights)))
+
+
+# test_roc_auc_and_lof()
 
 # np.set_printoptions(threshold=np.inf)
 #

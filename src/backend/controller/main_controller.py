@@ -52,13 +52,13 @@ class MainController:
 
         return [ImageStripModel(position=0, image=generate_base64_images_from_tensor(shifted_images))]
 
-    def get_roc_auc_for_given_dims(self, weighted_dims, pca_component_count, skipped_components_count, n_neighbours=20):
+    def get_roc_auc_for_given_dims(self, weighted_dims, pca_component_count, skipped_components_count, n_neighbours):
         base64_jpeg, _ = get_roc_auc_for_given_dims(weighted_dims=weighted_dims,
-                                          latent_space_data_points=self.latent_space_data_points,
-                                          latent_space_data_labels=self.latent_space_data_labels,
-                                          pca_component_count=pca_component_count,
-                                          skipped_components_count=skipped_components_count,
-                                          n_neighbours=n_neighbours)
+                                                    latent_space_data_points=self.latent_space_data_points,
+                                                    latent_space_data_labels=self.latent_space_data_labels,
+                                                    pca_component_count=pca_component_count,
+                                                    skipped_components_count=skipped_components_count,
+                                                    n_neighbours=n_neighbours)
         return base64_jpeg
 
     @staticmethod

@@ -20,7 +20,7 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
 
   shiftRange: number = 10
   shiftCount: number = 10
-  dim: number = -1
+  dim: number = 0
   maxdim: number = 100
 
   usePCA: boolean = true
@@ -38,7 +38,7 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
       })
   }
 
-  updateImages() {
+  updateImages(starting: boolean = false) {
     if (this.dim === this.maxdim-1) {
       console.log("Labeling Done. Navigating to Shift-Labeling")
       this.router.navigate(['/labeling-results'])
@@ -55,7 +55,8 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
       pca_apply_standard_scaler: this.usePCA ? this.pcaUseStandardScaler : false
     })
 
-    this.dim++
+    if (!starting)
+      this.dim++
   }
 
   startHandler() {
@@ -68,14 +69,14 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
         shifts_count: this.shiftCount,
         shifts_range: this.shiftRange,
         use_pca: this.usePCA,
-        pca_component_count: this.pcaComponentCount,
-        pca_skipped_components_count: this.pcaSkippedComponentsCount,
+        pca_component_count: this.usePCA ? this.pcaComponentCount : 0,
+        pca_skipped_components_count: this.usePCA ? this.pcaSkippedComponentsCount : 0,
         pca_use_standard_scaler: this.pcaUseStandardScaler
       })
 
       this.sessionStarted = true
       this.maxdim = this.usePCA ? this.pcaComponentCount : this.maxdim
-      this.updateImages()
+      this.updateImages(true)
     }
   }
 

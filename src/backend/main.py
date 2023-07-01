@@ -65,8 +65,10 @@ async def get_image_strip_from_prerendered_sample():
 
 @app.post("/get_roc_auc_for_given_dims")
 async def get_roc_auc_for_given_dims(body: GetRocAucModel):
-    return main_controller.get_roc_auc_for_given_dims(weighted_dims=body.weighted_dims, pca_component_count=body.pca_component_count,
-                                                      skipped_components_count=body.skipped_components_count)
+    return main_controller.get_roc_auc_for_given_dims(weighted_dims=body.weighted_dims,
+                                                      pca_component_count=body.pca_component_count,
+                                                      skipped_components_count=body.skipped_components_count,
+                                                      n_neighbours=20)
 
 
 if __name__ == "__main__":

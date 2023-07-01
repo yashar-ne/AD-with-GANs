@@ -7,5 +7,6 @@ import {ImageStrip} from "../../models/image-strip.model";
   styleUrls: ['./image-strip.component.scss']
 })
 export class ImageStripComponent {
+  @Input() nImages: number = 0
   @Input() images: Array<ImageStrip> = []
 }
