@@ -2,6 +2,7 @@ import os
 import pandas as pd
 from PIL import Image
 from torch.utils.data import Dataset
+from torchvision import datasets
 
 
 class AnoMNIST(Dataset):
@@ -24,3 +25,8 @@ class AnoMNIST(Dataset):
             image = self.transform(image)
 
         return image, image_label
+
+
+class AnomalyExtendedMNIST(datasets.MNIST):
+    def __getitem__(self, idx):
+        return super(AnomalyExtendedMNIST, self).__getitem__(idx)[0], {"label": super(AnomalyExtendedMNIST, self).__getitem__(idx)[1], "anomaly": False}

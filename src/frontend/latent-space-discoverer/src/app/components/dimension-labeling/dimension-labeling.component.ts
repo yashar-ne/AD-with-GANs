@@ -41,7 +41,7 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   updateImages() {
     if (this.dim === this.maxdim-1) {
       console.log("Labeling Done. Navigating to Shift-Labeling")
-      this.router.navigate(['/shift-labeling'])
+      this.router.navigate(['/labeling-results'])
       return
     }
 

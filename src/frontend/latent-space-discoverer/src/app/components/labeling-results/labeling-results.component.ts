@@ -6,12 +6,12 @@ import {ImageStrip} from "../../models/image-strip.model";
 import {Router} from "@angular/router";
 
 @Component({
-  selector: 'shift-labeling',
-  templateUrl: './shift-labeling.component.html',
-  styleUrls: ['./shift-labeling.component.scss']
+  selector: 'labeling-results',
+  templateUrl: './labeling-results.component.html',
+  styleUrls: ['./labeling-results.component.scss']
 })
-export class ShiftLabelingComponent implements OnInit {
-  images$: Observable<Array<ImageStrip>> | undefined
+export class LabelingResultsComponent implements OnInit {
+  rocAucImageBase64$: Observable<string> | undefined
 
   constructor(private router: Router, private bs: BackendService, private ls: LabelingService) {}
 
@@ -23,7 +23,11 @@ export class ShiftLabelingComponent implements OnInit {
     this.bs.saveSessionLabelsToDb(this.ls.getData())
       .pipe(take(1))
       .subscribe((value) => {
-        this.images$ = this.bs.getShiftedImagesFromDimensionLabels(this.ls.getData())
+        this.rocAucImageBase64$ = this.bs.getRocAucForGivenDims({
+          weighted_dims: this.ls.getData().anomalous_dims,
+          pca_component_count: this.ls.getData().pca_component_count,
+          skipped_components_count: this.ls.getData().pca_skipped_components_count
+        })
       })
   }
 }

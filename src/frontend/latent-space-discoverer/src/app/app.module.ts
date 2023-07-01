@@ -20,7 +20,7 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatInputModule} from "@angular/material/input";
 import { ImageStripComponent } from './components/image-strip/image-strip.component';
 import { DimensionLabelingComponent } from './components/dimension-labeling/dimension-labeling.component';
-import { ShiftLabelingComponent } from './components/shift-labeling/shift-labeling.component';
+import { LabelingResultsComponent } from './components/labeling-results/labeling-results.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +31,7 @@ import { ShiftLabelingComponent } from './components/shift-labeling/shift-labeli
     ConfigurationComponent,
     ImageStripComponent,
     DimensionLabelingComponent,
-    ShiftLabelingComponent
+    LabelingResultsComponent
   ],
   imports: [
     BrowserModule,

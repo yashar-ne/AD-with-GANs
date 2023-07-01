@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
-from src.ml.tools.ano_mnist import AnoMNIST
+from src.ml.tools.ano_mnist import AnoMNIST, AnomalyExtendedMNIST
 from torchvision import datasets
 import torch
 
@@ -86,13 +86,13 @@ def generate_anomalous_image_files(base_folder, num_aug, num_art):
     generate_artificial_mnist_images(base_folder, num=num_art)
 
 
-def get_ano_mnist_dataset(transform, root_dir, labels=[], train_size=0.9):
+def get_ano_mnist_dataset(transform, root_dir, labels=[9], train_size=0.9):
     ano_mnist_dataset = AnoMNIST(
         root_dir=root_dir,
         transform=transform
     )
 
-    mnist_dataset = datasets.MNIST(
+    mnist_dataset = AnomalyExtendedMNIST(
         root=root_dir,
         train=True,
         transform=transform,
@@ -102,7 +102,7 @@ def get_ano_mnist_dataset(transform, root_dir, labels=[], train_size=0.9):
     dat = torch.utils.data.ConcatDataset([ano_mnist_dataset, mnist_dataset])
 
     if len(labels) > 0:
-        dat = [d for d in dat if (d[1] in labels)]
+        dat = [d for d in dat if (d[1]['label'] in labels)]
 
     absolute_train_size = int(len(dat) * train_size)
     absolute_test_size = len(dat) - absolute_train_size
