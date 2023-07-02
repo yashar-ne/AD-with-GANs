@@ -1,6 +1,7 @@
 import base64
 import io
 import os
+import time
 
 import numpy as np
 import torch
@@ -10,7 +11,9 @@ import csv
 
 from sklearn.neighbors import LocalOutlierFactor
 from torchvision.transforms import transforms
+from PIL import Image
 
+from src.ml.models.generator import Generator
 from src.ml.tools.ano_mnist_dataset_generator import get_ano_mnist_dataset
 from src.ml.weighted_local_outlier_factor import WeightedLocalOutlierFactor
 
@@ -96,7 +99,9 @@ def get_roc_auc_for_given_dims(weighted_dims, latent_space_data_points, latent_s
 
 # Just to test the implementations for LOF and ROC-AUC
 def test_roc_auc_and_lof():
-    X = [[-1.1, 2.1, 4.2, -862.4], [0.2, 2.1, 4.2, -8.4], [101.1, 88.1, 4.2, -8.4], [-81.2, 105.1, 4.2, -8.4], [0.3, 2.1, 4.2, -8.4], [1.5, 2.1, 4.2, -8.4], [2.1, 2.1, 4.2, -8.4], [-1.6, 2.1, 4.2, -8.4], [-3.6, 2.1, 4.2, -8.4]]
+    X = [[-1.1, 2.1, 4.2, -862.4], [0.2, 2.1, 4.2, -8.4], [101.1, 88.1, 4.2, -8.4], [-81.2, 105.1, 4.2, -8.4],
+         [0.3, 2.1, 4.2, -8.4], [1.5, 2.1, 4.2, -8.4], [2.1, 2.1, 4.2, -8.4], [-1.6, 2.1, 4.2, -8.4],
+         [-3.6, 2.1, 4.2, -8.4]]
     y = [-1, 1, -1, -1, 1, 1, 1, 1, 1]
     clf = LocalOutlierFactor(n_neighbors=1,
                              metric=element_weighted_euclidean_distance)
@@ -118,6 +123,24 @@ def element_weighted_euclidean_distance(u, v):
     weights = [1, 1, 0, 1]
     return np.linalg.norm((np.multiply(u - v, weights)))
 
+
+def test_latent_space_points():
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    data_points, data_labels = load_latent_space_data_points('../../data/LatentSpaceMNIST')
+    generator: Generator = Generator(size_z=100, num_feature_maps=64, num_color_channels=1)
+    generator.load_state_dict(torch.load('../../saved_models/generator.pkl', map_location=torch.device(device)))
+    t = transforms.ToPILImage()
+    generator.eval()
+    for i in range(len(data_points)):
+        if data_labels[i] == 'True':
+            print(f"Showing Image {i}")
+            z = torch.from_numpy(data_points[i].reshape(1, 100, 1, 1))
+            original_img = generator(z).cpu()
+            t(original_img[0]).show()
+
+
+
+test_latent_space_points()
 
 # test_roc_auc_and_lof()
 
