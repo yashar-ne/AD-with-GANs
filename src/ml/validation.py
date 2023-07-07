@@ -125,24 +125,22 @@ def element_weighted_euclidean_distance(u, v):
 
 
 def test_latent_space_points():
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    data_points, data_labels = load_latent_space_data_points('../../data/LatentSpaceMNIST')
+    data_points, data_labels = load_latent_space_data_points('/home/yashar/git/python/AD-with-GANs/data/LatentSpaceMNIST')
     generator: Generator = Generator(size_z=100, num_feature_maps=64, num_color_channels=1)
-    generator.load_state_dict(torch.load('../../saved_models/generator.pkl', map_location=torch.device(device)))
-    t = transforms.ToPILImage()
+    generator.load_state_dict(torch.load('/home/yashar/git/python/AD-with-GANs/saved_models/generator.pkl', map_location=torch.device(device)))
+    to_pil_image = transforms.ToPILImage()
     generator.eval()
     for i in range(len(data_points)):
         if data_labels[i] == 'True':
-            print(f"Showing Image {i}")
             z = torch.from_numpy(data_points[i].reshape(1, 100, 1, 1))
             original_img = generator(z).cpu()
-            t(original_img[0]).show()
-
+            plt.imshow(to_pil_image(original_img[0]))
+            plt.show()
 
 
 test_latent_space_points()
-
 # test_roc_auc_and_lof()
+
 
 # np.set_printoptions(threshold=np.inf)
 #

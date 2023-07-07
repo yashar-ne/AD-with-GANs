@@ -10,7 +10,7 @@ import csv
 
 
 def generate_augmented_mnist_images(base_folder, num, max_augmentation_thickness=5,
-                                    randomize_augmentation_thickness=False):
+                                    randomize_augmentation_thickness=False, labels=[]):
     assert max_augmentation_thickness <= 7, "max_augmentation_thickness must be smaller than 7"
     os.makedirs(base_folder, exist_ok=True)
 
@@ -20,6 +20,11 @@ def generate_augmented_mnist_images(base_folder, num, max_augmentation_thickness
         download=True,
     )
 
+    if len(labels) > 0:
+        dataset = [d for d in dataset if (d[1] in labels)]
+    else:
+        dataset = dataset.data
+
     ano_mnist_drop_folder = os.path.join(base_folder, "AnoMNIST")
     csv_path = os.path.join(ano_mnist_drop_folder, "anomnist_dataset.csv")
 
@@ -28,7 +33,7 @@ def generate_augmented_mnist_images(base_folder, num, max_augmentation_thickness
 
     augmentation_thickness: int = random.randint(1, max_augmentation_thickness)
     for i in range(num):
-        random_idx = random.randint(0, len(dataset.data) - 1)
+        random_idx = random.randint(0, len(dataset) - 1)
         img, label = dataset[random_idx]
 
         augmentation_thickness = random.randint(3,
@@ -41,49 +46,27 @@ def generate_augmented_mnist_images(base_folder, num, max_augmentation_thickness
         img.save(os.path.join(ano_mnist_drop_folder, f"img_aug_{label}_{i}.png"))
         with open(csv_path, 'a', newline='') as file:
             writer = csv.writer(file)
-            fields = [f'img_aug_{label}_{i}.png', f"{label}", "True", "Augmented"]
+            fields = [f'img_aug_{label}_{i}.png', f"{label}", "True"]
             writer.writerow(fields)
 
 
-def generate_artificial_mnist_images(base_folder, num):
-    ano_mnist_drop_folder = os.path.join(base_folder, "AnoMNIST")
-    csv_path = os.path.join(ano_mnist_drop_folder, "anomnist_dataset.csv")
-
-    os.makedirs(base_folder, exist_ok=True)
-    os.makedirs(ano_mnist_drop_folder, exist_ok=True)
-
-    for i in range(num):
-        label = random.randint(0, 9)
-        img = Image.new("1", (28, 28))
-
-        font = ImageFont.truetype("./FFFFORWA.TTF", size=18)
-        d = ImageDraw.Draw(img)
-        d.text((8, 4), f'{label}', fill=1, font=font)
-
-        img.save(os.path.join(ano_mnist_drop_folder, f"img_art_{label}_{i}.png"))
-        with open(os.path.join(ano_mnist_drop_folder, "anomnist_dataset.csv"), 'a', newline='') as file:
-            writer = csv.writer(file)
-            fields = [f'img_art_{label}_{i}.png', f"{label}", "True", "Artificial"]
-            writer.writerow(fields)
-
-
-def generate_anomalous_image_files(base_folder, num_aug, num_art):
-    if os.path.exists(base_folder):
-        shutil.rmtree(base_folder)
+def generate_anomalous_image_files(base_folder, num, labels=[]):
 
     ano_mnist_drop_folder = os.path.join(base_folder, "AnoMNIST")
     csv_path = os.path.join(ano_mnist_drop_folder, "anomnist_dataset.csv")
+
+    if os.path.exists(ano_mnist_drop_folder):
+        shutil.rmtree(ano_mnist_drop_folder)
 
     os.makedirs(base_folder, exist_ok=True)
     os.makedirs(ano_mnist_drop_folder, exist_ok=True)
 
     with open(csv_path, 'a', newline='') as file:
         writer = csv.writer(file)
-        fields = ["filename", "label", "anomaly", "type"]
+        fields = ["filename", "label", "anomaly"]
         writer.writerow(fields)
 
-    generate_augmented_mnist_images(base_folder, num=num_aug)
-    generate_artificial_mnist_images(base_folder, num=num_art)
+    generate_augmented_mnist_images(base_folder, num=num, labels=labels)
 
 
 def get_ano_mnist_dataset(transform, root_dir, labels=[9], train_size=0.9):
@@ -107,3 +90,6 @@ def get_ano_mnist_dataset(transform, root_dir, labels=[9], train_size=0.9):
     absolute_train_size = int(len(dat) * train_size)
     absolute_test_size = len(dat) - absolute_train_size
     return torch.utils.data.random_split(dat, [absolute_train_size, absolute_test_size])
+
+
+generate_anomalous_image_files(base_folder='/home/yashar/git/python/AD-with-GANs/data', num=2000, labels=[9]) # num normals 5949
