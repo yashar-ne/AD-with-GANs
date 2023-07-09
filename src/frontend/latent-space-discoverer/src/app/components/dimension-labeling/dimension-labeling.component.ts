@@ -18,7 +18,7 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   shiftRangeSelectOptions: number[] = Array.from(Array(100).keys())
   shiftCountSelectOptions: number[] = Array.from(Array(21).keys())
 
-  shiftRange: number = 10
+  shiftRange: number = 20
   shiftCount: number = 10
   dim: number = 0
   maxdim: number = 100

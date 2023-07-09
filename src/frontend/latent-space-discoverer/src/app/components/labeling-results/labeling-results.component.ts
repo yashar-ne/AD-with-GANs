@@ -2,14 +2,13 @@ import {Component, OnInit} from '@angular/core';
 import {BackendService} from "../../services/backend.service";
 import {LabelingService} from "../../services/labeling.service";
 import {Observable, take} from "rxjs";
-import {ImageStrip} from "../../models/image-strip.model";
 import {Router} from "@angular/router";
 import {ValidationResultsModel} from "../../models/validation-results-model.model";
 
 @Component({
   selector: 'labeling-results',
   templateUrl: './labeling-results.component.html',
-  styleUrls: ['./labeling-results.component.scss']
+  styleUrls: ['./labeling-results.component.scss'],
 })
 export class LabelingResultsComponent implements OnInit {
   validationResults$: Observable<ValidationResultsModel> | undefined

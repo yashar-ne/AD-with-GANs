@@ -6,7 +6,6 @@ import io
 from PIL import Image
 
 from src.backend.db import save_to_db, save_session_labels_to_db
-from src.backend.models.SaveLabelToDbModel import SaveLabelToDbModel
 from src.backend.models.SessionLabelsModel import SessionLabelsModel
 from src.backend.models.ValidationResultsModel import ValidationResultsModel
 from src.ml.latent_direction_visualizer import LatentDirectionVisualizer, get_random_strip_as_numpy_array
@@ -15,7 +14,8 @@ from src.ml.models.matrix_a_linear import MatrixALinear
 from src.backend.models.ImageStripModel import ImageStripModel
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
     generate_base64_images_from_tensor
-from src.ml.validation import load_latent_space_data_points, get_roc_auc_for_given_dims, get_tsne_for_original_data
+from src.ml.validation import load_latent_space_data_points, get_roc_auc_for_given_dims, get_tsne_for_original_data, \
+    get_tsne_with_dimension_weighted_metric
 
 
 class MainController:
@@ -55,13 +55,34 @@ class MainController:
 
     def get_validation_results(self, weighted_dims, pca_component_count, skipped_components_count, n_neighbours):
         roc_auc_base64, _ = get_roc_auc_for_given_dims(weighted_dims=weighted_dims,
-                                                    latent_space_data_points=self.latent_space_data_points,
-                                                    latent_space_data_labels=self.latent_space_data_labels,
-                                                    pca_component_count=pca_component_count,
-                                                    skipped_components_count=skipped_components_count,
-                                                    n_neighbours=n_neighbours)
+                                                       latent_space_data_points=self.latent_space_data_points,
+                                                       latent_space_data_labels=self.latent_space_data_labels,
+                                                       pca_component_count=pca_component_count,
+                                                       skipped_components_count=skipped_components_count,
+                                                       n_neighbours=n_neighbours)
 
-        return ValidationResultsModel(roc_auc_plot=roc_auc_base64, t_sne_plot_original_input_data=get_tsne_for_original_data())
+        t_sne_plot_one_hot_weighted_data = get_tsne_with_dimension_weighted_metric(weighted_dims=weighted_dims,
+                                                                                   ignore_unlabeled_dims=True,
+                                                                                   pca_component_count=pca_component_count,
+                                                                                   skipped_components_count=skipped_components_count)
+
+        t_sne_plot_weighted_data_factor_5 = get_tsne_with_dimension_weighted_metric(weighted_dims=weighted_dims,
+                                                                                    ignore_unlabeled_dims=False,
+                                                                                    weight_factor=5,
+                                                                                    pca_component_count=pca_component_count,
+                                                                                    skipped_components_count=skipped_components_count)
+
+        t_sne_plot_weighted_data_factor_10 = get_tsne_with_dimension_weighted_metric(weighted_dims=weighted_dims,
+                                                                                     ignore_unlabeled_dims=False,
+                                                                                     weight_factor=10,
+                                                                                     pca_component_count=pca_component_count,
+                                                                                     skipped_components_count=skipped_components_count)
+
+        return ValidationResultsModel(roc_auc_plot=roc_auc_base64,
+                                      t_sne_plot_original_input_data=get_tsne_for_original_data(),
+                                      t_sne_plot_one_hot_weighted_data=t_sne_plot_one_hot_weighted_data,
+                                      t_sne_plot_weighted_data_factor_5=t_sne_plot_weighted_data_factor_5,
+                                      t_sne_plot_weighted_data_factor_10=t_sne_plot_weighted_data_factor_10)
 
     @staticmethod
     def get_image_strip_from_prerendered_sample():

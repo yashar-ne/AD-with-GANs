@@ -8,6 +8,15 @@
     <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_original_input_data}}">
     <div class="labeling_results_description_text">T-SNE on original input data</div>
 
+    <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_one_hot_weighted_data}}">
+    <div class="labeling_results_description_text">T-SNE on labeled data (one-hot weighted)</div>
+
+    <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_weighted_data_factor_5}}">
+    <div class="labeling_results_description_text">T-SNE on labeled data (weight factor 5)</div>
+
+    <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_weighted_data_factor_10}}">
+    <div class="labeling_results_description_text">T-SNE on labeled data (weight factor 10)</div>
+
     <button
       class="button yes"
       mat-fab
@@ -19,6 +28,6 @@
     </button>
   </ng-container>
   <ng-template #imagesLoading>
-    <div>Calculating ROC-AUC. Please wait...</div>
+    <div>Calculating Validation Results. Please Wait...</div>
   </ng-template>
 </div>
