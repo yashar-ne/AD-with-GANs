@@ -3,7 +3,7 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.backend.models.GetRocAucModel import GetRocAucModel
+from src.backend.models.GetValidationResultsModel import GetValidationResultsModel
 from src.backend.models.SaveLabelToDbModel import SaveLabelToDbModel
 from src.backend.models.GetRandomNoiseModel import GetRandomNoiseModel
 from src.backend.models.GetShiftedImagesModel import GetShiftedImagesModel
@@ -63,12 +63,12 @@ async def get_image_strip_from_prerendered_sample():
     return main_controller.get_image_strip_from_prerendered_sample()
 
 
-@app.post("/get_roc_auc_for_given_dims")
-async def get_roc_auc_for_given_dims(body: GetRocAucModel):
-    return main_controller.get_roc_auc_for_given_dims(weighted_dims=body.weighted_dims,
-                                                      pca_component_count=body.pca_component_count,
-                                                      skipped_components_count=body.skipped_components_count,
-                                                      n_neighbours=20)
+@app.post("/get_validation_results")
+async def get_validation_results(body: GetValidationResultsModel):
+    return main_controller.get_validation_results(weighted_dims=body.weighted_dims,
+                                                  pca_component_count=body.pca_component_count,
+                                                  skipped_components_count=body.skipped_components_count,
+                                                  n_neighbours=20)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,8 @@ import {GetShiftedImages} from "../models/get-shifted-images.model";
 import {GetRandomNoise} from "../models/get-random-noise.model";
 import {SaveLabelModel} from "../models/save-label-to-db-model.model";
 import {SessionLabelsModel} from "../models/session-labels.model";
-import {GetRocAucModel} from "../models/get-roc-auc-model.model";
+import {GetValidationResultsModel} from "../models/get-roc-auc-model.model";
+import {ValidationResultsModel} from "../models/validation-results-model.model";
 
 @Injectable({
   providedIn: 'root'
@@ -45,8 +46,8 @@ export class BackendService {
     return this.httpClient.get<Array<ImageStrip>>(`${this.api_root}/get_image_strip_from_prerendered_sample`, { responseType: 'json' })
   }
 
-  getRocAucForGivenDims(getRocAucModel: GetRocAucModel): Observable<string>{
-    console.log("Getting ROC-AUC curve as base64 string")
-    return this.httpClient.post<string>(`${this.api_root}/get_roc_auc_for_given_dims`, getRocAucModel, { responseType: 'json' })
+  getValidationResults(getValidationResultsModel: GetValidationResultsModel): Observable<ValidationResultsModel>{
+    console.log("Getting validation results as base64 strings")
+    return this.httpClient.post<ValidationResultsModel>(`${this.api_root}/get_validation_results`, getValidationResultsModel, { responseType: 'json' })
   }
 }

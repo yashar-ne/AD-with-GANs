@@ -1,8 +1,13 @@
 <div class="done-wrapper">
-  <ng-container *ngIf="rocAucImageBase64$ | async as rocAucImageBase64 else imagesLoading">
+  <ng-container *ngIf="validationResults$ | async as validationResults else imagesLoading">
     <div class="labeling_results_title_text">Session done. You successfully labeled all dimensions</div>
-    <img class="latent_image" src="{{'data:image/png;base64,' + rocAucImageBase64}}">
+
+    <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_plot}}">
     <div class="labeling_results_description_text">ROC Curve after performing Local Outlier Factor on labeled dimensions</div>
+
+    <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_original_input_data}}">
+    <div class="labeling_results_description_text">T-SNE on original input data</div>
+
     <button
       class="button yes"
       mat-fab

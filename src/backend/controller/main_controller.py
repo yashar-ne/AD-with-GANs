@@ -8,13 +8,14 @@ from PIL import Image
 from src.backend.db import save_to_db, save_session_labels_to_db
 from src.backend.models.SaveLabelToDbModel import SaveLabelToDbModel
 from src.backend.models.SessionLabelsModel import SessionLabelsModel
+from src.backend.models.ValidationResultsModel import ValidationResultsModel
 from src.ml.latent_direction_visualizer import LatentDirectionVisualizer, get_random_strip_as_numpy_array
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
 from src.backend.models.ImageStripModel import ImageStripModel
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
     generate_base64_images_from_tensor
-from src.ml.validation import load_latent_space_data_points, get_roc_auc_for_given_dims
+from src.ml.validation import load_latent_space_data_points, get_roc_auc_for_given_dims, get_tsne_for_original_data
 
 
 class MainController:
@@ -52,14 +53,15 @@ class MainController:
 
         return [ImageStripModel(position=0, image=generate_base64_images_from_tensor(shifted_images))]
 
-    def get_roc_auc_for_given_dims(self, weighted_dims, pca_component_count, skipped_components_count, n_neighbours):
-        base64_jpeg, _ = get_roc_auc_for_given_dims(weighted_dims=weighted_dims,
+    def get_validation_results(self, weighted_dims, pca_component_count, skipped_components_count, n_neighbours):
+        roc_auc_base64, _ = get_roc_auc_for_given_dims(weighted_dims=weighted_dims,
                                                     latent_space_data_points=self.latent_space_data_points,
                                                     latent_space_data_labels=self.latent_space_data_labels,
                                                     pca_component_count=pca_component_count,
                                                     skipped_components_count=skipped_components_count,
                                                     n_neighbours=n_neighbours)
-        return base64_jpeg
+
+        return ValidationResultsModel(roc_auc_plot=roc_auc_base64, t_sne_plot_original_input_data=get_tsne_for_original_data())
 
     @staticmethod
     def get_image_strip_from_prerendered_sample():
