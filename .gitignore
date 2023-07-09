@@ -139,3 +139,5 @@ model_gen.ckpt
 /data/
 /saved_models/cp
 /out_dir/
+/saved_models/discriminator.BACKUP.pkl
+/saved_models/generator.BACKUP.pkl
