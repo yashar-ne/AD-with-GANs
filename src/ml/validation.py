@@ -21,6 +21,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def create_roc_curve(label, lofs_in):
+    plt.clf()
     fpr, tpr, thresholds = metrics.roc_curve(label, lofs_in)
     roc_auc = metrics.auc(fpr, tpr)
     display = metrics.RocCurveDisplay(fpr=fpr, tpr=tpr, roc_auc=roc_auc,
@@ -37,6 +38,7 @@ def plot_to_base64(plot):
 
 
 def get_roc_curve_as_base64(label, lofs_in):
+    plt.clf()
     fpr, tpr, thresholds = metrics.roc_curve(label, lofs_in)
     auc = metrics.auc(fpr, tpr)
     display = metrics.RocCurveDisplay(fpr=fpr, tpr=tpr, roc_auc=auc,
@@ -101,17 +103,12 @@ def get_roc_auc_for_given_dims(weighted_dims, latent_space_data_points, latent_s
     return get_roc_curve_as_base64(y, weighted_lof.get_negative_outlier_factor())
 
 
-def apply_tsne_on_input_dataset():
+def get_tsne_for_original_data():
+    plt.clf()
     data_points, data_label = load_latent_space_data_points(
         '/home/yashar/git/python/AD-with-GANs/data/LatentSpaceMNIST')
     tsne = TSNE(n_components=2, random_state=0)
     tsne_res = tsne.fit_transform(np.array(data_points))
-
-    return tsne_res, data_label
-
-
-def get_tsne_for_original_data():
-    tsne_res, data_label = apply_tsne_on_input_dataset()
     sns.scatterplot(x=tsne_res[:, 0], y=tsne_res[:, 1], hue=data_label, palette=sns.hls_palette(2), legend='full')
     return plot_to_base64(plt)
 
