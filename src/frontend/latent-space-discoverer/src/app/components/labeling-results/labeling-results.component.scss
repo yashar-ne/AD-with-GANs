@@ -5,8 +5,14 @@
   align-items: center;
   justify-content: center;
 
+  .validation-results-grid-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1em;
+  }
+
   button {
-    margin-top: 3rem;
+    margin-bottom: 3rem;
   }
 
   .labeling_results_title_text {

@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 
 class WeightedLocalOutlierFactor:
     def __init__(self, weighted_dims, n_neighbours, weight_factor=10, pca_component_count=0,
-                 skipped_components_count=0, ignore_unlabeled_dims=False):
+                 skipped_components_count=0, ignore_unlabeled_dims=False, ignore_labels=False):
         self.data = []
         if pca_component_count > 0:
             self.weights = np.ones(pca_component_count) if not ignore_unlabeled_dims else np.zeros(pca_component_count)
@@ -22,7 +22,7 @@ class WeightedLocalOutlierFactor:
             self.weights[dim] = weight_factor if not ignore_unlabeled_dims else 1
 
         self.lof = LocalOutlierFactor(n_neighbors=n_neighbours,
-                                      metric=self.__element_weighted_euclidean_distance,
+                                      metric=self.__element_weighted_euclidean_distance if not ignore_labels else "minkowski",
                                       contamination=0.1)
         self.pca_component_count = pca_component_count
         self.skipped_components_count = skipped_components_count

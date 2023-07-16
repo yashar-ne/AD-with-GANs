@@ -21,6 +21,7 @@ import {MatInputModule} from "@angular/material/input";
 import { ImageStripComponent } from './components/image-strip/image-strip.component';
 import { DimensionLabelingComponent } from './components/dimension-labeling/dimension-labeling.component';
 import { LabelingResultsComponent } from './components/labeling-results/labeling-results.component';
+import {NgxLoadingModule} from "ngx-loading";
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import { LabelingResultsComponent } from './components/labeling-results/labeling
     MatSelectModule,
     FormsModule,
     MatCheckboxModule,
-    MatInputModule
+    MatInputModule,
+    NgxLoadingModule
   ],
   providers: [],
   bootstrap: [AppComponent]

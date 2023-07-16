@@ -93,12 +93,14 @@ def get_ano_mnist_data(base_url, num=1308):
 
 
 def get_roc_auc_for_given_dims(weighted_dims, latent_space_data_points, latent_space_data_labels, pca_component_count,
-                               skipped_components_count, n_neighbours):
+                               skipped_components_count, n_neighbours, ignore_labels=False):
+
     weighted_lof = WeightedLocalOutlierFactor(weighted_dims=weighted_dims,
                                               n_neighbours=n_neighbours,
                                               pca_component_count=pca_component_count,
                                               skipped_components_count=skipped_components_count,
-                                              ignore_unlabeled_dims=True)
+                                              ignore_unlabeled_dims=False,
+                                              ignore_labels=ignore_labels)
 
     weighted_lof.load_latent_space_datapoints(data=latent_space_data_points)
     weighted_lof.fit()
@@ -117,7 +119,8 @@ def get_tsne_for_original_data():
     return plot_to_base64(plt)
 
 
-def get_tsne_with_dimension_weighted_metric(weighted_dims, ignore_unlabeled_dims, pca_component_count=0, skipped_components_count=0, weight_factor=10):
+def get_tsne_with_dimension_weighted_metric(weighted_dims, ignore_unlabeled_dims, pca_component_count=0,
+                                            skipped_components_count=0, weight_factor=10, ignore_labels=False):
     plt.clf()
 
     if pca_component_count > 0:
@@ -144,7 +147,7 @@ def get_tsne_with_dimension_weighted_metric(weighted_dims, ignore_unlabeled_dims
         principal_components = pca.fit_transform(data)
         data = principal_components[:, skipped_components_count:]
 
-    tsne = TSNE(n_components=2, random_state=0, metric=element_weighted_euclidean_distance)
+    tsne = TSNE(n_components=2, random_state=0, metric=element_weighted_euclidean_distance if not ignore_labels else "euclidean")
     tsne_res = tsne.fit_transform(data)
     sns.scatterplot(x=tsne_res[:, 0], y=tsne_res[:, 1], hue=data_label, palette=sns.hls_palette(2), legend='full')
 

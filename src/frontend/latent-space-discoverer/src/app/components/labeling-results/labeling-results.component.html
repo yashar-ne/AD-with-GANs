@@ -2,21 +2,45 @@
   <ng-container *ngIf="validationResults$ | async as validationResults else imagesLoading">
     <div class="labeling_results_title_text">Session done. You successfully labeled all dimensions</div>
 
-    <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_plot}}">
-    <div class="labeling_results_description_text">ROC Curve after performing Local Outlier Factor on labeled dimensions</div>
-
-    <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_original_input_data}}">
-    <div class="labeling_results_description_text">T-SNE on original input data</div>
-
-    <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_one_hot_weighted_data}}">
-    <div class="labeling_results_description_text">T-SNE on labeled data (one-hot weighted)</div>
-
-    <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_weighted_data_factor_5}}">
-    <div class="labeling_results_description_text">T-SNE on labeled data (weight factor 5)</div>
-
-    <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_weighted_data_factor_10}}">
-    <div class="labeling_results_description_text">T-SNE on labeled data (weight factor 10)</div>
-
+    <div class="validation-results-grid-wrapper">
+      <div class="validation-results-grid-item">
+        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_plot}}">
+        <div class="labeling_results_description_text">ROC Curve after performing Local Outlier Factor on labeled dimensions</div>
+      </div>
+      <div class="validation-results-grid-item">
+        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_plot_ignore_labels}}">
+        <div class="labeling_results_description_text">ROC Curve after performing Local Outlier Factor on labeled dimensions (ignore labels)</div>
+      </div>
+      <div class="validation-results-grid-item">
+        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_original_input_data}}">
+        <div class="labeling_results_description_text">T-SNE on original input data</div>
+      </div>
+      <div class="validation-results-grid-item"></div>
+      <div class="validation-results-grid-item">
+        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_one_hot_weighted_data}}">
+        <div class="labeling_results_description_text">T-SNE on labeled data (one-hot weighted)</div>
+      </div>
+      <div class="validation-results-grid-item">
+        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_one_hot_weighted_data_ignore_labels}}">
+        <div class="labeling_results_description_text">T-SNE on labeled data (one-hot weighted, ignore labels)</div>
+      </div>
+      <div class="validation-results-grid-item">
+        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_weighted_data_factor_10}}">
+        <div class="labeling_results_description_text">T-SNE on labeled data (weight factor 10)</div>
+      </div>
+      <div class="validation-results-grid-item">
+        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_weighted_data_factor_10_ignore_labels}}">
+        <div class="labeling_results_description_text">T-SNE on labeled data (weight factor 10, ignore labels)</div>
+      </div>
+      <div class="validation-results-grid-item">
+        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_weighted_data_factor_100}}">
+        <div class="labeling_results_description_text">T-SNE on labeled data (weight factor 100)</div>
+      </div>
+      <div class="validation-results-grid-item">
+        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_weighted_data_factor_100_ignore_labels}}">
+        <div class="labeling_results_description_text">T-SNE on labeled data (weight factor 100, ignore labels)</div>
+      </div>
+    </div>
     <button
       class="button yes"
       mat-fab
@@ -28,6 +52,14 @@
     </button>
   </ng-container>
   <ng-template #imagesLoading>
+    <ngx-loading
+      [show]=true
+      [config]="{
+        backdropBorderRadius: '3px',
+        fullScreenBackdrop: false,
+        backdropBackgroundColour: 'rgba(255,255,255,0)'
+      }"
+    ></ngx-loading>
     <div>Calculating Validation Results. Please Wait...</div>
   </ng-template>
 </div>

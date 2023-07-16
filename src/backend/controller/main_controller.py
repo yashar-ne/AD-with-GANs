@@ -61,16 +61,24 @@ class MainController:
                                                        skipped_components_count=skipped_components_count,
                                                        n_neighbours=n_neighbours)
 
+        roc_auc_base64_ignore_labels, _ = get_roc_auc_for_given_dims(weighted_dims=weighted_dims,
+                                                                     latent_space_data_points=self.latent_space_data_points,
+                                                                     latent_space_data_labels=self.latent_space_data_labels,
+                                                                     pca_component_count=pca_component_count,
+                                                                     skipped_components_count=skipped_components_count,
+                                                                     n_neighbours=n_neighbours,
+                                                                     ignore_labels=True)
+
         t_sne_plot_one_hot_weighted_data = get_tsne_with_dimension_weighted_metric(weighted_dims=weighted_dims,
                                                                                    ignore_unlabeled_dims=True,
                                                                                    pca_component_count=pca_component_count,
                                                                                    skipped_components_count=skipped_components_count)
 
-        t_sne_plot_weighted_data_factor_5 = get_tsne_with_dimension_weighted_metric(weighted_dims=weighted_dims,
-                                                                                    ignore_unlabeled_dims=False,
-                                                                                    weight_factor=5,
-                                                                                    pca_component_count=pca_component_count,
-                                                                                    skipped_components_count=skipped_components_count)
+        t_sne_plot_one_hot_weighted_data_ignore_labels = get_tsne_with_dimension_weighted_metric(weighted_dims=weighted_dims,
+                                                                                                 ignore_unlabeled_dims=True,
+                                                                                                 pca_component_count=pca_component_count,
+                                                                                                 skipped_components_count=skipped_components_count,
+                                                                                                 ignore_labels=True)
 
         t_sne_plot_weighted_data_factor_10 = get_tsne_with_dimension_weighted_metric(weighted_dims=weighted_dims,
                                                                                      ignore_unlabeled_dims=False,
@@ -78,11 +86,35 @@ class MainController:
                                                                                      pca_component_count=pca_component_count,
                                                                                      skipped_components_count=skipped_components_count)
 
+        t_sne_plot_weighted_data_factor_10_ignore_labels = get_tsne_with_dimension_weighted_metric(weighted_dims=weighted_dims,
+                                                                                                   ignore_unlabeled_dims=False,
+                                                                                                   weight_factor=10,
+                                                                                                   pca_component_count=pca_component_count,
+                                                                                                   skipped_components_count=skipped_components_count,
+                                                                                                   ignore_labels=True)
+
+        t_sne_plot_weighted_data_factor_100 = get_tsne_with_dimension_weighted_metric(weighted_dims=weighted_dims,
+                                                                                      ignore_unlabeled_dims=False,
+                                                                                      weight_factor=100,
+                                                                                      pca_component_count=pca_component_count,
+                                                                                      skipped_components_count=skipped_components_count)
+
+        t_sne_plot_weighted_data_factor_100_ignore_labels = get_tsne_with_dimension_weighted_metric(weighted_dims=weighted_dims,
+                                                                                                    ignore_unlabeled_dims=False,
+                                                                                                    weight_factor=100,
+                                                                                                    pca_component_count=pca_component_count,
+                                                                                                    skipped_components_count=skipped_components_count,
+                                                                                                    ignore_labels=True)
+
         return ValidationResultsModel(roc_auc_plot=roc_auc_base64,
+                                      roc_auc_plot_ignore_labels=roc_auc_base64_ignore_labels,
                                       t_sne_plot_original_input_data=get_tsne_for_original_data(),
                                       t_sne_plot_one_hot_weighted_data=t_sne_plot_one_hot_weighted_data,
-                                      t_sne_plot_weighted_data_factor_5=t_sne_plot_weighted_data_factor_5,
-                                      t_sne_plot_weighted_data_factor_10=t_sne_plot_weighted_data_factor_10)
+                                      t_sne_plot_one_hot_weighted_data_ignore_labels=t_sne_plot_one_hot_weighted_data_ignore_labels,
+                                      t_sne_plot_weighted_data_factor_10=t_sne_plot_weighted_data_factor_10,
+                                      t_sne_plot_weighted_data_factor_10_ignore_labels=t_sne_plot_weighted_data_factor_10_ignore_labels,
+                                      t_sne_plot_weighted_data_factor_100=t_sne_plot_weighted_data_factor_100,
+                                      t_sne_plot_weighted_data_factor_100_ignore_labels=t_sne_plot_weighted_data_factor_100_ignore_labels)
 
     @staticmethod
     def get_image_strip_from_prerendered_sample():

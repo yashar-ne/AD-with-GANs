@@ -6,7 +6,7 @@ import {GetShiftedImages} from "../models/get-shifted-images.model";
 import {GetRandomNoise} from "../models/get-random-noise.model";
 import {SaveLabelModel} from "../models/save-label-to-db-model.model";
 import {SessionLabelsModel} from "../models/session-labels.model";
-import {GetValidationResultsModel} from "../models/get-roc-auc-model.model";
+import {GetValidationResultsModel} from "../models/get-validation-results-model.model";
 import {ValidationResultsModel} from "../models/validation-results-model.model";
 
 @Injectable({
@@ -24,16 +24,6 @@ export class BackendService {
   getShiftedImages(getShiftedImages: GetShiftedImages): Observable<Array<ImageStrip>> {
     console.log("Getting Shifted Images")
     return this.httpClient.post<Array<ImageStrip>>(`${this.api_root}/get_shifted_images`, getShiftedImages, { responseType: 'json' })
-  }
-
-  getShiftedImagesFromDimensionLabels(sessionLabelsModel: SessionLabelsModel): Observable<Array<ImageStrip>> {
-    console.log("Getting Shifted Images From Dimension Labels")
-    return this.httpClient.post<Array<ImageStrip>>(`${this.api_root}/get_shifted_images_from_dimension_labels`, sessionLabelsModel, { responseType: 'json' })
-  }
-
-  saveToDb(saveLabelModel: SaveLabelModel): Observable<boolean> {
-    console.log("Calling save_to_db endpoint")
-    return this.httpClient.post<boolean>(`${this.api_root}/save_to_db`, saveLabelModel, { responseType: 'json' })
   }
 
   saveSessionLabelsToDb(sessionLabelsModel: SessionLabelsModel): Observable<boolean> {
