@@ -22,8 +22,7 @@ class WeightedLocalOutlierFactor:
             self.weights[dim] = weight_factor if not ignore_unlabeled_dims else 1
 
         self.lof = LocalOutlierFactor(n_neighbors=n_neighbours,
-                                      metric=self.__element_weighted_euclidean_distance if not ignore_labels else "minkowski",
-                                      contamination=0.1)
+                                      metric=self.__element_weighted_euclidean_distance if not ignore_labels else "minkowski")
         self.pca_component_count = pca_component_count
         self.skipped_components_count = skipped_components_count
 
