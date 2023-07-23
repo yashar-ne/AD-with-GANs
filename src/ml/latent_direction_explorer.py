@@ -121,6 +121,3 @@ class LatentDirectionExplorer:
         torch.save(self.reconstructor.state_dict(),
                    f'{self.saved_models_path}/cp/reconstructor_{time.time()}_{iteration}.pkl')
 
-    @staticmethod
-    def __load_models_from_checkpoints(self):
-        print("loading models...")

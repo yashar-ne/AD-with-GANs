@@ -93,13 +93,14 @@ def get_ano_mnist_data(base_url, num=1308):
 
 
 def get_roc_auc_for_given_dims(weighted_dims, latent_space_data_points, latent_space_data_labels, pca_component_count,
-                               skipped_components_count, n_neighbours, ignore_labels=False):
+                               skipped_components_count, n_neighbours, weight_factor=10, one_hot_weighing=True, ignore_labels=False):
 
     weighted_lof = WeightedLocalOutlierFactor(weighted_dims=weighted_dims,
+                                              weight_factor=weight_factor,
                                               n_neighbours=n_neighbours,
                                               pca_component_count=pca_component_count,
                                               skipped_components_count=skipped_components_count,
-                                              ignore_unlabeled_dims=False,
+                                              one_hot_weighing=one_hot_weighing,
                                               ignore_labels=ignore_labels)
 
     weighted_lof.load_latent_space_datapoints(data=latent_space_data_points)

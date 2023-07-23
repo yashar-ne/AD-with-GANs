@@ -10,16 +10,16 @@ from sklearn.preprocessing import StandardScaler
 
 class WeightedLocalOutlierFactor:
     def __init__(self, weighted_dims, n_neighbours, weight_factor=10, pca_component_count=0,
-                 skipped_components_count=0, ignore_unlabeled_dims=False, ignore_labels=False):
+                 skipped_components_count=0, one_hot_weighing=False, ignore_labels=False):
         self.data = []
         if pca_component_count > 0:
-            self.weights = np.ones(pca_component_count) if not ignore_unlabeled_dims else np.zeros(pca_component_count)
+            self.weights = np.ones(pca_component_count) if not one_hot_weighing else np.zeros(pca_component_count)
             self.pca = PCA(n_components=pca_component_count + skipped_components_count)
         else:
-            self.weights = np.ones(100) if not ignore_unlabeled_dims else np.zeros(100)
+            self.weights = np.ones(100) if not one_hot_weighing else np.zeros(100)
 
         for dim in weighted_dims:
-            self.weights[dim] = weight_factor if not ignore_unlabeled_dims else 1
+            self.weights[dim] = weight_factor if not one_hot_weighing else 1
 
         self.lof = LocalOutlierFactor(n_neighbors=n_neighbours,
                                       metric=self.__element_weighted_euclidean_distance if not ignore_labels else "minkowski")
@@ -58,3 +58,5 @@ class WeightedLocalOutlierFactor:
 
     def __element_weighted_euclidean_distance(self, u, v):
         return np.linalg.norm((np.multiply(u - v, self.weights)))
+
+
