@@ -4,14 +4,12 @@ import random
 from matplotlib import pyplot as plt
 import numpy as np
 import torch
-from torch.nn.functional import normalize
 
 from torchvision.utils import make_grid
 
-from src.backend.models.SessionLabelsModel import SessionLabelsModel
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
-from src.ml.tools.utils import one_hot, to_image, generate_noise, apply_pca_to_matrix_a
+from src.ml.tools.utils import one_hot, to_image
 from PIL import Image
 
 
@@ -46,28 +44,6 @@ class LatentDirectionVisualizer:
             out_file = os.path.join(output_directory, '{}_{}.jpg'.format(vis_range[0], vis_range[-1]))
             print('saving chart to {}'.format(out_file))
             Image.fromarray(np.hstack(dim_images)).save(out_file)
-
-    def generate_random_batches_as_numpy_array(self, batch_size, shifts_range, output_directory=""):
-        noise_batches = generate_noise(batch_size=batch_size, z_dim=100, device=self.device)
-        dim_size = noise_batches.shape[1]
-        max_dim = self.g.size_z
-        shifts_count = noise_batches.shape[0]
-        images = self.__generate_dim_images(max_dim, dim_size, noise_batches, shifts_range, shifts_count)
-
-        if output_directory:
-            images = np.array(list(
-                map(lambda x: np.array(list(
-                    map(lambda y: np.array(list(
-                        map(lambda z: np.array(list(
-                            map(lambda a: a.numpy(), z)
-                        )), y)
-                    )), x)
-                )), images)
-            ))[0]
-            os.makedirs(output_directory, exist_ok=True)
-            np.save(os.path.join(output_directory, "data.npy"), images)
-
-        return images
 
     @torch.no_grad()
     def create_visualization(self, z, vis_range, shifts_range, shifts_count=5, **kwargs):
@@ -113,30 +89,6 @@ class LatentDirectionVisualizer:
             shifted_images.append(shifted_image)
 
         return shifted_images
-
-    @torch.no_grad()
-    def create_shifted_image_from_dimension_labels(self, data: SessionLabelsModel):
-        z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(data.z), 0), -1), 2)
-        latent_shift = torch.zeros_like(z)
-
-        # 1. Apply PCA to matrix_a if needed
-        matrix_a = apply_pca_to_matrix_a(self.matrix_a_linear,
-                                         data.pca_component_count,
-                                         data.pca_skipped_components_count,
-                                         data.pca_use_standard_scaler) if data.use_pca else self.matrix_a_linear
-
-        # 2. Iterate list of dims with positive anomaly flag and calculate the latent_shift for that dimension
-        #    Update the global latent_shift by calculating the average from the current global latent_shift and
-        #    the new one
-        for dim in data.anomalous_dims:
-            local_shift_vector = torch.zeros(matrix_a.input_dim)
-            local_shift_vector[dim] = 1
-            local_shift = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(matrix_a(local_shift_vector), -1), 1), 0)
-            concat_shifts = torch.cat((latent_shift, local_shift), 0)
-            latent_shift = torch.unsqueeze(torch.mean(concat_shifts, 0), 0)
-
-        # 3. Use latent_shift to generate new shifted image
-        return self.g(latent_shift)
 
     def __generate_dim_images(self, max_dim, step, noise_batches, shifts_range, shifts_count):
         images = []

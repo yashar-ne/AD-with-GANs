@@ -34,11 +34,6 @@ async def get_shifted_images(body: GetShiftedImagesModel):
                                               body.pca_apply_standard_scaler)
 
 
-@app.post("/get_shifted_images_from_dimension_labels")
-async def get_shifted_images_from_dimension_labels(body: SessionLabelsModel):
-    return main_controller.get_shifted_image_from_dimension_labels(body)
-
-
 @app.post("/get_random_noise")
 async def get_shifted_images(body: GetRandomNoiseModel):
     z = main_controller.get_random_noise(body.dim)
@@ -65,7 +60,7 @@ async def get_image_strip_from_prerendered_sample():
 
 @app.post("/get_validation_results")
 async def get_validation_results(body: GetValidationResultsModel):
-    return main_controller.get_validation_results(weighted_dims=body.weighted_dims,
+    return main_controller.get_validation_results(anomalous_directions=body.weighted_dims,
                                                   pca_component_count=body.pca_component_count,
                                                   skipped_components_count=body.skipped_components_count,
                                                   n_neighbours=20)

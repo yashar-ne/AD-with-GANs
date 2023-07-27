@@ -15,7 +15,7 @@ from src.backend.models.ImageStripModel import ImageStripModel
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
     generate_base64_images_from_tensor
 from src.ml.validation import load_latent_space_data_points, get_roc_auc_for_given_dims, get_tsne_for_original_data, \
-    get_tsne_with_dimension_weighted_metric
+    get_tsne_with_dimension_weighted_metric, get_roc_auc_for_plain_mahalanobis_distance
 
 
 class MainController:
@@ -42,83 +42,101 @@ class MainController:
 
         return generate_base64_images_from_tensor_list(shifted_images)
 
-    def get_shifted_image_from_dimension_labels(self, data: SessionLabelsModel, pca_component_count=0,
-                                                pca_skipped_components_count=0, pca_apply_standard_scaler=False):
-        a = apply_pca_to_matrix_a(self.matrix_a_linear, pca_component_count, pca_skipped_components_count,
-                                  pca_apply_standard_scaler) \
-            if pca_component_count > 0 \
-            else self.matrix_a_linear
-        visualizer = LatentDirectionVisualizer(matrix_a_linear=a, generator=self.g, device=self.device)
-        shifted_images = visualizer.create_shifted_image_from_dimension_labels(data)
-
-        return [ImageStripModel(position=0, image=generate_base64_images_from_tensor(shifted_images))]
-
-    def get_validation_results(self, weighted_dims, pca_component_count, skipped_components_count, n_neighbours):
-        roc_auc_one_hot, _ = get_roc_auc_for_given_dims(weighted_dims=weighted_dims,
-                                                        latent_space_data_points=self.latent_space_data_points,
-                                                        latent_space_data_labels=self.latent_space_data_labels,
-                                                        pca_component_count=pca_component_count,
-                                                        skipped_components_count=skipped_components_count,
-                                                        n_neighbours=n_neighbours)
-
-        roc_auc_factor_2, _ = get_roc_auc_for_given_dims(weighted_dims=weighted_dims,
-                                                         latent_space_data_points=self.latent_space_data_points,
-                                                         latent_space_data_labels=self.latent_space_data_labels,
-                                                         pca_component_count=pca_component_count,
-                                                         skipped_components_count=skipped_components_count,
-                                                         one_hot_weighing=False,
-                                                         weight_factor=2,
-                                                         n_neighbours=n_neighbours)
-
-        roc_auc_factor_10, _ = get_roc_auc_for_given_dims(weighted_dims=weighted_dims,
-                                                          latent_space_data_points=self.latent_space_data_points,
-                                                          latent_space_data_labels=self.latent_space_data_labels,
-                                                          pca_component_count=pca_component_count,
-                                                          skipped_components_count=skipped_components_count,
-                                                          one_hot_weighing=False,
-                                                          n_neighbours=n_neighbours)
-
-        roc_auc_ignore_labels, _ = get_roc_auc_for_given_dims(weighted_dims=weighted_dims,
-                                                              latent_space_data_points=self.latent_space_data_points,
-                                                              latent_space_data_labels=self.latent_space_data_labels,
-                                                              pca_component_count=pca_component_count,
-                                                              skipped_components_count=skipped_components_count,
-                                                              n_neighbours=n_neighbours,
-                                                              ignore_labels=True)
-
-        t_sne_plot_one_hot_weighted_data = get_tsne_with_dimension_weighted_metric(weighted_dims=weighted_dims,
-                                                                                   ignore_unlabeled_dims=True,
-                                                                                   pca_component_count=pca_component_count,
-                                                                                   skipped_components_count=skipped_components_count)
-
-        t_sne_plot_one_hot_weighted_data_ignore_labels = get_tsne_with_dimension_weighted_metric(
-            weighted_dims=weighted_dims,
-            ignore_unlabeled_dims=True,
+    def get_validation_results(self, anomalous_directions, pca_component_count, skipped_components_count, n_neighbours):
+        roc_auc_one_hot, _ = get_roc_auc_for_given_dims(
+            direction_matrix=self.matrix_a_linear,
+            anomalous_directions=anomalous_directions,
+            latent_space_data_points=self.latent_space_data_points,
+            latent_space_data_labels=self.latent_space_data_labels,
             pca_component_count=pca_component_count,
-            skipped_components_count=skipped_components_count,
-            ignore_labels=True)
+            pca_skipped_components_count=skipped_components_count,
+            n_neighbours=n_neighbours
+        )
 
-        t_sne_plot_weighted_data_factor_10 = get_tsne_with_dimension_weighted_metric(weighted_dims=weighted_dims,
-                                                                                     ignore_unlabeled_dims=False,
-                                                                                     weight_factor=10,
-                                                                                     pca_component_count=pca_component_count,
-                                                                                     skipped_components_count=skipped_components_count)
+        # roc_auc_plot_one_hot_plain_mahalanobis, _ = get_roc_auc_for_plain_mahalanobis_distance(
+        #     direction_matrix=self.matrix_a_linear,
+        #     labeled_dims=labeled_dims,
+        #     pca_component_count=pca_component_count,
+        #     pca_skipped_components_count=skipped_components_count
+        # )
 
-        t_sne_plot_weighted_data_factor_100 = get_tsne_with_dimension_weighted_metric(weighted_dims=weighted_dims,
-                                                                                      ignore_unlabeled_dims=False,
-                                                                                      weight_factor=100,
-                                                                                      pca_component_count=pca_component_count,
-                                                                                      skipped_components_count=skipped_components_count)
+        # roc_auc_factor_2, _ = get_roc_auc_for_given_dims(
+        #     direction_matrix=self.matrix_a_linear,
+        #     labeled_dims=labeled_dims,
+        #     latent_space_data_points=self.latent_space_data_points,
+        #     latent_space_data_labels=self.latent_space_data_labels,
+        #     pca_component_count=pca_component_count,
+        #     pca_skipped_components_count=skipped_components_count,
+        #     one_hot_weighing=False,
+        #     weight_factor=2,
+        #     n_neighbours=n_neighbours
+        # )
+        #
+        # roc_auc_factor_10, _ = get_roc_auc_for_given_dims(
+        #     direction_matrix=self.matrix_a_linear,
+        #     labeled_dims=labeled_dims,
+        #     latent_space_data_points=self.latent_space_data_points,
+        #     latent_space_data_labels=self.latent_space_data_labels,
+        #     pca_component_count=pca_component_count,
+        #     pca_skipped_components_count=skipped_components_count,
+        #     one_hot_weighing=False,
+        #     n_neighbours=n_neighbours
+        # )
+        #
+        # roc_auc_ignore_labels, _ = get_roc_auc_for_given_dims(
+        #     direction_matrix=self.matrix_a_linear,
+        #     labeled_dims=labeled_dims,
+        #     latent_space_data_points=self.latent_space_data_points,
+        #     latent_space_data_labels=self.latent_space_data_labels,
+        #     pca_component_count=pca_component_count,
+        #     pca_skipped_components_count=skipped_components_count,
+        #     n_neighbours=n_neighbours,
+        #     ignore_labels=True
+        # )
+        #
+        # t_sne_plot_one_hot_weighted_data = get_tsne_with_dimension_weighted_metric(
+        #     weighted_dims=labeled_dims,
+        #     ignore_unlabeled_dims=True,
+        #     pca_component_count=pca_component_count,
+        #     skipped_components_count=skipped_components_count
+        # )
+        #
+        # t_sne_plot_one_hot_weighted_data_ignore_labels = get_tsne_with_dimension_weighted_metric(
+        #     weighted_dims=labeled_dims,
+        #     ignore_unlabeled_dims=True,
+        #     pca_component_count=pca_component_count,
+        #     skipped_components_count=skipped_components_count,
+        #     ignore_labels=True
+        # )
+        #
+        # t_sne_plot_weighted_data_factor_10 = get_tsne_with_dimension_weighted_metric(
+        #     weighted_dims=labeled_dims,
+        #     ignore_unlabeled_dims=False,
+        #     weight_factor=10,
+        #     pca_component_count=pca_component_count,
+        #     skipped_components_count=skipped_components_count
+        # )
+        #
+        # t_sne_plot_weighted_data_factor_100 = get_tsne_with_dimension_weighted_metric(
+        #     weighted_dims=labeled_dims,
+        #     ignore_unlabeled_dims=False,
+        #     weight_factor=100,
+        #     pca_component_count=pca_component_count,
+        #     skipped_components_count=skipped_components_count
+        # )
 
-        return ValidationResultsModel(roc_auc_plot_one_hot=roc_auc_one_hot,
-                                      roc_auc_plot_factor_2=roc_auc_factor_2,
-                                      roc_auc_plot_factor_10=roc_auc_factor_10,
-                                      roc_auc_plot_ignore_labels=roc_auc_ignore_labels,
-                                      t_sne_plot_original_input_data=get_tsne_for_original_data(),
-                                      t_sne_plot_one_hot_weighted_data=t_sne_plot_one_hot_weighted_data,
-                                      t_sne_plot_one_hot_weighted_data_ignore_labels=t_sne_plot_one_hot_weighted_data_ignore_labels,
-                                      t_sne_plot_weighted_data_factor_10=t_sne_plot_weighted_data_factor_10,
-                                      t_sne_plot_weighted_data_factor_100=t_sne_plot_weighted_data_factor_100)
+        return ValidationResultsModel(
+            roc_auc_plot_one_hot=roc_auc_one_hot,
+            # roc_auc_plot_one_hot_plain_mahalanobis =roc_auc_plot_one_hot_plain_mahalanobis,
+            # roc_auc_plot_factor_2=roc_auc_factor_2,
+            # roc_auc_plot_factor_10=roc_auc_factor_10,
+            # roc_auc_plot_ignore_labels=roc_auc_ignore_labels,
+            # t_sne_plot_original_input_data=get_tsne_for_original_data(),
+            # t_sne_plot_one_hot_weighted_data=t_sne_plot_one_hot_weighted_data,
+            # t_sne_plot_one_hot_weighted_data_ignore_labels=t_sne_plot_one_hot_weighted_data_ignore_labels,
+            # t_sne_plot_weighted_data_factor_10=t_sne_plot_weighted_data_factor_10,
+            # t_sne_plot_weighted_data_factor_100=t_sne_plot_weighted_data_factor_100
+        )
 
     @staticmethod
     def get_image_strip_from_prerendered_sample():
