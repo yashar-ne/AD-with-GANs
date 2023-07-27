@@ -1,5 +1,7 @@
 import os
 
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+
 import numpy
 import scipy.spatial.distance
 from sklearn.neighbors import LocalOutlierFactor

@@ -30,29 +30,29 @@ def display_base64_png(base64_string):
     img.show()
 
 
-# _, auc_lof = get_roc_auc_for_given_dims(direction_matrix=matrix_a_linear,
-#                                         # anomalous_directions=[1, 2, 5, 8],
-#                                         anomalous_directions=range(0, 20),
-#                                         latent_space_data_points=latent_space_data_points,
-#                                         latent_space_data_labels=latent_space_data_labels,
-#                                         pca_component_count=20,
-#                                         pca_skipped_components_count=3,
-#                                         n_neighbours=20,
-#                                         pca_apply_standard_scaler=True,
-#                                         ignore_labels=False)
-# print(auc_lof)
+_, auc_lof = get_roc_auc_for_given_dims(direction_matrix=matrix_a_linear,
+                                        # anomalous_directions=[1, 2, 5, 8],
+                                        anomalous_directions=range(0, 20),
+                                        latent_space_data_points=latent_space_data_points,
+                                        latent_space_data_labels=latent_space_data_labels,
+                                        pca_component_count=20,
+                                        pca_skipped_components_count=3,
+                                        n_neighbours=20,
+                                        pca_apply_standard_scaler=True,
+                                        ignore_labels=False)
+print(auc_lof)
 
-auc_plain_mahalanobis = get_auc_value_plain_mahalanobis_distance(matrix_a_linear=matrix_a_linear,
-                                                                 # anomalous_directions=[9, 16, 17, 18, 20, 22, 23, 27,
-                                                                 #                       28, 33, 34, 35, 36, 47, 50, 51,
-                                                                 #                       57, 59, 60, 70, 75, 76, 80, 84,
-                                                                 #                       85, 88, 98, 99],
-                                                                 # anomalous_directions=range(0, 100),
-                                                                 anomalous_directions=[0, 1, 7, 8, 18, 19, 20, 21, 23, 26, 28],
-                                                                 # anomalous_directions=[0, 1, 2, 5, 6],
-                                                                 # anomalous_directions=range(0, 100),
-                                                                 pca_component_count=30,
-                                                                 pca_skipped_components_count=2,
-                                                                 pca_apply_standard_scaler=False)
-print(auc_plain_mahalanobis)
+# auc_plain_mahalanobis = get_auc_value_plain_mahalanobis_distance(matrix_a_linear=matrix_a_linear,
+#                                                                  # anomalous_directions=[9, 16, 17, 18, 20, 22, 23, 27,
+#                                                                  #                       28, 33, 34, 35, 36, 47, 50, 51,
+#                                                                  #                       57, 59, 60, 70, 75, 76, 80, 84,
+#                                                                  #                       85, 88, 98, 99],
+#                                                                  # anomalous_directions=range(0, 100),
+#                                                                  anomalous_directions=[0, 1, 7, 8, 18, 19, 20, 21, 23, 26, 28],
+#                                                                  # anomalous_directions=[0, 1, 2, 5, 6],
+#                                                                  # anomalous_directions=range(0, 100),
+#                                                                  pca_component_count=30,
+#                                                                  pca_skipped_components_count=2,
+#                                                                  pca_apply_standard_scaler=False)
+# print(auc_plain_mahalanobis)
 # display_base64_png(plot1)

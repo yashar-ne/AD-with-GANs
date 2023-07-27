@@ -3,6 +3,8 @@ import io
 import math
 import os
 
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+
 import numpy as np
 import scipy.spatial.distance
 import torch
@@ -167,9 +169,9 @@ def get_auc_value_plain_mahalanobis_distance(matrix_a_linear, anomalous_directio
     # Weigh down directions that were not labeled
     for idx, direction in enumerate(a):
         if idx not in anomalous_directions:
-            labeled_directions.append(direction*0.1)
+            labeled_directions.append(direction * 0.1)
         else:
-            labeled_directions.append(direction*0.5)
+            labeled_directions.append(direction * 0.5)
 
     # Replace normal directions with zero-vectors
     # for idx, direction in enumerate(a):
