@@ -75,9 +75,14 @@ class LatentDirectionVisualizer:
         return fig, images
 
     @torch.no_grad()
-    def create_shifted_images(self, z, shifts_range, shifts_count, dim):
+    def create_shifted_images(self, z, shifts_range, shifts_count, dim, direction):
         shifted_images = []
-        for shift in np.arange(-shifts_range, shifts_range + 1e-9, shifts_range / shifts_count):
+        if direction == 0:
+            arrangement = np.arange(-shifts_range, shifts_range + 1e-9, shifts_range / shifts_count)
+        else:
+            arrangement = np.arange(-shifts_range - 1e-9, 0, shifts_range / shifts_count) if direction == -1 else np.arange(0, shifts_range + 1e-9, shifts_range / shifts_count)
+
+        for shift in arrangement:
             # one_hot obtains a vector with the shift value at the dimension that is supposed to be shifted
             # since matrix_a_linear is only a linear transformation of that vector, the result will be the (by given value)
             # shifted vector at the dimension (index) of the value in the one-hot vector

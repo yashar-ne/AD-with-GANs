@@ -29,6 +29,7 @@ async def get_shifted_images(body: GetShiftedImagesModel):
                                               body.shifts_range,
                                               body.shifts_count,
                                               body.dim,
+                                              body.direction,
                                               body.pca_component_count,
                                               body.pca_skipped_components_count,
                                               body.pca_apply_standard_scaler)
