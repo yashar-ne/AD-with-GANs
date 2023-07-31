@@ -14,8 +14,7 @@ from src.ml.models.matrix_a_linear import MatrixALinear
 from src.backend.models.ImageStripModel import ImageStripModel
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
     generate_base64_images_from_tensor
-from src.ml.validation import load_latent_space_data_points, get_roc_auc_for_given_dims, get_tsne_for_original_data, \
-    get_tsne_with_dimension_weighted_metric, get_roc_auc_for_plain_mahalanobis_distance
+from src.ml.validation import load_latent_space_data_points, get_roc_auc_for_given_dims, get_tsne_for_original_data
 
 
 class MainController:
@@ -29,7 +28,7 @@ class MainController:
         self.latent_space_data_points, self.latent_space_data_labels = load_latent_space_data_points(
             '../data/LatentSpaceMNIST')
 
-    def get_shifted_images(self, z, shifts_range, shifts_count, dim, pca_component_count=0,
+    def get_shifted_images(self, z, shifts_range, shifts_count, dim, direction, pca_component_count=0,
                            pca_skipped_components_count=0, pca_apply_standard_scaler=False):
         z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(z), 0), -1), 2)
         a = apply_pca_to_matrix_a(self.matrix_a_linear, pca_component_count, pca_skipped_components_count,
@@ -38,7 +37,7 @@ class MainController:
             else self.matrix_a_linear
 
         visualizer = LatentDirectionVisualizer(matrix_a_linear=a, generator=self.g, device=self.device)
-        shifted_images = visualizer.create_shifted_images(z, shifts_range, shifts_count, dim)
+        shifted_images = visualizer.create_shifted_images(z, shifts_range, shifts_count, dim, direction)
 
         return generate_base64_images_from_tensor_list(shifted_images)
 

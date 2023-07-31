@@ -19,6 +19,8 @@ export class LatentDisplayComponent {
   @Input() shiftCount: number = 0
   @Input() shiftCountSelectOptions: number[] = []
   @Input() dim: number = 0
+  @Input() direction: number = 0
+
   @Input() maxdim: number = 0
 
   @Output() updateImages: EventEmitter<any> = new EventEmitter();
@@ -26,8 +28,8 @@ export class LatentDisplayComponent {
   constructor(private bs: BackendService, private ls: LabelingService) {}
 
   yesClickHandler() {
-    console.log("Adding dimension", this.dim)
-    this.ls.addToLocalLabels(this.dim)
+    console.log("Adding dimension/direction", this.dim, this.direction)
+    this.ls.addToLocalLabels(this.dim, this.direction)
     this.updateImages.emit()
   }
 

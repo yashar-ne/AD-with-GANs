@@ -1,7 +1,4 @@
 import os
-
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-
 import numpy
 import scipy.spatial.distance
 from sklearn.neighbors import LocalOutlierFactor
@@ -18,19 +15,12 @@ class WeightedLocalOutlierFactor:
         self.data = []
         self.direction_matrix = direction_matrix
         self.pca = PCA(n_components=pca_component_count + pca_skipped_components_count)
-        # self.labeled_directions = []
-        #
-        # for idx, direction in enumerate(direction_matrix):
-        #     if idx in anomalous_directions:
-        #         self.labeled_directions.append(direction)
-        #     else:
-        #         self.labeled_directions.append(direction*0.1)
+        self.labeled_directions_matrix = []
 
-        # for idx, direction in enumerate(direction_matrix):
-        #     if idx in anomalous_directions:
-        #         self.labeled_directions.append(direction)
-
-        # self.labeled_directions = np.array(self.labeled_directions)
+        for d in anomalous_directions:
+            if (d[0], d[1]*-1) not in anomalous_directions:
+                self.labeled_directions_matrix.append(direction_matrix[d[0]]*d[1])
+        self.labeled_directions_matrix = np.array(self.labeled_directions_matrix)
 
         outlier_weight = 1
         normal_weight = 0
@@ -79,9 +69,13 @@ class WeightedLocalOutlierFactor:
         return self.lof.negative_outlier_factor_
 
     def __get_distance(self, u, v):
-        diff = u/np.linalg.norm(u) - v/np.linalg.norm(v)
-        # diff = (u-v)
-        left = np.dot(diff.T, self.direction_matrix.T)
-        d = np.dot(left, self.label_vector)
+        u_star = u.T @ self.labeled_directions_matrix.T
+        v_star = v.T @ self.labeled_directions_matrix.T
+        u_norm = u/np.linalg.norm(u)
+        v_norm = v/np.linalg.norm(v)
+
+        left = u_star @ v_star
+        right = u_norm @ v_norm
+
+        d = left / right
         return d
-        # return (u - v).T @ self.direction_matrix.T @ self.label_vector

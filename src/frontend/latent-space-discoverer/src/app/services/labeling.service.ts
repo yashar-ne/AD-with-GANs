@@ -35,7 +35,7 @@ export class LabelingService {
     this.data.z = z
   }
 
-  addToLocalLabels(dim: number) {
-    this.data.anomalous_dims.push(dim)
+  addToLocalLabels(dim: number, direction: number) {
+    this.data.anomalous_dims.push([dim, direction])
   }
 }

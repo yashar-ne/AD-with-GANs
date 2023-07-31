@@ -8,8 +8,7 @@ import torch
 
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
-from src.ml.validation import load_latent_space_data_points, get_roc_auc_for_plain_mahalanobis_distance, \
-    get_auc_value_plain_mahalanobis_distance, get_roc_auc_for_given_dims
+from src.ml.validation import load_latent_space_data_points, get_roc_auc_for_given_dims
 from itertools import chain, combinations
 
 generator_path = '/home/yashar/git/python/AD-with-GANs/saved_models/generator.pkl'
@@ -31,7 +30,7 @@ def display_base64_png(base64_string):
 
 
 _, auc_lof = get_roc_auc_for_given_dims(direction_matrix=matrix_a_linear,
-                                        # anomalous_directions=[1, 2, 5, 13, 19, 20],
+                                        # anomalous_directions=[0, 1, 2],
                                         anomalous_directions=range(0, 100),
                                         # anomalous_directions=[2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
                                         #                       19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
@@ -42,7 +41,7 @@ _, auc_lof = get_roc_auc_for_given_dims(direction_matrix=matrix_a_linear,
                                         latent_space_data_points=latent_space_data_points,
                                         latent_space_data_labels=latent_space_data_labels,
                                         pca_component_count=0,
-                                        pca_skipped_components_count=3,
+                                        pca_skipped_components_count=2,
                                         n_neighbours=20,
                                         pca_apply_standard_scaler=True,
                                         use_default_distance_metric=False)

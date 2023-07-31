@@ -19,13 +19,14 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   shiftCountSelectOptions: number[] = Array.from(Array(21).keys())
 
   shiftRange: number = 20
-  shiftCount: number = 10
+  shiftCount: number = 20
   dim: number = 0
+  direction: number = 1
   maxdim: number = 100
 
   usePCA: boolean = true
-  pcaComponentCount: number = 20
-  pcaSkippedComponentsCount: number = 3
+  pcaComponentCount: number = 10
+  pcaSkippedComponentsCount: number = 2
   pcaUseStandardScaler: boolean = true
 
   constructor(private router: Router, private bs: BackendService, private ls: LabelingService) { }
@@ -39,14 +40,16 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   }
 
   updateImages(starting: boolean = false) {
-    if (this.dim === this.maxdim-1) {
+    if (this.dim === this.maxdim-1 && this.direction === 1) {
       console.log("Labeling Done. Navigating to Shift-Labeling")
       this.router.navigate(['/labeling-results'])
       return
     }
 
+    this.direction *= -1
     this.shiftedImages$ = this.bs.getShiftedImages({
       dim: this.dim,
+      direction: this.direction,
       z: this.ls.getNoiseArray(),
       shifts_count: this.shiftCount,
       shifts_range: this.shiftRange,
@@ -55,8 +58,11 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
       pca_apply_standard_scaler: this.usePCA ? this.pcaUseStandardScaler : false
     })
 
-    if (!starting)
-      this.dim++
+    if (!starting) {
+      if (this.direction === -1) {
+        this.dim++
+      }
+    }
   }
 
   startHandler() {

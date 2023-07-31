@@ -2,9 +2,6 @@ import base64
 import io
 import math
 import os
-
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-
 import numpy as np
 import scipy.spatial.distance
 import torch
@@ -27,6 +24,30 @@ from src.ml.weighted_local_outlier_factor import WeightedLocalOutlierFactor
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 global_weights = [1, 1, 0, 1]
+
+
+# TODO: implement pca_apply_standard_scaler in API/controller/frontend
+def get_roc_auc_for_given_dims(direction_matrix, anomalous_directions,
+                               latent_space_data_points,
+                               latent_space_data_labels,
+                               pca_component_count,
+                               pca_skipped_components_count, n_neighbours,
+                               pca_apply_standard_scaler=True,
+                               use_default_distance_metric=False):
+    a = extract_weights_from_model_and_apply_pca(direction_matrix, pca_component_count, pca_skipped_components_count,
+                                                 pca_apply_standard_scaler)
+    weighted_lof = WeightedLocalOutlierFactor(direction_matrix=a,
+                                              anomalous_directions=anomalous_directions,
+                                              n_neighbours=n_neighbours,
+                                              pca_component_count=pca_component_count,
+                                              pca_skipped_components_count=pca_skipped_components_count,
+                                              use_default_distance_metric=use_default_distance_metric)
+
+    weighted_lof.load_latent_space_datapoints(data=latent_space_data_points)
+    weighted_lof.fit()
+
+    y = np.array([1 if d == "False" else -1 for d in latent_space_data_labels])
+    return get_roc_curve_as_base64(y, weighted_lof.get_negative_outlier_factor())
 
 
 def create_roc_curve(label, lofs_in):
@@ -99,116 +120,6 @@ def get_ano_mnist_data(base_url, num=1308):
     return X, y
 
 
-# TODO: implement pca_apply_standard_scaler in API/controller/frontend
-def get_roc_auc_for_given_dims(direction_matrix, anomalous_directions, latent_space_data_points,
-                               latent_space_data_labels,
-                               pca_component_count,
-                               pca_skipped_components_count, n_neighbours, pca_apply_standard_scaler=True,
-                               weight_factor=10, one_hot_weighing=True, use_default_distance_metric=False):
-    a = extract_weights_from_model_and_apply_pca(direction_matrix, pca_component_count, pca_skipped_components_count,
-                                                 pca_apply_standard_scaler)
-    weighted_lof = WeightedLocalOutlierFactor(direction_matrix=a,
-                                              anomalous_directions=anomalous_directions,
-                                              n_neighbours=n_neighbours,
-                                              pca_component_count=pca_component_count,
-                                              pca_skipped_components_count=pca_skipped_components_count,
-                                              use_default_distance_metric=use_default_distance_metric)
-
-    weighted_lof.load_latent_space_datapoints(data=latent_space_data_points)
-    weighted_lof.fit()
-
-    y = np.array([1 if d == "False" else -1 for d in latent_space_data_labels])
-    return get_roc_curve_as_base64(y, weighted_lof.get_negative_outlier_factor())
-
-
-def get_data_for_plain_mahalanobis_distance(matrix_a_linear, anomalous_directions, pca_component_count,
-                                            pca_skipped_components_count, pca_apply_standard_scaler=False):
-
-    a = extract_weights_from_model_and_apply_pca(matrix_a_linear,
-                                                 pca_component_count,
-                                                 pca_skipped_components_count,
-                                                 pca_apply_standard_scaler)
-
-    labeled_directions = []
-
-    # Remove directions that were not labeled
-    for idx, direction in enumerate(a):
-        if idx in anomalous_directions:
-            labeled_directions.append(direction)
-
-    # Weigh down directions that were not labeled
-    # for idx, direction in enumerate(a):
-    #     if idx not in anomalous_directions:
-    #         labeled_directions.append(direction * 0.1)
-    #     else:
-    #         labeled_directions.append(direction * 0.5)
-
-    # Replace normal directions with zero-vectors
-    # for idx, direction in enumerate(a):
-    #     if idx not in anomalous_directions:
-    #         labeled_directions.append(np.zeros_like(direction))
-    #     else:
-    #         labeled_directions.append(direction)
-
-    labeled_directions = np.array(labeled_directions)
-    test_data_points, test_data_label = load_latent_space_data_points(
-        '/home/yashar/git/python/AD-with-GANs/data/LatentSpaceMNIST')
-
-    # Scale Data
-    # labeled_directions = StandardScaler().fit_transform(labeled_directions)
-    # test_data_points = StandardScaler().fit_transform(test_data_points)
-
-    # Apply PCA on data_points
-    # if pca_component_count > 0:
-    #     pca = PCA(n_components=pca_component_count + pca_skipped_components_count)
-    #     principal_components = pca.fit_transform(test_data_points)
-    #     test_data_points = principal_components[:, pca_skipped_components_count:]
-    #     print(pca.explained_variance_ratio_)
-
-    # Use labeled directions as reference
-    cov = np.cov(labeled_directions.T)
-    vi = np.linalg.inv(cov)
-    mean_vector = np.mean(labeled_directions, axis=0)
-
-    # Use data distribution as reference
-    # data = np.array(test_data_points)
-    # v = np.cov(data.T)
-    # vi = np.linalg.inv(v)
-    # mean_vector = np.mean(data, axis=0)
-
-    distance_list = []
-    label_list = []
-    for idx, point in enumerate(test_data_points):
-        dist = mahalanobis_distance(u=point, mean=mean_vector, vi=vi)
-        if not np.isnan(dist):
-            distance_list.append(dist)
-            label_list.append(1 if test_data_label[idx] == "True" else -1)
-
-    # y = np.array([1 if d == "True" else -1 for d in test_data_label])
-    return label_list, distance_list
-
-
-def get_roc_auc_for_plain_mahalanobis_distance(direction_matrix, anomalous_directions, pca_component_count,
-                                               pca_skipped_components_count, pca_apply_standard_scaler=True):
-    label_list, distance_list = get_data_for_plain_mahalanobis_distance(matrix_a_linear=direction_matrix,
-                                                                        anomalous_directions=anomalous_directions,
-                                                                        pca_component_count=pca_component_count,
-                                                                        pca_skipped_components_count=pca_skipped_components_count,
-                                                                        pca_apply_standard_scaler=True)
-    return get_roc_curve_as_base64(label_list, distance_list)
-
-
-def get_auc_value_plain_mahalanobis_distance(matrix_a_linear, anomalous_directions, pca_component_count,
-                                             pca_skipped_components_count, pca_apply_standard_scaler=False):
-    label_list, distance_list = get_data_for_plain_mahalanobis_distance(matrix_a_linear=matrix_a_linear,
-                                                                        anomalous_directions=anomalous_directions,
-                                                                        pca_component_count=pca_component_count,
-                                                                        pca_skipped_components_count=pca_skipped_components_count,
-                                                                        pca_apply_standard_scaler=pca_apply_standard_scaler)
-    fpr, tpr, thresholds = metrics.roc_curve(label_list, distance_list)
-    return metrics.auc(fpr, tpr)
-
-
 def get_tsne_for_original_data():
     plt.clf()
     data_points, data_label = load_latent_space_data_points(
@@ -216,42 +127,6 @@ def get_tsne_for_original_data():
     tsne = TSNE(n_components=2, random_state=0)
     tsne_res = tsne.fit_transform(np.array(data_points))
     sns.scatterplot(x=tsne_res[:, 0], y=tsne_res[:, 1], hue=data_label, palette=sns.hls_palette(2), legend='full')
-    return plot_to_base64(plt)
-
-
-def get_tsne_with_dimension_weighted_metric(weighted_dims, ignore_unlabeled_dims, pca_component_count=0,
-                                            skipped_components_count=0, weight_factor=10, ignore_labels=False):
-    plt.clf()
-
-    if pca_component_count > 0:
-        weights = np.ones(pca_component_count) if not ignore_unlabeled_dims else np.zeros(pca_component_count)
-        pca = PCA(n_components=pca_component_count + skipped_components_count)
-    else:
-        weights = np.ones(100) if not ignore_unlabeled_dims else np.zeros(100)
-
-    for dim in weighted_dims:
-        weights[dim] = weight_factor if not ignore_unlabeled_dims else 1
-
-    global global_weights
-    global_weights = weights
-
-    data_points, data_label = load_latent_space_data_points(
-        '/home/yashar/git/python/AD-with-GANs/data/LatentSpaceMNIST')
-
-    data = np.array(data_points)
-    if pca_component_count > 0:
-        assert pca_component_count + skipped_components_count < data.shape[1], \
-            "pca_component_count+skipped_components_count must be smaller then total number of columns"
-
-        data = StandardScaler().fit_transform(data)
-        principal_components = pca.fit_transform(data)
-        data = principal_components[:, skipped_components_count:]
-
-    tsne = TSNE(n_components=2, random_state=0,
-                metric=element_weighted_euclidean_distance if not ignore_labels else "euclidean")
-    tsne_res = tsne.fit_transform(data)
-    sns.scatterplot(x=tsne_res[:, 0], y=tsne_res[:, 1], hue=data_label, palette=sns.hls_palette(2), legend='full')
-
     return plot_to_base64(plt)
 
 

@@ -1,6 +1,6 @@
 <div class="latent_image_wrapper">
   <div *ngFor="let strip of images; let indexOfelement=index;">
-    <img [class.original_z]="indexOfelement===nImages"
+    <img [class.original_z]="indexOfelement===nImages && direction===-1 || indexOfelement===0 && direction===1"
          class="latent_image"
          src="{{'data:image/png;base64,' + strip.image}}">
   </div>
