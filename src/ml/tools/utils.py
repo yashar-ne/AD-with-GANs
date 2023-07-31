@@ -6,8 +6,7 @@ from PIL import Image
 
 from torchvision.transforms import ToPILImage
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
-
+from sklearn.preprocessing import StandardScaler, normalize
 from src.backend.models.ImageStripModel import ImageStripModel
 from src.ml.models.matrix_a_linear import MatrixALinear
 
@@ -52,12 +51,12 @@ def apply_pca_to_matrix_a(matrix_a_linear, component_count, skipped_components_c
 
 def extract_weights_from_model_and_apply_pca(matrix_a_linear, pca_component_count, pca_skipped_components_count,
                                              apply_standard_scaler):
-    if pca_component_count == 0:
-        return matrix_a_linear.linear.weight.data.numpy().T
-
     matrix_a_np = matrix_a_linear.linear.weight.data.numpy()
-    if apply_standard_scaler:
-        matrix_a_np = StandardScaler().fit_transform(matrix_a_np)
+    matrix_a_np = normalize(matrix_a_np, axis=1, norm='l2')
+
+    if pca_component_count == 0:
+        return matrix_a_np.T
+
     pca = PCA(n_components=pca_component_count + pca_skipped_components_count)
     principal_components = pca.fit_transform(matrix_a_np)
     return principal_components[:, pca_skipped_components_count:].T

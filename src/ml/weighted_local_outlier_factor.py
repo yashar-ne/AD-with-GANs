@@ -13,45 +13,41 @@ from scipy.spatial import distance
 
 
 class WeightedLocalOutlierFactor:
-    def __init__(self,
-                 direction_matrix, anomalous_directions, n_neighbours, pca_component_count=0,
-                 skipped_components_count=0, ignore_labels=False):
+    def __init__(self, direction_matrix, anomalous_directions, n_neighbours, pca_component_count=0,
+                 pca_skipped_components_count=0, use_default_distance_metric=False):
         self.data = []
-        self.direction_matrix = direction_matrix.linear.weight.data.numpy()
-        self.pca = PCA(n_components=pca_component_count + skipped_components_count)
-
-        self.labeled_directions = []
-        for idx, val in enumerate(anomalous_directions):
-            self.labeled_directions.append(self.direction_matrix.T[val])
-        self.labeled_directions = np.array(self.labeled_directions)
-
-        # mean_array = np.matrix(labeled_directions).mean(0).A1
+        self.direction_matrix = direction_matrix
+        self.pca = PCA(n_components=pca_component_count + pca_skipped_components_count)
+        # self.labeled_directions = []
         #
-        # for idx, col in enumerate(self.direction_matrix):
-        #     if idx not in labeled_dims:
-        #         self.direction_matrix[idx] = mean_array
+        # for idx, direction in enumerate(direction_matrix):
+        #     if idx in anomalous_directions:
+        #         self.labeled_directions.append(direction)
+        #     else:
+        #         self.labeled_directions.append(direction*0.1)
 
-        # for idx, col in enumerate(self.direction_matrix):
-        #     if idx not in labeled_dims:
-        #         self.direction_matrix[idx] = col * 0.01
-        #
-        # cov = np.cov(self.direction_matrix)
-        # self.vi = np.linalg.inv(cov)
+        # for idx, direction in enumerate(direction_matrix):
+        #     if idx in anomalous_directions:
+        #         self.labeled_directions.append(direction)
 
-        cov = np.cov(self.labeled_directions.T)
-        self.vi = np.linalg.inv(cov)
+        # self.labeled_directions = np.array(self.labeled_directions)
 
-        # for idx, col in enumerate(self.direction_matrix):
-        #     if idx not in labeled_dims:
-        #         self.direction_matrix[idx] = col*0.01
+        outlier_weight = 1
+        normal_weight = 0
+        self.label_vector = np.ones(pca_component_count if pca_component_count > 0 else 100)
+        for idx, d in enumerate(self.label_vector):
+            if idx in anomalous_directions:
+                self.label_vector[idx] = d * outlier_weight
+            else:
+                self.label_vector[idx] = d * normal_weight
 
         self.lof = LocalOutlierFactor(
             n_neighbors=n_neighbours,
-            metric=self.__get_mahalanobis_distance if not ignore_labels else "minkowski",
+            metric=self.__get_distance if not use_default_distance_metric else "minkowski",
         )
 
         self.pca_component_count = pca_component_count
-        self.skipped_components_count = skipped_components_count
+        self.skipped_components_count = pca_skipped_components_count
 
     def fit(self):
         data_as_array = np.array(self.data)
@@ -59,7 +55,7 @@ class WeightedLocalOutlierFactor:
 
     def load_latent_space_datapoints(self, data=[], root_dir=''):
         if len(data) > 0:
-            self.data = numpy.array(data)
+            self.data = np.array(data)
         else:
             directory = os.fsencode(root_dir)
             for file in os.listdir(directory):
@@ -67,7 +63,7 @@ class WeightedLocalOutlierFactor:
                 if filename.endswith(".pt"):
                     path = os.path.join(root_dir, filename)
                     self.data.append(torch.load(path, map_location=torch.device('cpu')).detach().numpy().reshape(100))
-            self.data = numpy.array(self.data)
+            self.data = np.array(self.data)
 
         # if self.pca_component_count > 0:
         #     assert self.pca_component_count + self.skipped_components_count < self.data.shape[1], \
@@ -82,10 +78,10 @@ class WeightedLocalOutlierFactor:
     def get_negative_outlier_factor(self):
         return self.lof.negative_outlier_factor_
 
-    # def __get_mahalanobis_distance(self, u, v):
-    #     return distance.mahalanobis(u, v, self.direction_matrix.T)
-
-    def __get_mahalanobis_distance(self, u, v):
-        diff = (u - v)
-        return np.sqrt(diff.T @ self.vi @ diff)
-        # return scipy.spatial.distance.mahalanobis(u, v, self.iv)
+    def __get_distance(self, u, v):
+        diff = u/np.linalg.norm(u) - v/np.linalg.norm(v)
+        # diff = (u-v)
+        left = np.dot(diff.T, self.direction_matrix.T)
+        d = np.dot(left, self.label_vector)
+        return d
+        # return (u - v).T @ self.direction_matrix.T @ self.label_vector

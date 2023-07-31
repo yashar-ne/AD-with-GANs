@@ -104,17 +104,15 @@ def get_roc_auc_for_given_dims(direction_matrix, anomalous_directions, latent_sp
                                latent_space_data_labels,
                                pca_component_count,
                                pca_skipped_components_count, n_neighbours, pca_apply_standard_scaler=True,
-                               weight_factor=10, one_hot_weighing=True, ignore_labels=False):
-    a = apply_pca_to_matrix_a(direction_matrix, pca_component_count, pca_skipped_components_count,
-                              pca_apply_standard_scaler) \
-        if pca_component_count > 0 \
-        else direction_matrix
+                               weight_factor=10, one_hot_weighing=True, use_default_distance_metric=False):
+    a = extract_weights_from_model_and_apply_pca(direction_matrix, pca_component_count, pca_skipped_components_count,
+                                                 pca_apply_standard_scaler)
     weighted_lof = WeightedLocalOutlierFactor(direction_matrix=a,
                                               anomalous_directions=anomalous_directions,
                                               n_neighbours=n_neighbours,
                                               pca_component_count=pca_component_count,
-                                              skipped_components_count=pca_skipped_components_count,
-                                              ignore_labels=ignore_labels)
+                                              pca_skipped_components_count=pca_skipped_components_count,
+                                              use_default_distance_metric=use_default_distance_metric)
 
     weighted_lof.load_latent_space_datapoints(data=latent_space_data_points)
     weighted_lof.fit()
@@ -123,37 +121,9 @@ def get_roc_auc_for_given_dims(direction_matrix, anomalous_directions, latent_sp
     return get_roc_curve_as_base64(y, weighted_lof.get_negative_outlier_factor())
 
 
-def get_roc_auc_for_plain_mahalanobis_distance(direction_matrix, labeled_dims, pca_component_count,
-                                               pca_skipped_components_count, pca_apply_standard_scaler=True):
-    a = apply_pca_to_matrix_a(direction_matrix,
-                              pca_component_count,
-                              pca_skipped_components_count,
-                              pca_apply_standard_scaler).linear.weight.data.numpy() \
-        if pca_component_count > 0 \
-        else direction_matrix.linear.weight.data.numpy()
+def get_data_for_plain_mahalanobis_distance(matrix_a_linear, anomalous_directions, pca_component_count,
+                                            pca_skipped_components_count, pca_apply_standard_scaler=False):
 
-    for idx, direction in enumerate(a):
-        if idx not in labeled_dims:
-            a[idx] = a[idx] * 0.1
-        else:
-            a[idx] = a[idx] * 2
-
-    data_points, data_label = load_latent_space_data_points(
-        '/home/yashar/git/python/AD-with-GANs/data/LatentSpaceMNIST')
-    distance_list = []
-
-    mean_vector = np.mean(a, axis=0)
-    cov = np.cov(a)
-    iv = np.linalg.inv(cov)
-    for idx, point in enumerate(data_points):
-        distance_list.append(distance.mahalanobis(point, mean_vector, iv))
-
-    y = np.array([1 if d == "True" else -1 for d in data_label])
-    return get_roc_curve_as_base64(y, distance_list)
-
-
-def get_auc_value_plain_mahalanobis_distance(matrix_a_linear, anomalous_directions, pca_component_count,
-                                             pca_skipped_components_count, pca_apply_standard_scaler=False):
     a = extract_weights_from_model_and_apply_pca(matrix_a_linear,
                                                  pca_component_count,
                                                  pca_skipped_components_count,
@@ -162,16 +132,16 @@ def get_auc_value_plain_mahalanobis_distance(matrix_a_linear, anomalous_directio
     labeled_directions = []
 
     # Remove directions that were not labeled
-    # for idx, direction in enumerate(a):
-    #     if idx in anomalous_directions:
-    #         labeled_directions.append(direction)
+    for idx, direction in enumerate(a):
+        if idx in anomalous_directions:
+            labeled_directions.append(direction)
 
     # Weigh down directions that were not labeled
-    for idx, direction in enumerate(a):
-        if idx not in anomalous_directions:
-            labeled_directions.append(direction * 0.1)
-        else:
-            labeled_directions.append(direction * 0.5)
+    # for idx, direction in enumerate(a):
+    #     if idx not in anomalous_directions:
+    #         labeled_directions.append(direction * 0.1)
+    #     else:
+    #         labeled_directions.append(direction * 0.5)
 
     # Replace normal directions with zero-vectors
     # for idx, direction in enumerate(a):
@@ -215,6 +185,26 @@ def get_auc_value_plain_mahalanobis_distance(matrix_a_linear, anomalous_directio
             label_list.append(1 if test_data_label[idx] == "True" else -1)
 
     # y = np.array([1 if d == "True" else -1 for d in test_data_label])
+    return label_list, distance_list
+
+
+def get_roc_auc_for_plain_mahalanobis_distance(direction_matrix, anomalous_directions, pca_component_count,
+                                               pca_skipped_components_count, pca_apply_standard_scaler=True):
+    label_list, distance_list = get_data_for_plain_mahalanobis_distance(matrix_a_linear=direction_matrix,
+                                                                        anomalous_directions=anomalous_directions,
+                                                                        pca_component_count=pca_component_count,
+                                                                        pca_skipped_components_count=pca_skipped_components_count,
+                                                                        pca_apply_standard_scaler=True)
+    return get_roc_curve_as_base64(label_list, distance_list)
+
+
+def get_auc_value_plain_mahalanobis_distance(matrix_a_linear, anomalous_directions, pca_component_count,
+                                             pca_skipped_components_count, pca_apply_standard_scaler=False):
+    label_list, distance_list = get_data_for_plain_mahalanobis_distance(matrix_a_linear=matrix_a_linear,
+                                                                        anomalous_directions=anomalous_directions,
+                                                                        pca_component_count=pca_component_count,
+                                                                        pca_skipped_components_count=pca_skipped_components_count,
+                                                                        pca_apply_standard_scaler=pca_apply_standard_scaler)
     fpr, tpr, thresholds = metrics.roc_curve(label_list, distance_list)
     return metrics.auc(fpr, tpr)
 
