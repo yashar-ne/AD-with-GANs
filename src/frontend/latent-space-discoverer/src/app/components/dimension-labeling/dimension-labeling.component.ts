@@ -25,9 +25,12 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   maxdim: number = 100
 
   usePCA: boolean = true
-  pcaComponentCount: number = 10
-  pcaSkippedComponentsCount: number = 2
+  pcaComponentCount: number = 3
+  pcaSkippedComponentsCount: number = 0
   pcaUseStandardScaler: boolean = true
+
+  directionSequence: Array<DirectionSequence> = []
+  sequenceIndex: number = 0
 
   constructor(private router: Router, private bs: BackendService, private ls: LabelingService) { }
 
@@ -39,14 +42,19 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
       })
   }
 
-  updateImages(starting: boolean = false) {
-    if (this.dim === this.maxdim-1 && this.direction === 1) {
+  updateImages() {
+    if (this.sequenceIndex >= this.directionSequence.length && this.ls.getData().anomalous_dims.length > 0) {
       console.log("Labeling Done. Navigating to Shift-Labeling")
       this.router.navigate(['/labeling-results'])
       return
+    } else if (this.sequenceIndex >= this.directionSequence.length && this.ls.getData().anomalous_dims.length === 0) {
+      alert("No dimension was labeled as anomalous. Calculation can only take place if at least one dimension is labeled as anomalous. Please start over.")
+      location.reload()
     }
 
-    this.direction *= -1
+    this.dim = this.directionSequence[this.sequenceIndex].dimension
+    this.direction = this.directionSequence[this.sequenceIndex].direction
+
     this.shiftedImages$ = this.bs.getShiftedImages({
       dim: this.dim,
       direction: this.direction,
@@ -58,11 +66,7 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
       pca_apply_standard_scaler: this.usePCA ? this.pcaUseStandardScaler : false
     })
 
-    if (!starting) {
-      if (this.direction === -1) {
-        this.dim++
-      }
-    }
+    this.sequenceIndex++
   }
 
   startHandler() {
@@ -82,11 +86,30 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
 
       this.sessionStarted = true
       this.maxdim = this.usePCA ? this.pcaComponentCount : this.maxdim
-      this.updateImages(true)
+      this.directionSequence = this.generateDirectionSequence()
+      this.updateImages()
     }
+  }
+
+  generateDirectionSequence(): DirectionSequence[] {
+    let direction = 1
+    let dimension = 0
+    let result = []
+    while (dimension < this.maxdim) {
+      result.push({dimension: dimension, direction: direction})
+      result.push({dimension: dimension, direction: direction*(-1)})
+      dimension++
+    }
+
+    return result
   }
 
   ngOnDestroy(): void {
     this.subscriptionZ$?.unsubscribe()
   }
+}
+
+type DirectionSequence = {
+  dimension: number,
+  direction: number
 }
