@@ -9,4 +9,3 @@ class SessionLabelsModel(BaseModel):
     use_pca: bool
     pca_component_count: int
     pca_skipped_components_count: int
-    pca_use_standard_scaler: bool

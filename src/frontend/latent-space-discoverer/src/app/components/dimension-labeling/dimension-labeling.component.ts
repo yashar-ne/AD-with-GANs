@@ -25,9 +25,8 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   maxdim: number = 100
 
   usePCA: boolean = true
-  pcaComponentCount: number = 3
-  pcaSkippedComponentsCount: number = 0
-  pcaUseStandardScaler: boolean = true
+  pcaComponentCount: number = 10
+  pcaSkippedComponentsCount: number = 2
 
   directionSequence: Array<DirectionSequence> = []
   sequenceIndex: number = 0
@@ -63,7 +62,6 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
       shifts_range: this.shiftRange,
       pca_component_count: this.usePCA ? this.pcaComponentCount : 0,
       pca_skipped_components_count: this.usePCA ? this.pcaSkippedComponentsCount : 0,
-      pca_apply_standard_scaler: this.usePCA ? this.pcaUseStandardScaler : false
     })
 
     this.sequenceIndex++
@@ -81,7 +79,6 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
         use_pca: this.usePCA,
         pca_component_count: this.usePCA ? this.pcaComponentCount : 0,
         pca_skipped_components_count: this.usePCA ? this.pcaSkippedComponentsCount : 0,
-        pca_use_standard_scaler: this.pcaUseStandardScaler
       })
 
       this.sessionStarted = true

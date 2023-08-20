@@ -7,5 +7,4 @@ export interface SessionLabelsModel {
   use_pca: boolean
   pca_component_count: number
   pca_skipped_components_count: number
-  pca_use_standard_scaler: boolean
 }

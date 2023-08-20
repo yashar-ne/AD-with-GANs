@@ -30,11 +30,9 @@ def one_hot(dims, value, index):
     return vec
 
 
-def apply_pca_to_matrix_a(matrix_a_linear, component_count, skipped_components_count, apply_standard_scaler):
+def apply_pca_to_matrix_a(matrix_a_linear, component_count, skipped_components_count):
     matrix_a_np = matrix_a_linear.linear.weight.data.numpy()
-
-    if apply_standard_scaler:
-        matrix_a_np = StandardScaler().fit_transform(matrix_a_np)
+    matrix_a_np = normalize(matrix_a_np, axis=1, norm='l2')
     pca = PCA(n_components=component_count + skipped_components_count)
     principal_components = pca.fit_transform(matrix_a_np)
     principal_components = principal_components[:, skipped_components_count:]
@@ -49,8 +47,7 @@ def apply_pca_to_matrix_a(matrix_a_linear, component_count, skipped_components_c
     return matrix_a_linear_after_pca
 
 
-def extract_weights_from_model_and_apply_pca(matrix_a_linear, pca_component_count, pca_skipped_components_count,
-                                             apply_standard_scaler):
+def extract_weights_from_model_and_apply_pca(matrix_a_linear, pca_component_count, pca_skipped_components_count):
     matrix_a_np = matrix_a_linear.linear.weight.data.numpy()
     matrix_a_np = normalize(matrix_a_np, axis=1, norm='l2')
 

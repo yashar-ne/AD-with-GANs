@@ -25,9 +25,6 @@ export class ConfigurationComponent {
   @Input() pcaSkippedComponentsCount: number | undefined
   @Output() pcaSkippedComponentsCountChange: EventEmitter<number> = new EventEmitter();
 
-  @Input() pcaUseStandardScaler: boolean | undefined
-  @Output() pcaUseStandardScalerChange: EventEmitter<boolean> = new EventEmitter();
-
   @Output() startHandler: EventEmitter<any> = new EventEmitter();
 
   startHandlerClick() {
@@ -52,9 +49,5 @@ export class ConfigurationComponent {
 
   onPcaSkippedComponentCountChange(value: number) {
     this.pcaSkippedComponentsCountChange.emit(value)
-  }
-
-  onUseStandardScalerChange(value: MatCheckboxChange) {
-    this.pcaUseStandardScalerChange.emit(value.checked)
   }
 }

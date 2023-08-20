@@ -6,5 +6,4 @@ export interface GetShiftedImages {
     direction: number
     pca_component_count: number
     pca_skipped_components_count: number
-    pca_apply_standard_scaler: boolean
 }

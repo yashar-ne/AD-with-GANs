@@ -1,4 +1,8 @@
 from PIL import Image, ImageDraw, ImageFont
+from torch.utils.data import RandomSampler, DataLoader
+from torchvision.datasets import MNIST
+from torchvision.transforms import transforms
+
 from src.ml.tools.ano_mnist import AnoMNIST, AnomalyExtendedMNIST
 from torchvision import datasets
 import torch
@@ -9,8 +13,8 @@ import random
 import csv
 
 
-def generate_augmented_mnist_images(base_folder, num, max_augmentation_thickness=5,
-                                    randomize_augmentation_thickness=False, labels=[]):
+def generate_lined_mnist_images(base_folder, num, max_augmentation_thickness=5,
+                                randomize_augmentation_thickness=False, labels=[]):
     assert max_augmentation_thickness <= 7, "max_augmentation_thickness must be smaller than 7"
     os.makedirs(base_folder, exist_ok=True)
 
@@ -50,8 +54,7 @@ def generate_augmented_mnist_images(base_folder, num, max_augmentation_thickness
             writer.writerow(fields)
 
 
-def generate_anomalous_image_files(base_folder, num, labels=[]):
-
+def generate_lined_image_files(base_folder, num, labels=[]):
     ano_mnist_drop_folder = os.path.join(base_folder, "AnoMNIST")
     csv_path = os.path.join(ano_mnist_drop_folder, "anomnist_dataset.csv")
 
@@ -66,7 +69,7 @@ def generate_anomalous_image_files(base_folder, num, labels=[]):
         fields = ["filename", "label", "anomaly"]
         writer.writerow(fields)
 
-    generate_augmented_mnist_images(base_folder, num=num, labels=labels)
+    generate_lined_mnist_images(base_folder, num=num, labels=labels)
 
 
 def get_ano_mnist_dataset(transform, root_dir, labels=[9], train_size=0.9):
@@ -92,4 +95,25 @@ def get_ano_mnist_dataset(transform, root_dir, labels=[9], train_size=0.9):
     return torch.utils.data.random_split(dat, [absolute_train_size, absolute_test_size])
 
 
-generate_anomalous_image_files(base_folder='/home/yashar/git/python/AD-with-GANs/data', num=2000, labels=[9]) # num normals 5949
+def get_ano_class_mnist_dataset(root_dir, transform, norm_class=9, ano_class=6, ano_fraction=0.1):
+    mnist_dataset = MNIST(
+        root=root_dir,
+        train=True,
+        transform=transform,
+        download=True,
+    )
+
+    norms = [d for d in mnist_dataset if (d[1] == norm_class)]
+    anos = [d for d in mnist_dataset if (d[1] == ano_class)]
+
+    return torch.utils.data.ConcatDataset([norms, anos[:round(ano_fraction*len(anos))]])
+
+
+# generate_anomalous_image_files(base_folder='/home/yashar/git/python/AD-with-GANs/data', num=2000, labels=[9]) # num normals 5949
+get_ano_class_mnist_dataset(
+    root_dir='/home/yashar/git/python/AD-with-GANs/data',
+    transform=transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=(.5,), std=(.5,))
+    ])
+)

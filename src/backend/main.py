@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from src.backend.models.GetValidationResultsModel import GetValidationResultsModel
-from src.backend.models.SaveLabelToDbModel import SaveLabelToDbModel
 from src.backend.models.GetRandomNoiseModel import GetRandomNoiseModel
 from src.backend.models.GetShiftedImagesModel import GetShiftedImagesModel
 from src.backend.controller.main_controller import MainController
@@ -31,8 +30,7 @@ async def get_shifted_images(body: GetShiftedImagesModel):
                                               body.dim,
                                               body.direction,
                                               body.pca_component_count,
-                                              body.pca_skipped_components_count,
-                                              body.pca_apply_standard_scaler)
+                                              body.pca_skipped_components_count)
 
 
 @app.post("/get_random_noise")
@@ -41,30 +39,16 @@ async def get_shifted_images(body: GetRandomNoiseModel):
     return torch.squeeze(z).tolist()
 
 
-@app.post("/save_to_db")
-async def save_to_db(body: SaveLabelToDbModel):
-    return main_controller.save_to_db(z=body.z,
-                                      shifts_count=body.shifts_count,
-                                      shifts_range=body.shifts_range,
-                                      dim=body.dim, is_anomaly=body.is_anomaly)
-
-
 @app.post("/save_session_labels_to_db")
 async def save_session_labels_to_db(body: SessionLabelsModel):
     return main_controller.save_session_labels_to_db(session_labels=body)
-
-
-@app.get("/get_image_strip_from_prerendered_sample")
-async def get_image_strip_from_prerendered_sample():
-    return main_controller.get_image_strip_from_prerendered_sample()
 
 
 @app.post("/get_validation_results")
 async def get_validation_results(body: GetValidationResultsModel):
     return main_controller.get_validation_results(anomalous_directions=body.weighted_dims,
                                                   pca_component_count=body.pca_component_count,
-                                                  skipped_components_count=body.skipped_components_count,
-                                                  n_neighbours=20)
+                                                  skipped_components_count=body.skipped_components_count)
 
 
 if __name__ == "__main__":

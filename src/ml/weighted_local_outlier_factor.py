@@ -68,6 +68,9 @@ class WeightedLocalOutlierFactor:
     def get_negative_outlier_factor(self):
         return self.lof.negative_outlier_factor_
 
+    def get_labeled_directions_matrix(self):
+        return self.labeled_directions_matrix
+
     def __get_distance(self, u, v):
         u_star = u.T @ self.labeled_directions_matrix.T
         v_star = v.T @ self.labeled_directions_matrix.T

@@ -14,8 +14,7 @@ export class LabelingService {
     shifts_count: 0,
     use_pca: true,
     pca_component_count: 0,
-    pca_skipped_components_count: 0,
-    pca_use_standard_scaler: true
+    pca_skipped_components_count: 0
   }
   constructor() { }
 

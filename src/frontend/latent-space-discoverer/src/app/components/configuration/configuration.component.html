@@ -25,7 +25,6 @@
       <mat-label>Skip Components</mat-label>
       <input [(ngModel)]="pcaSkippedComponentsCount" (ngModelChange)="onPcaSkippedComponentCountChange($event)" matInput type="number" min="0" max="100">
     </mat-form-field>
-    <mat-checkbox [(ngModel)]="pcaUseStandardScaler" (change)="onUseStandardScalerChange($event)">Use Scaler</mat-checkbox>
   </ng-container>
 
   <button mat-raised-button color="primary" (click)="startHandlerClick()">Start</button>

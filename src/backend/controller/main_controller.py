@@ -13,8 +13,9 @@ from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
 from src.backend.models.ImageStripModel import ImageStripModel
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
-    generate_base64_images_from_tensor
-from src.ml.validation import load_latent_space_data_points, get_roc_auc_for_given_dims, get_tsne_for_original_data
+    generate_base64_images_from_tensor, extract_weights_from_model_and_apply_pca
+from src.ml.validation import load_latent_space_data_points, get_lof_roc_auc_for_given_dims, get_tsne_for_original_data, \
+    get_roc_auc_for_average_distance_metric
 
 
 class MainController:
@@ -29,10 +30,9 @@ class MainController:
             '../data/LatentSpaceMNIST')
 
     def get_shifted_images(self, z, shifts_range, shifts_count, dim, direction, pca_component_count=0,
-                           pca_skipped_components_count=0, pca_apply_standard_scaler=False):
+                           pca_skipped_components_count=0):
         z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(z), 0), -1), 2)
-        a = apply_pca_to_matrix_a(self.matrix_a_linear, pca_component_count, pca_skipped_components_count,
-                                  pca_apply_standard_scaler) \
+        a = apply_pca_to_matrix_a(self.matrix_a_linear, pca_component_count, pca_skipped_components_count) \
             if pca_component_count > 0 \
             else self.matrix_a_linear
 
@@ -41,25 +41,44 @@ class MainController:
 
         return generate_base64_images_from_tensor_list(shifted_images)
 
-    def get_validation_results(self, anomalous_directions, pca_component_count, skipped_components_count, n_neighbours):
-        roc_auc, _ = get_roc_auc_for_given_dims(
+    def get_validation_results(self, anomalous_directions, pca_component_count, skipped_components_count):
+        roc_auc, _ = get_roc_auc_for_average_distance_metric(
             direction_matrix=self.matrix_a_linear,
             anomalous_directions=anomalous_directions,
             latent_space_data_points=self.latent_space_data_points,
             latent_space_data_labels=self.latent_space_data_labels,
             pca_component_count=pca_component_count,
             pca_skipped_components_count=skipped_components_count,
-            n_neighbours=n_neighbours
         )
 
-        roc_auc_ignore_labels, _ = get_roc_auc_for_given_dims(
+        # roc_auc_inverted, _ = get_roc_auc_for_average_distance_metric(
+        #     direction_matrix=self.matrix_a_linear,
+        #     anomalous_directions=anomalous_directions,
+        #     latent_space_data_points=self.latent_space_data_points,
+        #     latent_space_data_labels=self.latent_space_data_labels,
+        #     pca_component_count=pca_component_count,
+        #     pca_skipped_components_count=skipped_components_count,
+        #     invert_labels=True
+        # )
+
+        # roc_auc, _ = get_lof_roc_auc_for_given_dims(
+        #     direction_matrix=self.matrix_a_linear,
+        #     anomalous_directions=anomalous_directions,
+        #     latent_space_data_points=self.latent_space_data_points,
+        #     latent_space_data_labels=self.latent_space_data_labels,
+        #     pca_component_count=pca_component_count,
+        #     pca_skipped_components_count=skipped_components_count,
+        #     n_neighbours=n_neighbours
+        # )
+
+        roc_auc_ignore_labels, _ = get_lof_roc_auc_for_given_dims(
             direction_matrix=self.matrix_a_linear,
             anomalous_directions=anomalous_directions,
             latent_space_data_points=self.latent_space_data_points,
             latent_space_data_labels=self.latent_space_data_labels,
             pca_component_count=pca_component_count,
             pca_skipped_components_count=skipped_components_count,
-            n_neighbours=n_neighbours,
+            n_neighbours=20,
             use_default_distance_metric=True
         )
 
@@ -87,32 +106,13 @@ class MainController:
 
         return ValidationResultsModel(
             roc_auc_plot_one_hot=roc_auc,
+            # roc_auc_inverted=roc_auc_inverted,
             roc_auc_plot_ignore_labels=roc_auc_ignore_labels,
             # roc_auc_plot_one_hot_plain_mahalanobis=roc_auc_plain_mahalanobis,
             # t_sne_plot_original_input_data=get_tsne_for_original_data(),
             # t_sne_plot_one_hot_weighted_data=t_sne_plot_one_hot_weighted_data,
             # t_sne_plot_one_hot_weighted_data_ignore_labels=t_sne_plot_one_hot_weighted_data_ignore_labels,
         )
-
-    @staticmethod
-    def get_image_strip_from_prerendered_sample():
-        image_list = []
-        img_arr = get_random_strip_as_numpy_array(os.path.abspath("../out_dir/data.npy"))
-        for idx, i in enumerate(img_arr):
-            two_d = (np.reshape(i, (28, 28)) * 255).astype(np.uint8)
-            img = Image.fromarray(two_d, 'L')
-
-            with io.BytesIO() as buf:
-                img.save(buf, format='PNG')
-                img_str = base64.b64encode(buf.getvalue())
-
-            image_list.append(ImageStripModel(position=idx, image=img_str))
-
-        return image_list
-
-    @staticmethod
-    def save_to_db(z, shifts_range, shifts_count, dim, is_anomaly):
-        save_to_db(z=z, shifts_range=shifts_range, shifts_count=shifts_count, dim=dim, is_anomaly=is_anomaly)
 
     @staticmethod
     def save_session_labels_to_db(session_labels: SessionLabelsModel):

@@ -9,5 +9,4 @@ class GetShiftedImagesModel(BaseModel):
     direction: int
     pca_component_count: int
     pca_skipped_components_count: int
-    pca_apply_standard_scaler: bool
 
