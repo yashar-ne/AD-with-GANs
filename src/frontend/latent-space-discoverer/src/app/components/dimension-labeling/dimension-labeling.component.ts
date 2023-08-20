@@ -25,8 +25,8 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   maxdim: number = 100
 
   usePCA: boolean = true
-  pcaComponentCount: number = 10
-  pcaSkippedComponentsCount: number = 2
+  pcaComponentCount: number = 20
+  pcaSkippedComponentsCount: number = 0
 
   directionSequence: Array<DirectionSequence> = []
   sequenceIndex: number = 0
