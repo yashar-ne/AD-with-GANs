@@ -14,7 +14,7 @@ from src.ml.models.matrix_a_linear import MatrixALinear
 from src.backend.models.ImageStripModel import ImageStripModel
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
     generate_base64_images_from_tensor, extract_weights_from_model_and_apply_pca
-from src.ml.validation import load_latent_space_data_points, get_lof_roc_auc_for_given_dims, get_tsne_for_original_data, \
+from src.ml.validation import load_latent_space_data_points_ano_class, get_lof_roc_auc_for_given_dims, get_tsne_for_original_data, \
     get_roc_auc_for_average_distance_metric
 
 
@@ -26,7 +26,7 @@ class MainController:
         self.g.load_state_dict(torch.load(generator_path, map_location=torch.device(self.device)))
         self.matrix_a_linear: MatrixALinear = MatrixALinear(input_dim=100, output_dim=100, bias=bias)
         self.matrix_a_linear.load_state_dict(torch.load(matrix_a_path, map_location=torch.device(self.device)))
-        self.latent_space_data_points, self.latent_space_data_labels = load_latent_space_data_points(
+        self.latent_space_data_points, self.latent_space_data_labels = load_latent_space_data_points_ano_class(
             '../data/LatentSpaceMNIST')
 
     def get_shifted_images(self, z, shifts_range, shifts_count, dim, direction, pca_component_count=0,

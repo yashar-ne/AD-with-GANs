@@ -1,9 +1,6 @@
 {
   "spellcheck": true,
-  "spellcheckLanguages": [
-    "en-US",
-    "de-DE"
-  ],
+  "spellcheckLanguages": null,
   "spellcheckDictionary": [
     "Inpainting"
   ],

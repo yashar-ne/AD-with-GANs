@@ -44,7 +44,6 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def get_roc_auc_for_average_distance_metric(latent_space_data_points, latent_space_data_labels, direction_matrix,
                                             anomalous_directions, pca_component_count=3,
                                             pca_skipped_components_count=0, invert_labels=False):
-
     if invert_labels:
         inverted_anomalous_directions = []
         for i in range(pca_skipped_components_count if pca_component_count > 0 else 100):
@@ -63,7 +62,7 @@ def get_roc_auc_for_average_distance_metric(latent_space_data_points, latent_spa
 
     a = extract_weights_from_model_and_apply_pca(direction_matrix, pca_component_count, pca_skipped_components_count)
     directions = [a[d[0]] for d in anomalous_directions] if consider_ano_to_ano_directions \
-        else [a[d[0]] for d in anomalous_directions if (d[0], d[1]*-1) not in anomalous_directions]
+        else [a[d[0]] for d in anomalous_directions if (d[0], d[1] * -1) not in anomalous_directions]
 
     scores = []
     for data_point in latent_space_data_points:
@@ -113,7 +112,7 @@ def get_2d_plot(local_outlier_factor):
     plt.figure(figsize=(10, 9))
     axes = plt.axes()
 
-    data_points, data_label = load_latent_space_data_points(
+    data_points, data_label = load_latent_space_data_points_ano_class(
         '/home/yashar/git/python/AD-with-GANs/data/LatentSpaceMNIST')
 
     data = []
@@ -146,7 +145,7 @@ def get_3d_plot(local_outlier_factor):
     axes.set_ylim3d(-20000, 20000)
     axes.set_zlim3d(-20000, 20000)
 
-    data_points, data_label = load_latent_space_data_points(
+    data_points, data_label = load_latent_space_data_points_ano_class(
         '/home/yashar/git/python/AD-with-GANs/data/LatentSpaceMNIST')
 
     data = []
@@ -179,7 +178,7 @@ def get_roc_curve_as_base64(label, values):
     return plot_to_base64(plt), auc
 
 
-def load_latent_space_data_points(base_url):
+def load_latent_space_data_points_ano_class(base_url):
     path = os.path.join(base_url, "latent_space_mappings.csv")
     data_points = []
     data_labels = []
@@ -197,9 +196,27 @@ def load_latent_space_data_points(base_url):
     return data_points, data_labels
 
 
+def load_latent_space_data_points_lined(base_url):
+    path = os.path.join(base_url, "latent_space_mappings.csv")
+    data_points = []
+    data_labels = []
+    with open(path, 'r') as csvfile:
+        datareader = csv.reader(csvfile)
+        next(datareader)
+        for row in datareader:
+            latent_space_point_path = os.path.join(base_url, row[0])
+            latent_space_point_pt = torch.squeeze(
+                torch.load(latent_space_point_path, map_location=torch.device(device)).detach())
+            latent_space_point = latent_space_point_pt.numpy()
+            data_points.append(latent_space_point)
+            data_labels.append(True if row[2] == "True" else False)
+
+    return data_points, data_labels
+
+
 def get_tsne_for_original_data():
     plt.clf()
-    data_points, data_label = load_latent_space_data_points(
+    data_points, data_label = load_latent_space_data_points_ano_class(
         '/home/yashar/git/python/AD-with-GANs/data/LatentSpaceMNIST')
     tsne = TSNE(n_components=2, random_state=0)
     tsne_res = tsne.fit_transform(np.array(data_points))
