@@ -6,3 +6,4 @@ class SaveLabelToDbModel(BaseModel):
     shifts_count: int
     dim: int
     is_anomaly: bool
+    dataset: str

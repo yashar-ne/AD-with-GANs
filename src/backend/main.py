@@ -9,9 +9,7 @@ from src.backend.models.GetShiftedImagesModel import GetShiftedImagesModel
 from src.backend.controller.main_controller import MainController
 from src.backend.models.SessionLabelsModel import SessionLabelsModel
 
-main_controller: MainController = MainController(generator_path="../saved_models/generator.pkl",
-                                                 matrix_a_path="../saved_models/matrix_a.pkl",
-                                                 z_dim=100)
+main_controller: MainController = MainController(base_path='../data', z_dim=100)
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -22,15 +20,23 @@ app.add_middleware(
 )
 
 
+@app.get("/list_available_datasets")
+async def list_available_datasets():
+    return main_controller.list_available_datasets()
+
+
 @app.post("/get_shifted_images")
 async def get_shifted_images(body: GetShiftedImagesModel):
-    return main_controller.get_shifted_images(body.z,
+    return main_controller.get_shifted_images(body.dataset,
+                                              body.direction_matrix,
+                                              body.z,
                                               body.shifts_range,
                                               body.shifts_count,
                                               body.dim,
                                               body.direction,
                                               body.pca_component_count,
-                                              body.pca_skipped_components_count)
+                                              body.pca_skipped_components_count
+                                              )
 
 
 @app.post("/get_random_noise")
@@ -46,7 +52,9 @@ async def save_session_labels_to_db(body: SessionLabelsModel):
 
 @app.post("/get_validation_results")
 async def get_validation_results(body: GetValidationResultsModel):
-    return main_controller.get_validation_results(anomalous_directions=body.weighted_dims,
+    return main_controller.get_validation_results(dataset=body.dataset,
+                                                  direction_matrix=body.direction_matrix,
+                                                  anomalous_directions=body.weighted_dims,
                                                   pca_component_count=body.pca_component_count,
                                                   skipped_components_count=body.skipped_components_count)
 

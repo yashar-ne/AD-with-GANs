@@ -26,7 +26,9 @@ export class LabelingResultsComponent implements OnInit {
         this.validationResults$ = this.bs.getValidationResults({
           weighted_dims: this.ls.getData().anomalous_dims,
           pca_component_count: this.ls.getData().pca_component_count,
-          skipped_components_count: this.ls.getData().pca_skipped_components_count
+          skipped_components_count: this.ls.getData().pca_skipped_components_count,
+          dataset: this.ls.getData().dataset[0],
+          direction_matrix: this.ls.getData().direction_matrix,
         })
       })
   }

@@ -1,5 +1,8 @@
 <ng-container *ngIf="!sessionStarted">
   <configuration
+    [datasets]="datasetSelectOptions"
+    [(dataset)]="dataset"
+    [(directionMatrix)]="directionMatrix"
     [(shiftRange)]="shiftRange"
     [(shiftCount)]="shiftCount"
     [shiftCountSelectOptions]="shiftCountSelectOptions"

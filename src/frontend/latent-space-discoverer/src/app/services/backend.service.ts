@@ -4,7 +4,6 @@ import {Observable} from "rxjs";
 import {ImageStrip} from "../models/image-strip.model";
 import {GetShiftedImages} from "../models/get-shifted-images.model";
 import {GetRandomNoise} from "../models/get-random-noise.model";
-import {SaveLabelModel} from "../models/save-label-to-db-model.model";
 import {SessionLabelsModel} from "../models/session-labels.model";
 import {GetValidationResultsModel} from "../models/get-validation-results-model.model";
 import {ValidationResultsModel} from "../models/validation-results-model.model";
@@ -15,6 +14,11 @@ import {ValidationResultsModel} from "../models/validation-results-model.model";
 export class BackendService {
   api_root: string = 'http://127.0.0.1:8000'
   constructor(private httpClient: HttpClient) { }
+
+  listAvailableDatasets(): Observable<Array<any>> {
+    console.log("Listing available datasets")
+    return this.httpClient.get<Array<string>>(`${this.api_root}/list_available_datasets`, { responseType: 'json' })
+  }
 
   getRandomNoise(getRandomNoise: GetRandomNoise): Observable<Array<number>> {
     console.log("Getting Random Noise")
@@ -29,11 +33,6 @@ export class BackendService {
   saveSessionLabelsToDb(sessionLabelsModel: SessionLabelsModel): Observable<boolean> {
     console.log("Calling save_session_labels_to_db endpoint")
     return this.httpClient.post<boolean>(`${this.api_root}/save_session_labels_to_db`, sessionLabelsModel, { responseType: 'json' })
-  }
-
-  getImageStripFromPrerenderedSample(): Observable<Array<ImageStrip>> {
-    console.log("Getting Image-Strip")
-    return this.httpClient.get<Array<ImageStrip>>(`${this.api_root}/get_image_strip_from_prerendered_sample`, { responseType: 'json' })
   }
 
   getValidationResults(getValidationResultsModel: GetValidationResultsModel): Observable<ValidationResultsModel>{

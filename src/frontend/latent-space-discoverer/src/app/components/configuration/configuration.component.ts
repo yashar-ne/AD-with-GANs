@@ -8,6 +8,14 @@ import {MatCheckboxChange} from "@angular/material/checkbox";
   styleUrls: ['./configuration.component.scss']
 })
 export class ConfigurationComponent {
+  @Input() dataset: string | undefined
+  @Output() datasetChange: EventEmitter<string> = new EventEmitter();
+  @Input() datasets: any[] | undefined
+
+  @Input() directionMatrix: string | undefined
+  @Output() directionMatrixChange: EventEmitter<string> = new EventEmitter();
+  @Input() directionMatrixSelectOptions: string[] | undefined
+
   @Input() shiftRange: number | undefined
   @Output() shiftRangeChange: EventEmitter<number> = new EventEmitter();
   @Input() shiftRangeSelectOptions: number[] | undefined;
@@ -29,6 +37,16 @@ export class ConfigurationComponent {
 
   startHandlerClick() {
     this.startHandler.emit()
+  }
+
+  onDatasetSelectChange(value: MatSelectChange) {
+    console.log("DATASET SELECTED", value)
+    this.datasetChange.emit(value.value)
+    this.directionMatrixSelectOptions = value.value[1]
+  }
+
+  onDirectionMatrixSelectChange(value: MatSelectChange) {
+    this.directionMatrixChange.emit(value.value)
   }
 
   onShiftRangeChange(value: MatSelectChange) {

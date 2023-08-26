@@ -1,5 +1,21 @@
 <div class="latent-display-parameter-settings-wrapper">
   <mat-form-field>
+    <mat-label>Select dataset</mat-label>
+    <mat-select [(ngModel)]="dataset" (selectionChange)="onDatasetSelectChange($event)">
+      <mat-option *ngFor="let option of datasets" [value]="option">
+        {{option[0]}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Select Direction Matrix</mat-label>
+    <mat-select [(ngModel)]="directionMatrix" (selectionChange)="onDirectionMatrixSelectChange($event)">
+      <mat-option *ngFor="let option of directionMatrixSelectOptions" [value]="option">
+        {{option.split('.')[0]}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
     <mat-label>Select the range of shifts</mat-label>
     <mat-select [(ngModel)]="shiftRange" (selectionChange)="onShiftRangeChange($event)">
       <mat-option *ngFor="let option of shiftRangeSelectOptions" [value]="option">

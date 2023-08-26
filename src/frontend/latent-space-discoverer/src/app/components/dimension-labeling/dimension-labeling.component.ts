@@ -12,12 +12,16 @@ import {Router} from "@angular/router";
 })
 export class DimensionLabelingComponent implements OnInit, OnDestroy {
   subscriptionZ$: Subscription | undefined
+  subscriptionDatasets$: Subscription | undefined
   shiftedImages$: Observable<Array<ImageStrip>> | undefined
 
   sessionStarted: boolean = false
+  datasetSelectOptions: any[] = []
   shiftRangeSelectOptions: number[] = Array.from(Array(100).keys())
   shiftCountSelectOptions: number[] = Array.from(Array(21).keys())
 
+  dataset: string = ''
+  directionMatrix: string = ''
   shiftRange: number = 20
   shiftCount: number = 20
   dim: number = 0
@@ -39,6 +43,14 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
       .subscribe((z: number[]) => {
         this.ls.data.z = z
       })
+
+    this.subscriptionDatasets$ = this.bs.listAvailableDatasets()
+      .pipe(take(1))
+      .subscribe((datasetSelectOptions: any[]) => {
+        console.log(datasetSelectOptions)
+        this.datasetSelectOptions = datasetSelectOptions
+      }
+    )
   }
 
   updateImages() {
@@ -62,6 +74,8 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
       shifts_range: this.shiftRange,
       pca_component_count: this.usePCA ? this.pcaComponentCount : 0,
       pca_skipped_components_count: this.usePCA ? this.pcaSkippedComponentsCount : 0,
+      dataset: this.dataset[0],
+      direction_matrix: this.directionMatrix,
     })
 
     this.sequenceIndex++
@@ -70,7 +84,11 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   startHandler() {
     if (this.usePCA && (this.pcaComponentCount <= this.pcaSkippedComponentsCount)){
       alert("PCA Components must be larger than Skip Components")
-    } else {
+    }
+    else if (this.dataset === '' || this.directionMatrix === '') {
+      alert("Please select a dataset and direction matrix")
+    }
+    else {
       this.ls.setData({
         z: this.ls.data.z,
         anomalous_dims: [],
@@ -79,6 +97,8 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
         use_pca: this.usePCA,
         pca_component_count: this.usePCA ? this.pcaComponentCount : 0,
         pca_skipped_components_count: this.usePCA ? this.pcaSkippedComponentsCount : 0,
+        dataset: this.dataset,
+        direction_matrix: this.directionMatrix,
       })
 
       this.sessionStarted = true
@@ -103,6 +123,7 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptionZ$?.unsubscribe()
+    this.subscriptionDatasets$?.unsubscribe()
   }
 }
 
