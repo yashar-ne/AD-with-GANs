@@ -31,17 +31,5 @@
       </mat-option>
     </mat-select>
   </mat-form-field>
-  <mat-checkbox [(ngModel)]="usePCA" (change)="onUsePCAChange($event)">Use PCA</mat-checkbox>
-  <ng-container *ngIf="usePCA">
-    <mat-form-field class="example-full-width">
-      <mat-label>PCA Components</mat-label>
-      <input [(ngModel)]="pcaComponentCount" (ngModelChange)="onPcaComponentCountChange($event)" matInput type="number" min="1" max="100">
-    </mat-form-field>
-    <mat-form-field class="example-full-width">
-      <mat-label>Skip Components</mat-label>
-      <input [(ngModel)]="pcaSkippedComponentsCount" (ngModelChange)="onPcaSkippedComponentCountChange($event)" matInput type="number" min="0" max="100">
-    </mat-form-field>
-  </ng-container>
-
   <button mat-raised-button color="primary" (click)="startHandlerClick()">Start</button>
 </div>

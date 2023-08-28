@@ -7,6 +7,7 @@ import {GetRandomNoise} from "../models/get-random-noise.model";
 import {SessionLabelsModel} from "../models/session-labels.model";
 import {GetValidationResultsModel} from "../models/get-validation-results-model.model";
 import {ValidationResultsModel} from "../models/validation-results-model.model";
+import {GetDirectionCountModel} from "../models/get-direction-count-model.model";
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,11 @@ export class BackendService {
   listAvailableDatasets(): Observable<Array<any>> {
     console.log("Listing available datasets")
     return this.httpClient.get<Array<string>>(`${this.api_root}/list_available_datasets`, { responseType: 'json' })
+  }
+
+  getDirectionCount(getDirectionCountModel: GetDirectionCountModel): Observable<number> {
+    console.log("Getting direction count")
+    return this.httpClient.post<number>(`${this.api_root}/get_direction_count`, getDirectionCountModel, { responseType: 'json' })
   }
 
   getRandomNoise(getRandomNoise: GetRandomNoise): Observable<Array<number>> {

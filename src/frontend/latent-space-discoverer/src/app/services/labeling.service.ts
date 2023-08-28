@@ -12,9 +12,6 @@ export class LabelingService {
     anomalous_dims: [],
     shifts_range: 0,
     shifts_count: 0,
-    use_pca: true,
-    pca_component_count: 0,
-    pca_skipped_components_count: 0,
     dataset: '',
     direction_matrix: '',
   }

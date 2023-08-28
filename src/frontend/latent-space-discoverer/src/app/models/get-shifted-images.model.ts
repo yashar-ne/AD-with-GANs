@@ -4,8 +4,6 @@ export interface GetShiftedImages {
     shifts_count: number
     dim: number
     direction: number
-    pca_component_count: number
-    pca_skipped_components_count: number
     dataset: string
     direction_matrix: string
 }

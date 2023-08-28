@@ -3,6 +3,7 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from src.backend.models.GetDirectionCountModel import GetDirectionCountModel
 from src.backend.models.GetValidationResultsModel import GetValidationResultsModel
 from src.backend.models.GetRandomNoiseModel import GetRandomNoiseModel
 from src.backend.models.GetShiftedImagesModel import GetShiftedImagesModel
@@ -24,6 +25,9 @@ app.add_middleware(
 async def list_available_datasets():
     return main_controller.list_available_datasets()
 
+@app.post("/get_direction_count")
+async def get_direction_count(body: GetDirectionCountModel):
+    return main_controller.get_direction_count(body.dataset_name, body.direction_matrix_name)
 
 @app.post("/get_shifted_images")
 async def get_shifted_images(body: GetShiftedImagesModel):
@@ -33,9 +37,7 @@ async def get_shifted_images(body: GetShiftedImagesModel):
                                               body.shifts_range,
                                               body.shifts_count,
                                               body.dim,
-                                              body.direction,
-                                              body.pca_component_count,
-                                              body.pca_skipped_components_count
+                                              body.direction
                                               )
 
 
@@ -54,9 +56,7 @@ async def save_session_labels_to_db(body: SessionLabelsModel):
 async def get_validation_results(body: GetValidationResultsModel):
     return main_controller.get_validation_results(dataset=body.dataset,
                                                   direction_matrix=body.direction_matrix,
-                                                  anomalous_directions=body.weighted_dims,
-                                                  pca_component_count=body.pca_component_count,
-                                                  skipped_components_count=body.skipped_components_count)
+                                                  anomalous_directions=body.weighted_dims)
 
 
 if __name__ == "__main__":

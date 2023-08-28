@@ -13,6 +13,7 @@ import {Router} from "@angular/router";
 export class DimensionLabelingComponent implements OnInit, OnDestroy {
   subscriptionZ$: Subscription | undefined
   subscriptionDatasets$: Subscription | undefined
+  subscriptionDirectionCount$: Subscription | undefined
   shiftedImages$: Observable<Array<ImageStrip>> | undefined
 
   sessionStarted: boolean = false
@@ -27,10 +28,6 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   dim: number = 0
   direction: number = 1
   maxdim: number = 100
-
-  usePCA: boolean = true
-  pcaComponentCount: number = 20
-  pcaSkippedComponentsCount: number = 0
 
   directionSequence: Array<DirectionSequence> = []
   sequenceIndex: number = 0
@@ -47,7 +44,6 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
     this.subscriptionDatasets$ = this.bs.listAvailableDatasets()
       .pipe(take(1))
       .subscribe((datasetSelectOptions: any[]) => {
-        console.log(datasetSelectOptions)
         this.datasetSelectOptions = datasetSelectOptions
       }
     )
@@ -72,8 +68,6 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
       z: this.ls.getNoiseArray(),
       shifts_count: this.shiftCount,
       shifts_range: this.shiftRange,
-      pca_component_count: this.usePCA ? this.pcaComponentCount : 0,
-      pca_skipped_components_count: this.usePCA ? this.pcaSkippedComponentsCount : 0,
       dataset: this.dataset[0],
       direction_matrix: this.directionMatrix,
     })
@@ -82,10 +76,7 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   }
 
   startHandler() {
-    if (this.usePCA && (this.pcaComponentCount <= this.pcaSkippedComponentsCount)){
-      alert("PCA Components must be larger than Skip Components")
-    }
-    else if (this.dataset === '' || this.directionMatrix === '') {
+    if (this.dataset === '' || this.directionMatrix === '') {
       alert("Please select a dataset and direction matrix")
     }
     else {
@@ -94,21 +85,24 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
         anomalous_dims: [],
         shifts_count: this.shiftCount,
         shifts_range: this.shiftRange,
-        use_pca: this.usePCA,
-        pca_component_count: this.usePCA ? this.pcaComponentCount : 0,
-        pca_skipped_components_count: this.usePCA ? this.pcaSkippedComponentsCount : 0,
         dataset: this.dataset,
         direction_matrix: this.directionMatrix,
       })
 
       this.sessionStarted = true
-      this.maxdim = this.usePCA ? this.pcaComponentCount : this.maxdim
-      this.directionSequence = this.generateDirectionSequence()
+      // this.directionSequence = this.generateDirectionSequence()
       this.updateImages()
     }
   }
 
   generateDirectionSequence(): DirectionSequence[] {
+    this.subscriptionDirectionCount$ = this.bs.getDirectionCount({dataset_name: this.dataset[0], direction_matrix_name: this.directionMatrix})
+      .pipe(take(1))
+      .subscribe((directionCount: number) => {
+        this.maxdim = directionCount
+      }
+    )
+
     let direction = 1
     let dimension = 0
     let result = []
@@ -121,9 +115,16 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
     return result
   }
 
+  updateMaxDim(maxdim: number) {
+    this.maxdim = maxdim
+    console.log("maxdim: ", this.maxdim)
+    this.directionSequence = this.generateDirectionSequence()
+  }
+
   ngOnDestroy(): void {
     this.subscriptionZ$?.unsubscribe()
     this.subscriptionDatasets$?.unsubscribe()
+    this.subscriptionDirectionCount$?.unsubscribe()
   }
 }
 

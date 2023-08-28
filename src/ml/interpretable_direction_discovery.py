@@ -1,14 +1,6 @@
 import os
-import sys
-
-sys.path.append('./ml/tools')
-sys.path.append('./ml/models')
-
 import torch
 from latent_direction_explorer import LatentDirectionExplorer
-from latent_direction_visualizer import LatentDirectionVisualizer, get_random_strip_as_numpy_array
-from tools.utils import generate_noise
-from tools.ano_mnist_dataset_generator import get_ano_mnist_dataset
 
 from torchvision import transforms
 
@@ -19,14 +11,21 @@ transform = transforms.Compose([
     transforms.Normalize(mean=(.5,), std=(.5,))
 ])
 
-useBias = False
+useBias = True
+direction_count = 50
+steps = 20000
 
 # dataset = get_ano_mnist_dataset(transform=transform, root_dir=os.path.abspath("../../data"))
 # visualizer = LatentDirectionVisualizer(matrix_a_linear=trainer.matrix_a, generator=trainer.g, device=device)
 
-trainer = LatentDirectionExplorer(z_dim=100, latent_dim=100, directions_count=100, batch_size=1, bias=useBias, device=device)
-trainer.load_generator(os.path.abspath("../../saved_models/generator.pkl"))
-trainer.train_and_save(num_steps=20000)
+
+trainer = LatentDirectionExplorer(z_dim=100, latent_dim=100, directions_count=50, batch_size=1, bias=useBias,
+                                  device=device, saved_models_path='/home/yashar/git/python/AD-with-GANs/data/DS01_mnist_9_6_20_percent/matrix_a/')
+trainer.load_generator(
+    os.path.abspath("/home/yashar/git/python/AD-with-GANs/data/DS01_mnist_9_6_20_percent/generator.pkl"))
+
+b = 'bias' if useBias else 'nobias'
+trainer.train_and_save(filename=f'DS1_matrix_a_steps_{steps}_{b}_k_{direction_count}.pkl', num_steps=steps)
 
 # noise_batches = generate_noise(batch_size=4, z_dim=100, device=device)
 # visualizer.visualize(noise_batches=noise_batches, shifts_range=10, output_directory=os.path.abspath("../out_dir"))

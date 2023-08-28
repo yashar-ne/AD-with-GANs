@@ -39,7 +39,7 @@ class LatentDirectionExplorer:
         # init Reconstructor
         self.reconstructor = Reconstructor(dim=self.matrix_a.input_dim)
 
-    def train_and_save(self, num_steps=1000):
+    def train_and_save(self, filename, num_steps=1000):
         # init optimizers for MatrixA, Reconstructor
         matrix_a_opt = torch.optim.Adam(self.matrix_a.parameters(), lr=self.matrix_a_lr)
         reconstructor_opt = torch.optim.Adam(self.reconstructor.parameters(), lr=self.reconstructor_lr)
@@ -86,7 +86,7 @@ class LatentDirectionExplorer:
                 self.__save_checkpoint(step)
 
         # save a and R
-        self.__save_models()
+        self.__save_models(filename)
 
         # display image from A(x) with shift epsilon
         print(self.matrix_a)
@@ -111,10 +111,10 @@ class LatentDirectionExplorer:
 
         return target_indices, shifts, z_shift
 
-    def __save_models(self):
+    def __save_models(self, filename):
         print("Saving models...")
-        torch.save(self.matrix_a.state_dict(), f'{self.saved_models_path}/matrix_a.pkl')
-        torch.save(self.reconstructor.state_dict(), f'{self.saved_models_path}/reconstructor.pkl')
+        torch.save(self.matrix_a.state_dict(), f'{self.saved_models_path}/{filename}')
+        # torch.save(self.reconstructor.state_dict(), f'{self.saved_models_path}/reconstructor_{filename}.pkl')
 
     def __save_checkpoint(self, iteration):
         torch.save(self.matrix_a.state_dict(), f'{self.saved_models_path}/cp/matrix_a_{time.time()}_{iteration}.pkl')

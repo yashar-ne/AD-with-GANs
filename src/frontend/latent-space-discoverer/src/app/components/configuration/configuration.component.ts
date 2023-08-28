@@ -24,16 +24,8 @@ export class ConfigurationComponent {
   @Output() shiftCountChange: EventEmitter<number> = new EventEmitter();
   @Input() shiftCountSelectOptions: number[] | undefined;
 
-  @Input() usePCA: boolean | undefined;
-  @Output() usePCAChange: EventEmitter<boolean> = new EventEmitter();
-
-  @Input() pcaComponentCount: number | undefined
-  @Output() pcaComponentCountChange: EventEmitter<number> = new EventEmitter();
-
-  @Input() pcaSkippedComponentsCount: number | undefined
-  @Output() pcaSkippedComponentsCountChange: EventEmitter<number> = new EventEmitter();
-
   @Output() startHandler: EventEmitter<any> = new EventEmitter();
+  @Output() generateDirectionSequence: EventEmitter<any> = new EventEmitter();
 
   startHandlerClick() {
     this.startHandler.emit()
@@ -47,6 +39,7 @@ export class ConfigurationComponent {
 
   onDirectionMatrixSelectChange(value: MatSelectChange) {
     this.directionMatrixChange.emit(value.value)
+    this.generateDirectionSequence.emit(10)
   }
 
   onShiftRangeChange(value: MatSelectChange) {
@@ -55,17 +48,5 @@ export class ConfigurationComponent {
 
   onShiftCountChange(value: MatSelectChange) {
     this.shiftCountChange.emit(value.value)
-  }
-
-  onUsePCAChange(value: MatCheckboxChange) {
-    this.usePCAChange.emit(value.checked)
-  }
-
-  onPcaComponentCountChange(value: number) {
-    this.pcaComponentCountChange.emit(value)
-  }
-
-  onPcaSkippedComponentCountChange(value: number) {
-    this.pcaSkippedComponentsCountChange.emit(value)
   }
 }

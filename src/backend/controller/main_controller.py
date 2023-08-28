@@ -6,7 +6,7 @@ import base64
 import io
 from PIL import Image
 
-from src.backend.db import save_to_db, save_session_labels_to_db
+from src.backend.db import save_session_labels_to_db
 from src.backend.models.SessionLabelsModel import SessionLabelsModel
 from src.backend.models.ValidationResultsModel import ValidationResultsModel
 from src.ml.latent_direction_visualizer import LatentDirectionVisualizer, get_random_strip_as_numpy_array
@@ -30,25 +30,26 @@ class MainController:
         for dataset_name in self.dataset_names:
             matrix_a_path = os.path.join(base_path, dataset_name, 'matrix_a')
             generator_path = os.path.join(base_path, dataset_name, 'generator.pkl')
-            matrix_as = []
+            direction_matrices = {}
             for f in os.listdir(matrix_a_path):
                 if os.path.isfile(os.path.join(matrix_a_path, f)):
-                    matrix_a_linear: MatrixALinear = MatrixALinear(input_dim=100, output_dim=100, bias=bias)
-                    matrix_a_linear.load_state_dict(
-                        torch.load(os.path.join(matrix_a_path, f), map_location=torch.device(self.device)))
-                    matrix_as.append({'name': f, 'matrix_a': matrix_a_linear})
+                    matrix_state = torch.load(os.path.join(matrix_a_path, f), map_location=torch.device(self.device))
+                    input_dim = matrix_state.get('linear.weight').shape[1]
+                    output_dim = matrix_state.get('linear.weight').shape[0]
+                    uses_bias = 'linear.bias' in matrix_state
+                    matrix_a_linear: MatrixALinear = MatrixALinear(input_dim=input_dim, output_dim=output_dim,
+                                                                   bias=uses_bias)
+                    matrix_a_linear.load_state_dict(matrix_state)
+                    direction_matrices.update({f: {'matrix_a': matrix_a_linear, 'direction_count': input_dim}})
             g: Generator = Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1)
             g.load_state_dict(torch.load(generator_path, map_location=torch.device(self.device)))
             self.datasets.update({
                 dataset_name: {
-                    'matrix_as': matrix_as,
+                    'direction_matrices': direction_matrices,
                     'generator': g,
                     'data': load_data_points(os.path.join(base_path, dataset_name, 'dataset'))
                 }
             })
-
-    def list_available_datasets(self):
-        return [(key, [m['name'] for m in value['matrix_as']]) for key, value in self.datasets.items()]
 
     def get_shifted_images(self, dataset, matrix_a, z, shifts_range, shifts_count, dim, direction,
                            pca_component_count=0, pca_skipped_components_count=0):
@@ -59,9 +60,17 @@ class MainController:
         shifted_images = visualizer.create_shifted_images(z, shifts_range, shifts_count, dim, direction)
         return generate_base64_images_from_tensor_list(shifted_images)
 
+    def list_available_datasets(self):
+        return [(key, [key for key, m in value.get('direction_matrices').items()]) for key, value in self.datasets.items()]
+
+    def get_direction_count(self, dataset_name: str, direction_matrix_name: str):
+        return self.datasets.get(dataset_name).get('direction_matrices').get(direction_matrix_name).get('direction_count')
+
     def get_validation_results(self, dataset, direction_matrix, anomalous_directions, pca_component_count,
                                skipped_components_count):
-        matrix_a_linear = next((m for m in self.datasets.get(dataset).get('matrix_as') if m['name'] == direction_matrix), None).get('matrix_a')
+        matrix_a_linear = next(
+            (m for m in self.datasets.get(dataset).get('direction_matrices') if m['name'] == direction_matrix),
+            None).get('matrix_a')
         latent_space_data_points = self.datasets.get(dataset).get('data')[0]
         latent_space_data_labels = self.datasets.get(dataset).get('data')[1]
 
@@ -145,6 +154,7 @@ class MainController:
         return generate_noise(batch_size=1, z_dim=z_dim, device=self.device)
 
     def __get_direction_matrix(self, dataset, matrix_a, pca_component_count, pca_skipped_components_count):
-        a = next((m for m in self.datasets.get(dataset).get('matrix_as') if m['name'] == matrix_a), None).get('matrix_a')
+        a = next((m for m in self.datasets.get(dataset).get('direction_matrices') if m['name'] == matrix_a), None).get(
+            'matrix_a')
         return apply_pca_to_matrix_a(a, pca_component_count,
                                      pca_skipped_components_count) if pca_component_count > 0 else a

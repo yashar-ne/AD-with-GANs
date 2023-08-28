@@ -73,6 +73,13 @@ def generate_base64_images_from_tensor(images_tensor):
 def generate_base64_images_from_tensor_list(images_tensor_list):
     image_list = []
     for idx, i in enumerate(images_tensor_list):
-        image_list.append(ImageStripModel(position=idx, image=generate_base64_images_from_tensor(i)))
+        image_list.append(
+            ImageStripModel(
+                position=idx,
+                image=generate_base64_images_from_tensor(i),
+                direction_position=1,
+                total_directions=1
+            )
+        )
 
     return image_list
