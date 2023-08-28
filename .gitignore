@@ -136,7 +136,8 @@ Obsidian/.obsidian/workspace.json
 model_gen.ckpt
 /Obsidian/.obsidian/graph.json
 /src/saved_models/
-/data/
+/data/*/dataset
+/data/*/dataset_raw
 /saved_models/cp
 /out_dir/
 /saved_models/discriminator.BACKUP.pkl

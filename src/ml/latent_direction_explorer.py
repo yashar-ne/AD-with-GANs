@@ -13,8 +13,7 @@ from src.ml.tools.utils import generate_noise
 
 
 class LatentDirectionExplorer:
-    def __init__(self, z_dim, directions_count, latent_dim, batch_size, device, bias=True,
-                 saved_models_path='../../saved_models'):
+    def __init__(self, z_dim, directions_count, device, bias=True, saved_models_path='../../saved_models'):
         super(LatentDirectionExplorer, self).__init__()
         self.min_shift = 0.5
         self.shift_scale = 6.0
@@ -25,7 +24,7 @@ class LatentDirectionExplorer:
         self.cross_entropy = nn.CrossEntropyLoss()
         self.saved_models_path = saved_models_path
 
-        self.batch_size = batch_size
+        self.batch_size = 1
         self.z_dim = z_dim
         self.directions_count = directions_count
         self.device = device
@@ -34,7 +33,7 @@ class LatentDirectionExplorer:
         self.g: Generator = Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1)
 
         # init MatrixA
-        self.matrix_a = MatrixALinear(input_dim=self.directions_count, bias=bias, output_dim=latent_dim)
+        self.matrix_a = MatrixALinear(input_dim=self.directions_count, bias=bias, output_dim=z_dim)
 
         # init Reconstructor
         self.reconstructor = Reconstructor(dim=self.matrix_a.input_dim)

@@ -51,31 +51,35 @@ class MainController:
                 }
             })
 
-    def get_shifted_images(self, dataset, matrix_a, z, shifts_range, shifts_count, dim, direction,
+    def get_shifted_images(self, dataset_name, direction_matrix_name, z, shifts_range, shifts_count, dim, direction,
                            pca_component_count=0, pca_skipped_components_count=0):
         z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(z), 0), -1), 2)
-        a = self.__get_direction_matrix(dataset, matrix_a, pca_component_count, pca_skipped_components_count)
-        visualizer = LatentDirectionVisualizer(matrix_a_linear=a, generator=self.datasets.get(dataset).get('generator'),
+        a = self.__get_direction_matrix(dataset_name, direction_matrix_name)
+        a = apply_pca_to_matrix_a(a, pca_component_count,
+                                  pca_skipped_components_count) if pca_component_count > 0 else a
+        visualizer = LatentDirectionVisualizer(matrix_a_linear=a,
+                                               generator=self.datasets.get(dataset_name).get('generator'),
                                                device=self.device)
         shifted_images = visualizer.create_shifted_images(z, shifts_range, shifts_count, dim, direction)
         return generate_base64_images_from_tensor_list(shifted_images)
 
     def list_available_datasets(self):
-        return [(key, [key for key, m in value.get('direction_matrices').items()]) for key, value in self.datasets.items()]
+        return [(key, [key for key, m in value.get('direction_matrices').items()]) for key, value in
+                self.datasets.items()]
 
     def get_direction_count(self, dataset_name: str, direction_matrix_name: str):
-        return self.datasets.get(dataset_name).get('direction_matrices').get(direction_matrix_name).get('direction_count')
+        return self.datasets.get(dataset_name).get('direction_matrices').get(direction_matrix_name).get(
+            'direction_count')
 
-    def get_validation_results(self, dataset, direction_matrix, anomalous_directions, pca_component_count,
-                               skipped_components_count):
-        matrix_a_linear = next(
-            (m for m in self.datasets.get(dataset).get('direction_matrices') if m['name'] == direction_matrix),
-            None).get('matrix_a')
-        latent_space_data_points = self.datasets.get(dataset).get('data')[0]
-        latent_space_data_labels = self.datasets.get(dataset).get('data')[1]
+    def get_validation_results(self, dataset_name, direction_matrix_name, anomalous_directions, pca_component_count=0,
+                               skipped_components_count=0):
+
+        direction_matrix = self.__get_direction_matrix(dataset_name=dataset_name, direction_matrix_name=direction_matrix_name)
+        latent_space_data_points = self.datasets.get(dataset_name).get('data')[0]
+        latent_space_data_labels = self.datasets.get(dataset_name).get('data')[1]
 
         roc_auc, _ = get_roc_auc_for_average_distance_metric(
-            direction_matrix=matrix_a_linear,
+            direction_matrix=direction_matrix,
             anomalous_directions=anomalous_directions,
             latent_space_data_points=latent_space_data_points,
             latent_space_data_labels=latent_space_data_labels,
@@ -84,7 +88,7 @@ class MainController:
         )
 
         # roc_auc_inverted, _ = get_roc_auc_for_average_distance_metric(
-        #     direction_matrix=self.matrix_a_linear,
+        #     direction_matrix=self.direction_matrix,
         #     anomalous_directions=anomalous_directions,
         #     latent_space_data_points=self.latent_space_data_points,
         #     latent_space_data_labels=self.latent_space_data_labels,
@@ -94,7 +98,7 @@ class MainController:
         # )
 
         # roc_auc, _ = get_lof_roc_auc_for_given_dims(
-        #     direction_matrix=self.matrix_a_linear,
+        #     direction_matrix=self.direction_matrix,
         #     anomalous_directions=anomalous_directions,
         #     latent_space_data_points=self.latent_space_data_points,
         #     latent_space_data_labels=self.latent_space_data_labels,
@@ -104,7 +108,7 @@ class MainController:
         # )
 
         roc_auc_ignore_labels, _ = get_lof_roc_auc_for_given_dims(
-            direction_matrix=matrix_a_linear,
+            direction_matrix=direction_matrix,
             anomalous_directions=anomalous_directions,
             latent_space_data_points=latent_space_data_points,
             latent_space_data_labels=latent_space_data_labels,
@@ -115,7 +119,7 @@ class MainController:
         )
 
         # roc_auc_plain_mahalanobis, _ = get_roc_auc_for_plain_mahalanobis_distance(
-        #     direction_matrix=self.matrix_a_linear,
+        #     direction_matrix=self.direction_matrix,
         #     anomalous_directions=anomalous_directions,
         #     pca_component_count=pca_component_count,
         #     pca_skipped_components_count=skipped_components_count
@@ -153,8 +157,8 @@ class MainController:
     def get_random_noise(self, z_dim):
         return generate_noise(batch_size=1, z_dim=z_dim, device=self.device)
 
-    def __get_direction_matrix(self, dataset, matrix_a, pca_component_count, pca_skipped_components_count):
-        a = next((m for m in self.datasets.get(dataset).get('direction_matrices') if m['name'] == matrix_a), None).get(
-            'matrix_a')
-        return apply_pca_to_matrix_a(a, pca_component_count,
-                                     pca_skipped_components_count) if pca_component_count > 0 else a
+    def __get_direction_matrix(self, dataset_name, direction_matrix_name):
+        return self.datasets.get(dataset_name) \
+            .get('direction_matrices') \
+            .get(direction_matrix_name) \
+            .get('matrix_a')

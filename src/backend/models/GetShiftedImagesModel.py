@@ -7,6 +7,6 @@ class GetShiftedImagesModel(BaseModel):
     shifts_count: int
     dim: int
     direction: int
-    dataset: str
-    direction_matrix: str
+    dataset_name: str
+    direction_matrix_name: str
 

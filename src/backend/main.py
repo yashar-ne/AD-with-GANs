@@ -31,8 +31,8 @@ async def get_direction_count(body: GetDirectionCountModel):
 
 @app.post("/get_shifted_images")
 async def get_shifted_images(body: GetShiftedImagesModel):
-    return main_controller.get_shifted_images(body.dataset,
-                                              body.direction_matrix,
+    return main_controller.get_shifted_images(body.dataset_name,
+                                              body.direction_matrix_name,
                                               body.z,
                                               body.shifts_range,
                                               body.shifts_count,
@@ -54,8 +54,8 @@ async def save_session_labels_to_db(body: SessionLabelsModel):
 
 @app.post("/get_validation_results")
 async def get_validation_results(body: GetValidationResultsModel):
-    return main_controller.get_validation_results(dataset=body.dataset,
-                                                  direction_matrix=body.direction_matrix,
+    return main_controller.get_validation_results(dataset_name=body.dataset,
+                                                  direction_matrix_name=body.direction_matrix,
                                                   anomalous_directions=body.weighted_dims)
 
 

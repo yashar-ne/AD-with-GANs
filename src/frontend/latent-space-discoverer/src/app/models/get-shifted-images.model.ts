@@ -4,6 +4,6 @@ export interface GetShiftedImages {
     shifts_count: number
     dim: number
     direction: number
-    dataset: string
-    direction_matrix: string
+    dataset_name: string
+    direction_matrix_name: string
 }
