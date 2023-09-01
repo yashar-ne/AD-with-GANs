@@ -1,12 +1,8 @@
 #!/bin/bash
 
-conda create -y -n thesis
+conda create -y -n thesis python=3.10
 conda activate thesis
-
-
-conda install -y python=3.10 -c conda-forge
 conda install -y pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia
-conda install -y matplotlib -c conda-forge
 conda install -y matplotlib -c conda-forge
 conda install -y numpy -c conda-forge
 conda install -y jupyterlab -c conda-forge

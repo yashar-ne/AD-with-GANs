@@ -28,7 +28,7 @@ class MainController:
         self.datasets = {}
 
         for dataset_name in self.dataset_names:
-            matrix_a_path = os.path.join(base_path, dataset_name, 'matrix_a')
+            matrix_a_path = os.path.join(base_path, dataset_name, 'direction_matrices')
             generator_path = os.path.join(base_path, dataset_name, 'generator.pkl')
             direction_matrices = {}
             for f in os.listdir(matrix_a_path):
