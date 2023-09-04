@@ -1,6 +1,7 @@
 import torch
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, status, HTTPException
+from fastapi.responses import PlainTextResponse
 from starlette.middleware.cors import CORSMiddleware
 
 from src.backend.models.GetDirectionCountModel import GetDirectionCountModel
@@ -25,9 +26,11 @@ app.add_middleware(
 async def list_available_datasets():
     return main_controller.list_available_datasets()
 
+
 @app.post("/get_direction_count")
 async def get_direction_count(body: GetDirectionCountModel):
     return main_controller.get_direction_count(body.dataset_name, body.direction_matrix_name)
+
 
 @app.post("/get_shifted_images")
 async def get_shifted_images(body: GetShiftedImagesModel):
@@ -54,9 +57,10 @@ async def save_session_labels_to_db(body: SessionLabelsModel):
 
 @app.post("/get_validation_results")
 async def get_validation_results(body: GetValidationResultsModel):
-    return main_controller.get_validation_results(dataset_name=body.dataset,
-                                                  direction_matrix_name=body.direction_matrix,
-                                                  anomalous_directions=body.weighted_dims)
+    result = main_controller.get_validation_results(dataset_name=body.dataset,
+                                                    direction_matrix_name=body.direction_matrix,
+                                                    anomalous_directions=body.weighted_dims)
+    return result
 
 
 if __name__ == "__main__":

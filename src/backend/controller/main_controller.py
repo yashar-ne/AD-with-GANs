@@ -1,10 +1,6 @@
 import os
 import torch
-from glob import glob
-import numpy as np
-import base64
-import io
-from PIL import Image
+from fastapi import status, HTTPException
 
 from src.backend.db import save_session_labels_to_db
 from src.backend.models.SessionLabelsModel import SessionLabelsModel
@@ -71,8 +67,7 @@ class MainController:
         return self.datasets.get(dataset_name).get('direction_matrices').get(direction_matrix_name).get(
             'direction_count')
 
-    def get_validation_results(self, dataset_name, direction_matrix_name, anomalous_directions, pca_component_count=0,
-                               skipped_components_count=0):
+    def get_validation_results(self, dataset_name, direction_matrix_name, anomalous_directions):
 
         direction_matrix = self.__get_direction_matrix(dataset_name=dataset_name, direction_matrix_name=direction_matrix_name)
         latent_space_data_points = self.datasets.get(dataset_name).get('data')[0]
@@ -82,73 +77,25 @@ class MainController:
             direction_matrix=direction_matrix,
             anomalous_directions=anomalous_directions,
             latent_space_data_points=latent_space_data_points,
-            latent_space_data_labels=latent_space_data_labels,
-            pca_component_count=pca_component_count,
-            pca_skipped_components_count=skipped_components_count,
+            latent_space_data_labels=latent_space_data_labels
         )
-
-        # roc_auc_inverted, _ = get_roc_auc_for_average_distance_metric(
-        #     direction_matrix=self.direction_matrix,
-        #     anomalous_directions=anomalous_directions,
-        #     latent_space_data_points=self.latent_space_data_points,
-        #     latent_space_data_labels=self.latent_space_data_labels,
-        #     pca_component_count=pca_component_count,
-        #     pca_skipped_components_count=skipped_components_count,
-        #     invert_labels=True
-        # )
-
-        # roc_auc, _ = get_lof_roc_auc_for_given_dims(
-        #     direction_matrix=self.direction_matrix,
-        #     anomalous_directions=anomalous_directions,
-        #     latent_space_data_points=self.latent_space_data_points,
-        #     latent_space_data_labels=self.latent_space_data_labels,
-        #     pca_component_count=pca_component_count,
-        #     pca_skipped_components_count=skipped_components_count,
-        #     n_neighbours=n_neighbours
-        # )
 
         roc_auc_ignore_labels, _ = get_lof_roc_auc_for_given_dims(
             direction_matrix=direction_matrix,
             anomalous_directions=anomalous_directions,
             latent_space_data_points=latent_space_data_points,
             latent_space_data_labels=latent_space_data_labels,
-            pca_component_count=pca_component_count,
-            pca_skipped_components_count=skipped_components_count,
             n_neighbours=20,
             use_default_distance_metric=True
         )
 
-        # roc_auc_plain_mahalanobis, _ = get_roc_auc_for_plain_mahalanobis_distance(
-        #     direction_matrix=self.direction_matrix,
-        #     anomalous_directions=anomalous_directions,
-        #     pca_component_count=pca_component_count,
-        #     pca_skipped_components_count=skipped_components_count
-        # )
-        #
-        # t_sne_plot_one_hot_weighted_data = get_tsne_with_dimension_weighted_metric(
-        #     weighted_dims=labeled_dims,
-        #     ignore_unlabeled_dims=True,
-        #     pca_component_count=pca_component_count,
-        #     skipped_components_count=skipped_components_count
-        # )
-        #
-        # t_sne_plot_one_hot_weighted_data_ignore_labels = get_tsne_with_dimension_weighted_metric(
-        #     weighted_dims=labeled_dims,
-        #     ignore_unlabeled_dims=True,
-        #     pca_component_count=pca_component_count,
-        #     skipped_components_count=skipped_components_count,
-        #     ignore_labels=True
-        # )
+        if not roc_auc:
+            raise HTTPException(
+                status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                detail="Only ano to ano directions were labeled"
+            )
 
-        return ValidationResultsModel(
-            roc_auc_plot_one_hot=roc_auc,
-            # roc_auc_inverted=roc_auc_inverted,
-            roc_auc_plot_ignore_labels=roc_auc_ignore_labels,
-            # roc_auc_plot_one_hot_plain_mahalanobis=roc_auc_plain_mahalanobis,
-            # t_sne_plot_original_input_data=get_tsne_for_original_data(),
-            # t_sne_plot_one_hot_weighted_data=t_sne_plot_one_hot_weighted_data,
-            # t_sne_plot_one_hot_weighted_data_ignore_labels=t_sne_plot_one_hot_weighted_data_ignore_labels,
-        )
+        return ValidationResultsModel(roc_auc_plot_one_hot=roc_auc, roc_auc_plot_ignore_labels=roc_auc_ignore_labels)
 
     @staticmethod
     def save_session_labels_to_db(session_labels: SessionLabelsModel):

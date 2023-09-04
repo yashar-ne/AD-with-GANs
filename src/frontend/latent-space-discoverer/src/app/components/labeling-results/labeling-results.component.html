@@ -1,35 +1,16 @@
 <div class="done-wrapper">
-  <ng-container *ngIf="validationResults$ | async as validationResults else imagesLoading">
+<!--  <ng-container *ngIf="validationResults$ | async as validationResults else imagesLoading">-->
+  <ng-container *ngIf="validationResults else imagesLoading">
     <div class="labeling_results_title_text">Session done. You successfully labeled all directions</div>
 
     <div class="validation-results-grid-wrapper" *ngIf="validationResults.roc_auc_plot_one_hot">
       <div class="validation-results-grid-item">
         <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_plot_one_hot}}">
-        <div class="labeling_results_description_text">ROC Curve after performing Local Outlier Factor on labeled directions</div>
-      </div>
-      <div class="validation-results-grid-item" *ngIf="validationResults.roc_auc_inverted">
-        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_inverted}}">
-        <div class="labeling_results_description_text">ROC Curve after performing Local Outlier Factor on labeled directions (inverted labels)</div>
+        <div class="labeling_results_description_text">ROC Curve after performing distance metric on labeled directions</div>
       </div>
       <div class="validation-results-grid-item" *ngIf="validationResults.roc_auc_plot_ignore_labels">
         <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_plot_ignore_labels}}">
         <div class="labeling_results_description_text">ROC Curve after performing Local Outlier Factor (eucledean distance)</div>
-      </div>
-      <div class="validation-results-grid-item" *ngIf="validationResults.roc_auc_plot_one_hot_plain_mahalanobis">
-        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_plot_one_hot_plain_mahalanobis}}">
-        <div class="labeling_results_description_text">ROC Curve after performing plain mahalanobis distance</div>
-      </div>
-      <div class="validation-results-grid-item" *ngIf=" validationResults.t_sne_plot_original_input_data">
-        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_original_input_data}}">
-        <div class="labeling_results_description_text">T-SNE on original input data</div>
-      </div>
-      <div class="validation-results-grid-item" *ngIf="validationResults.t_sne_plot_one_hot_weighted_data_ignore_labels">
-        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_one_hot_weighted_data_ignore_labels}}">
-        <div class="labeling_results_description_text">T-SNE on labeled data (one-hot weighted, ignore labels)</div>
-      </div>
-      <div class="validation-results-grid-item" *ngIf="validationResults.t_sne_plot_one_hot_weighted_data">
-        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.t_sne_plot_one_hot_weighted_data}}">
-        <div class="labeling_results_description_text">T-SNE on labeled data (one-hot weighted)</div>
       </div>
     </div>
     <button

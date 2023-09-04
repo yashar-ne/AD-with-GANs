@@ -12,7 +12,7 @@ import csv
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import normalize
 
-from src.ml.tools.utils import extract_weights_from_model_and_apply_pca
+from src.ml.tools.utils import extract_weights_from_model
 from src.ml.weighted_local_outlier_factor import WeightedLocalOutlierFactor
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -41,28 +41,20 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # N = 50
 
 # max(lambda_0, lambda_1, lambda_2)
-def get_roc_auc_for_average_distance_metric(latent_space_data_points, latent_space_data_labels, direction_matrix,
-                                            anomalous_directions, pca_component_count=3,
-                                            pca_skipped_components_count=0, invert_labels=False):
-    if invert_labels:
-        inverted_anomalous_directions = []
-        for i in range(pca_skipped_components_count if pca_component_count > 0 else 100):
-            if (i, 1) not in anomalous_directions: inverted_anomalous_directions.append((i, 1))
-            # if (i, -1) not in anomalous_directions: inverted_anomalous_directions.append((i, -1))
-        anomalous_directions = inverted_anomalous_directions
-
-    consider_ano_to_ano_directions = True
+def get_roc_auc_for_average_distance_metric(latent_space_data_points, latent_space_data_labels, direction_matrix, anomalous_directions):
     inlier = []
-
     latent_space_data_points = normalize(latent_space_data_points, axis=1, norm='l2')
+
     for idx, p in enumerate(latent_space_data_points):
         if latent_space_data_labels[idx] is False:
             inlier.append(p / np.linalg.norm(p) if np.linalg.norm(p) != 0 else p)
     average_inlier_vector = np.mean(inlier, axis=0)
 
-    a = extract_weights_from_model_and_apply_pca(direction_matrix, pca_component_count, pca_skipped_components_count)
-    directions = [a[d[0]] for d in anomalous_directions] if consider_ano_to_ano_directions \
-        else [a[d[0]] for d in anomalous_directions if (d[0], d[1] * -1) not in anomalous_directions]
+    direction_matrix = extract_weights_from_model(direction_matrix)
+    directions = [direction_matrix[d[0]] * d[1] for d in anomalous_directions if (d[0], d[1] * -1) not in anomalous_directions]
+
+    if len(directions) == 0:
+        return None, None
 
     scores = []
     for data_point in latent_space_data_points:
@@ -71,7 +63,7 @@ def get_roc_auc_for_average_distance_metric(latent_space_data_points, latent_spa
             direction_scores.append((average_inlier_vector - data_point) @ d)
         scores.append(max(direction_scores))
 
-    y = np.array([-1 if d is False else 1 for d in latent_space_data_labels])
+    y = np.array([-1 if d is True else 1 for d in latent_space_data_labels])
     return get_roc_curve_as_base64(y, scores)
 
 
@@ -79,24 +71,19 @@ def get_lof_roc_auc_for_given_dims(direction_matrix,
                                    anomalous_directions,
                                    latent_space_data_points,
                                    latent_space_data_labels,
-                                   pca_component_count,
-                                   pca_skipped_components_count,
                                    n_neighbours,
                                    use_default_distance_metric=False):
-    a = extract_weights_from_model_and_apply_pca(direction_matrix, pca_component_count, pca_skipped_components_count)
-    weighted_lof = WeightedLocalOutlierFactor(direction_matrix=a,
+
+    direction_matrix = extract_weights_from_model(direction_matrix)
+    weighted_lof = WeightedLocalOutlierFactor(direction_matrix=direction_matrix,
                                               anomalous_directions=anomalous_directions,
                                               n_neighbours=n_neighbours,
-                                              pca_component_count=pca_component_count,
-                                              pca_skipped_components_count=pca_skipped_components_count,
                                               use_default_distance_metric=use_default_distance_metric)
 
     weighted_lof.load_latent_space_datapoints(data=latent_space_data_points)
     weighted_lof.fit()
 
-    y = np.array([1 if d is False else -1 for d in latent_space_data_labels])
-    # get_3d_plot(local_outlier_factor=weighted_lof)
-    # get_2d_plot(local_outlier_factor=weighted_lof)
+    y = np.array([-1 if d is True else 1 for d in latent_space_data_labels])
     return get_roc_curve_as_base64(y, weighted_lof.get_negative_outlier_factor())
 
 
@@ -172,8 +159,7 @@ def get_roc_curve_as_base64(label, values):
     values = [0 if math.isnan(x) else x for x in values]
     fpr, tpr, thresholds = metrics.roc_curve(label, values)
     auc = metrics.auc(fpr, tpr)
-    display = metrics.RocCurveDisplay(fpr=fpr, tpr=tpr, roc_auc=auc,
-                                      estimator_name='LOF')
+    display = metrics.RocCurveDisplay(fpr=fpr, tpr=tpr, roc_auc=auc)
     display.plot()
     return plot_to_base64(plt), auc
 

@@ -1,20 +1,13 @@
 import os
-import numpy
-import scipy.spatial.distance
 from sklearn.neighbors import LocalOutlierFactor
-from sklearn.decomposition import PCA
 import numpy as np
 import torch
-from sklearn.preprocessing import StandardScaler
-from scipy.spatial import distance
 
 
 class WeightedLocalOutlierFactor:
-    def __init__(self, direction_matrix, anomalous_directions, n_neighbours, pca_component_count=0,
-                 pca_skipped_components_count=0, use_default_distance_metric=False):
+    def __init__(self, direction_matrix, anomalous_directions, n_neighbours, use_default_distance_metric=False):
         self.data = []
         self.direction_matrix = direction_matrix
-        self.pca = PCA(n_components=pca_component_count + pca_skipped_components_count)
         self.labeled_directions_matrix = []
 
         for d in anomalous_directions:
@@ -24,7 +17,7 @@ class WeightedLocalOutlierFactor:
 
         outlier_weight = 1
         normal_weight = 0
-        self.label_vector = np.ones(pca_component_count if pca_component_count > 0 else 100)
+        self.label_vector = np.ones(direction_matrix.shape[0])
         for idx, d in enumerate(self.label_vector):
             if idx in anomalous_directions:
                 self.label_vector[idx] = d * outlier_weight
@@ -35,9 +28,6 @@ class WeightedLocalOutlierFactor:
             n_neighbors=n_neighbours,
             metric=self.__get_distance if not use_default_distance_metric else "minkowski",
         )
-
-        self.pca_component_count = pca_component_count
-        self.skipped_components_count = pca_skipped_components_count
 
     def fit(self):
         data_as_array = np.array(self.data)
@@ -54,16 +44,6 @@ class WeightedLocalOutlierFactor:
                     path = os.path.join(root_dir, filename)
                     self.data.append(torch.load(path, map_location=torch.device('cpu')).detach().numpy().reshape(100))
             self.data = np.array(self.data)
-
-        # if self.pca_component_count > 0:
-        #     assert self.pca_component_count + self.skipped_components_count < self.data.shape[1], \
-        #         "pca_component_count+skipped_components_count must be smaller then total number of columns"
-        #
-        #     self.pca_component_count = self.pca_component_count + self.skipped_components_count
-        #     data = self.data
-        #     data = StandardScaler().fit_transform(data)
-        #     principal_components = self.pca.fit_transform(data)
-        #     self.data = principal_components[:, self.skipped_components_count:]
 
     def get_negative_outlier_factor(self):
         return self.lof.negative_outlier_factor_
