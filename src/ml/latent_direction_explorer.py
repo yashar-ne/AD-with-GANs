@@ -21,7 +21,7 @@ class LatentDirectionExplorer:
         self.reconstructor_lr = 0.002
         self.label_weight = 1.0
         self.shift_weight = 0.25
-        self.cross_entropy = nn.CrossEntropyLoss()
+        self.cross_entropy = nn.CrossEntropyLoss().to(device)
         self.saved_models_path = saved_models_path
 
         self.batch_size = 1
@@ -30,13 +30,13 @@ class LatentDirectionExplorer:
         self.device = device
 
         # init Generator
-        self.g: Generator = Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1)
+        self.g: Generator = Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1).to(device)
 
         # init MatrixA
-        self.matrix_a = MatrixALinear(input_dim=self.directions_count, bias=bias, output_dim=z_dim)
+        self.matrix_a = MatrixALinear(input_dim=self.directions_count, bias=bias, output_dim=z_dim).to(device)
 
         # init Reconstructor
-        self.reconstructor = Reconstructor(dim=self.matrix_a.input_dim)
+        self.reconstructor = Reconstructor(dim=self.matrix_a.input_dim).to(device)
 
     def train_and_save(self, filename, num_steps=1000):
         # init optimizers for MatrixA, Reconstructor
@@ -70,7 +70,7 @@ class LatentDirectionExplorer:
             images_shifted = self.g.gen_shifted(z, shift)
 
             logits, shift_prediction = self.reconstructor(images, images_shifted)
-            logit_loss = self.label_weight * self.cross_entropy(logits, target_indices)
+            logit_loss = self.label_weight * self.cross_entropy(logits.to(self.device), target_indices.to(self.device))
             shift_loss = self.shift_weight * torch.mean(torch.abs(shift_prediction - shifts))
 
             # total loss

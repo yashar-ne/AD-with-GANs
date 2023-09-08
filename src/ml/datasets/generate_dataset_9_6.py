@@ -84,23 +84,23 @@ def generate_anomalies_6(dataset_folder, csv_path, temp_directory, ano_fraction)
 #                  generate_anomalies=generate_anomalies_6,
 #                  ano_fraction=0.1)
 #
-# train_and_save_gan(root_dir=data_root_directory,
-#                    dataset_name=dataset_name,
-#                    size_z=size_z,
-#                    num_epochs=100,
-#                    num_feature_maps_g=64,
-#                    num_feature_maps_d=64,
-#                    num_color_channels=1,
-#                    batch_size=batch_size,
-#                    device=device,
-#                    learning_rate=0.001)
+train_and_save_gan(root_dir=data_root_directory,
+                   dataset_name=dataset_name,
+                   size_z=size_z,
+                   num_epochs=1000,
+                   num_feature_maps_g=64,
+                   num_feature_maps_d=64,
+                   num_color_channels=1,
+                   batch_size=batch_size,
+                   device=device,
+                   learning_rate=0.001)
 
-train_direction_matrix(root_dir=data_root_directory,
-                       dataset_name=dataset_name,
-                       direction_count=20,
-                       steps=1000,
-                       device=device,
-                       use_bias=True)
+# train_direction_matrix(root_dir=data_root_directory,
+#                        dataset_name=dataset_name,
+#                        direction_count=30,
+#                        steps=20000,
+#                        device=device,
+#                        use_bias=False)
 
 # create_latent_space_dataset(root_dir=data_root_directory,
 #                             dataset_name=dataset_name,

@@ -49,12 +49,13 @@ class MainController:
 
     def get_shifted_images(self, dataset_name, direction_matrix_name, z, shifts_range, shifts_count, dim, direction,
                            pca_component_count=0, pca_skipped_components_count=0):
-        z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(z), 0), -1), 2)
+        z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(z), 0), -1), 2).to(self.device)
         a = self.__get_direction_matrix(dataset_name, direction_matrix_name)
         a = apply_pca_to_matrix_a(a, pca_component_count,
                                   pca_skipped_components_count) if pca_component_count > 0 else a
+        a.to(self.device)
         visualizer = LatentDirectionVisualizer(matrix_a_linear=a,
-                                               generator=self.datasets.get(dataset_name).get('generator'),
+                                               generator=self.datasets.get(dataset_name).get('generator').to(self.device),
                                                device=self.device)
         shifted_images = visualizer.create_shifted_images(z, shifts_range, shifts_count, dim, direction)
         return generate_base64_images_from_tensor_list(shifted_images)

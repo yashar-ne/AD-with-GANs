@@ -100,7 +100,7 @@ def get_2d_plot(local_outlier_factor):
     axes = plt.axes()
 
     data_points, data_label = load_data_points(
-        '/home/yashar/git/python/AD-with-GANs/data/LatentSpaceMNIST')
+        '../data/LatentSpaceMNIST')
 
     data = []
     for idx, p in enumerate(data_points):
@@ -133,7 +133,7 @@ def get_3d_plot(local_outlier_factor):
     axes.set_zlim3d(-20000, 20000)
 
     data_points, data_label = load_data_points(
-        '/home/yashar/git/python/AD-with-GANs/data/LatentSpaceMNIST')
+        '../data/LatentSpaceMNIST')
 
     data = []
     for idx, p in enumerate(data_points):
@@ -175,7 +175,7 @@ def load_data_points(base_url):
             latent_space_point_path = os.path.join(base_url, row[0])
             latent_space_point_pt = torch.squeeze(
                 torch.load(latent_space_point_path, map_location=torch.device(device)).detach())
-            latent_space_point = latent_space_point_pt.numpy()
+            latent_space_point = latent_space_point_pt.cpu().numpy()
             data_points.append(latent_space_point)
             data_labels.append(True if row[1] == 'True' else False)
 
@@ -185,7 +185,7 @@ def load_data_points(base_url):
 def get_tsne_for_original_data():
     plt.clf()
     data_points, data_label = load_data_points(
-        '/home/yashar/git/python/AD-with-GANs/data/LatentSpaceMNIST')
+        '../data/LatentSpaceMNIST')
     tsne = TSNE(n_components=2, random_state=0)
     tsne_res = tsne.fit_transform(np.array(data_points))
     sns.scatterplot(x=tsne_res[:, 0], y=tsne_res[:, 1], hue=data_label, palette=sns.hls_palette(2), legend='full')
