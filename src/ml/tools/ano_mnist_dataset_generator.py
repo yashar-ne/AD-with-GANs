@@ -1,9 +1,8 @@
-from PIL import Image, ImageDraw, ImageFont
-from torch.utils.data import RandomSampler, DataLoader
+from torch.utils.data import RandomSampler
 from torchvision.datasets import MNIST
 from torchvision.transforms import transforms
 
-from src.ml.tools.ano_mnist import AnoMNIST, AnomalyExtendedMNIST
+from src.ml.datasets.ano_mnist import AnoMNIST
 from torchvision import datasets
 import torch
 

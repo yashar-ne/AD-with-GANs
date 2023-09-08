@@ -80,10 +80,6 @@ class LatentDirectionExplorer:
             matrix_a_opt.step()
             reconstructor_opt.step()
 
-            if step % 1000 == 0:
-                print(f"Step: {step}")
-                # self.__save_checkpoint(step)
-
         # save a and R
         self.__save_models(filename)
 

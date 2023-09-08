@@ -4,23 +4,19 @@ import shutil
 import csv
 import time
 
-import PIL
-import numpy as np
 import torch
 from matplotlib import pyplot as plt
-import matplotlib.animation as animation
 from torch import nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
 import torchvision.utils as vutils
-from IPython.display import HTML
 
 from src.ml.latent_direction_explorer import LatentDirectionExplorer
 from src.ml.latent_space_mapper import LatentSpaceMapper
 from src.ml.models.discriminator import Discriminator
 from src.ml.models.generator import Generator
-from src.ml.tools.ano_mnist import AnoMNIST
+from src.ml.datasets.ano_mnist import AnoMNIST
 
 
 def get_dataloader(dataset_folder, batch_size):
