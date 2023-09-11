@@ -13,7 +13,7 @@ from src.ml.tools.utils import generate_noise
 
 
 class LatentDirectionExplorer:
-    def __init__(self, z_dim, directions_count, device, bias=True, saved_models_path='../../saved_models'):
+    def __init__(self, z_dim, directions_count, device, bias=True, saved_models_path='../../saved_models', generator=None, reconstructor=None):
         super(LatentDirectionExplorer, self).__init__()
         self.min_shift = 0.5
         self.shift_scale = 6.0
@@ -30,13 +30,19 @@ class LatentDirectionExplorer:
         self.device = device
 
         # init Generator
-        self.g: Generator = Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1).to(device)
+        if not generator:
+            self.g: Generator = Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1).to(device)
+        else:
+            self.g = generator
 
         # init MatrixA
         self.matrix_a = MatrixALinear(input_dim=self.directions_count, bias=bias, output_dim=z_dim).to(device)
 
         # init Reconstructor
-        self.reconstructor = Reconstructor(dim=self.matrix_a.input_dim).to(device)
+        if not reconstructor:
+            self.reconstructor = Reconstructor(dim=self.matrix_a.input_dim).to(device)
+        else:
+            self.reconstructor = reconstructor
 
     def train_and_save(self, filename, num_steps=1000):
         # init optimizers for MatrixA, Reconstructor

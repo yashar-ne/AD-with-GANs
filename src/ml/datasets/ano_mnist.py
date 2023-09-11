@@ -6,12 +6,12 @@ from torchvision import datasets
 
 
 class AnoMNIST(Dataset):
-    def __init__(self, root_dir, transform=None):
+    def __init__(self, root_dir, transform=None, num_imgs=None):
         root_dir = os.path.join(root_dir)
         assert os.path.exists(os.path.join(root_dir, "anomnist_dataset.csv")), "Invalid root directory"
         self.root_dir = root_dir
         self.transform = transform
-        self.label = pd.read_csv(os.path.join(root_dir, "anomnist_dataset.csv"))
+        self.label = pd.read_csv(os.path.join(root_dir, "anomnist_dataset.csv"), nrows=num_imgs)
 
     def __len__(self):
         return len(self.label)

@@ -25,7 +25,6 @@ map_normals = True
 temp_directory = '../../../data_backup'
 data_root_directory = '../../../data'
 dataset_name = 'DS4_mnist_9_9-lined_10_percent'
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def generate_normals_9(dataset_folder, csv_path, temp_directory):

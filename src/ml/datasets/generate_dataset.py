@@ -6,6 +6,7 @@ import time
 
 import torch
 from matplotlib import pyplot as plt
+from matplotlib.pyplot import imshow
 from torch import nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
@@ -19,13 +20,17 @@ from src.ml.models.generator import Generator
 from src.ml.datasets.ano_mnist import AnoMNIST
 
 
-def get_dataloader(dataset_folder, batch_size):
-    ano_mnist_dataset = AnoMNIST(
-        root_dir=dataset_folder,
-        transform=transforms.Compose([
+def get_dataloader(dataset_folder, batch_size, transform=None, num_imgs=None):
+    if not transform:
+        transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(mean=(.5,), std=(.5,))
         ])
+
+    ano_mnist_dataset = AnoMNIST(
+        root_dir=dataset_folder,
+        transform=transform,
+        num_imgs=num_imgs
     )
 
     return torch.utils.data.DataLoader(ano_mnist_dataset, batch_size=batch_size, shuffle=True)
@@ -62,26 +67,41 @@ def add_line_to_csv(csv_path, entries: list[str]):
         writer.writerow(entries)
 
 
+def weights_init(m):
+    classname = m.__class__.__name__
+    if classname.find('Conv') != -1:
+        nn.init.normal_(m.weight.data, 0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        nn.init.normal_(m.weight.data, 1.0, 0.02)
+        nn.init.constant_(m.bias.data, 0)
+
+
 def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_maps_g, num_feature_maps_d,
                        num_color_channels, batch_size,
-                       device, learning_rate):
+                       device, learning_rate, transform=None, discriminator=None, generator=None, num_imgs=None):
     print('TRAINING GAN')
     dataset_folder = os.path.join(root_dir, dataset_name)
     dataset_raw_folder = os.path.join(dataset_folder, 'dataset_raw')
     checkpoint_folder = os.path.join(root_dir, '..', 'checkpoints', dataset_name)
-    generator = Generator(size_z=size_z,
-                          num_feature_maps=num_feature_maps_g,
-                          num_color_channels=num_color_channels).to(device)
-    discriminator = Discriminator(num_feature_maps=num_feature_maps_d,
-                                  num_color_channels=num_color_channels).to(device)
 
-    dataset = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=batch_size)
+    if not generator:
+        generator = Generator(size_z=size_z,
+                              num_feature_maps=num_feature_maps_g,
+                              num_color_channels=num_color_channels).to(device)
+    generator.apply(weights_init)
+
+    if not discriminator:
+        discriminator = Discriminator(num_feature_maps=num_feature_maps_d,
+                                      num_color_channels=num_color_channels).to(device)
+
+    dataset = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=batch_size, transform=transform,
+                             num_imgs=num_imgs)
     criterion = nn.BCELoss()
     fixed_noise = torch.randn(64, size_z, 1, 1, device=device)
 
     real_label = 1.
     fake_label = 0.
-    adam_beta1 = 0.1
+    adam_beta1 = 0.5
 
     optimizer_g = optim.Adam(generator.parameters(), lr=learning_rate, betas=(adam_beta1, 0.999))
     optimizer_d = optim.Adam(discriminator.parameters(), lr=learning_rate, betas=(adam_beta1, 0.999))
@@ -94,48 +114,55 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
 
     print("Starting Training Loop...")
     for epoch in range(num_epochs):
-        for i, (real_images, _) in enumerate(dataloader):
-            bs = real_images.shape[0]
+        for i, (real_images, _) in enumerate(dataloader, 0):
+            # Discriminator
             discriminator.zero_grad()
+
+            bs = real_images.shape[0]
             real_images = real_images.to(device)
             label = torch.full((bs,), real_label, dtype=torch.float, device=device)
+            # output, _ = discriminator(real_images)
             output, _ = discriminator(real_images)
-            lossD_real = criterion(output, label)
-            lossD_real.backward()
+            output = output.view(-1)
+            loss_d_real = criterion(output, label)
+            loss_d_real.backward()
+            d_x = output.mean().item()
 
-            D_x = output.mean().item()
             noise = torch.randn(bs, size_z, 1, 1, device=device)
             fake_images = generator(noise)
             label.fill_(fake_label)
+            # output, _ = discriminator(fake_images.detach())
             output, _ = discriminator(fake_images.detach())
+            output = output.view(-1)
+            loss_d_fake = criterion(output, label)
 
-            lossD_fake = criterion(output, label)
-
-            lossD_fake.backward()
-            D_G_z1 = output.mean().item()
-            lossD = lossD_real + lossD_fake
+            loss_d_fake.backward()
+            d_g_z1 = output.mean().item()
+            loss_d = loss_d_real + loss_d_fake
             optimizer_d.step()
+
+            # Generator
             generator.zero_grad()
 
             label.fill_(real_label)
             output, _ = discriminator(fake_images)
             output = output.view(-1)
-            lossG = criterion(output, label)
-            lossG.backward()
-            D_G_z2 = output.mean().item()
-
+            loss_g = criterion(output, label)
+            loss_g.backward()
+            d_g_z2 = output.mean().item()
             optimizer_g.step()
-            g_losses.append(lossG.item())
-            d_losses.append(lossD.item())
 
-            if (iters % 500 == 0) or ((epoch == num_epochs - 1) and (i == len(dataloader) - 1)):
-                with torch.no_grad():
-                    fake = generator(fixed_noise).detach().cpu()
-                img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
+            g_losses.append(loss_g.item())
+            d_losses.append(loss_d.item())
+
+            # if (iters % 500 == 0) or ((epoch == num_epochs - 1) and (i == len(dataloader) - 1)):
+            #     with torch.no_grad():
+            #         fake = generator(fixed_noise).detach().cpu()
+            #     img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
             iters += 1
 
         print('[%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
-              % (epoch + 1, num_epochs, lossD.item(), lossG.item(), D_x, D_G_z1, D_G_z2))
+              % (epoch + 1, num_epochs, loss_d.item(), loss_g.item(), d_x, d_g_z1, d_g_z2))
 
         if epoch > 0 and epoch % 50 == 0:
             save_gan_checkpoint(checkpoint_folder, discriminator, epoch, generator)
@@ -167,7 +194,8 @@ def save_gan_checkpoint(checkpoint_folder, discriminator, epoch, generator):
                os.path.join(checkpoint_folder, f'discriminator_epoch_{epoch}_{timestamp}.pkl'))
 
 
-def train_direction_matrix(root_dir, dataset_name, direction_count, steps, device, use_bias=True):
+def train_direction_matrix(root_dir, dataset_name, direction_count, steps, device, use_bias=True, generator=None,
+                           reconstructor=None):
     print('TRAINING DIRECTION MATRIX')
     dataset_root_folder = os.path.join(root_dir, dataset_name)
     direction_matrices_folder = os.path.join(dataset_root_folder, 'direction_matrices')
@@ -179,7 +207,9 @@ def train_direction_matrix(root_dir, dataset_name, direction_count, steps, devic
                                       directions_count=direction_count,
                                       bias=use_bias,
                                       device=device,
-                                      saved_models_path=direction_matrices_folder)
+                                      saved_models_path=direction_matrices_folder,
+                                      generator=generator,
+                                      reconstructor=reconstructor)
     trainer.load_generator(os.path.join(dataset_root_folder, 'generator.pkl'))
     b = 'bias' if use_bias else 'nobias'
     trainer.train_and_save(filename=f'direction_matrix_steps_{steps}_{b}_k_{direction_count}.pkl', num_steps=steps)
@@ -201,7 +231,8 @@ def load_gan(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_map
     return generator, discriminator
 
 
-def create_latent_space_dataset(root_dir, dataset_name, batch_size, size_z, num_feature_maps_g, num_feature_maps_d, num_color_channels, device):
+def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_maps_d,
+                                num_color_channels, device,  max_opt_iterations=100000, generator=None, discriminator=None, transform=None):
     print('MAPPING LATENT SPACE POINTS')
     dataset_folder = os.path.join(root_dir, dataset_name, 'dataset')
     dataset_raw_folder = os.path.join(root_dir, dataset_name, 'dataset_raw')
@@ -215,20 +246,26 @@ def create_latent_space_dataset(root_dir, dataset_name, batch_size, size_z, num_
 
     os.makedirs(dataset_folder, exist_ok=True)
     csv_path = os.path.join(dataset_folder, "latent_space_mappings.csv")
-    dataset = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=1)
+    dataset = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=1, transform=transform)
 
-    generator, discriminator = load_gan(root_dir=root_dir,
-                                        dataset_name=dataset_name,
-                                        size_z=size_z,
-                                        num_feature_maps_g=num_feature_maps_g,
-                                        num_feature_maps_d=num_feature_maps_d,
-                                        num_color_channels=num_color_channels,
-                                        device=device)
+    if not generator and not discriminator:
+        generator, discriminator = load_gan(root_dir=root_dir,
+                                            dataset_name=dataset_name,
+                                            size_z=size_z,
+                                            num_feature_maps_g=num_feature_maps_g,
+                                            num_feature_maps_d=num_feature_maps_d,
+                                            num_color_channels=num_color_channels,
+                                            device=device)
+
+    generator.load_state_dict(
+        torch.load(os.path.join(root_dir, dataset_name, "generator.pkl"), map_location=torch.device(device)))
+    discriminator.load_state_dict(
+        torch.load(os.path.join(root_dir, dataset_name, "discriminator.pkl"), map_location=torch.device(device)))
+
 
     os.makedirs(dataset_folder, exist_ok=True)
     add_line_to_csv(csv_path=csv_path, entries=["filename", "label", "reconstruction_loss"])
 
-    t = transforms.ToPILImage()
     lsm: LatentSpaceMapper = LatentSpaceMapper(generator=generator, discriminator=discriminator, device=device)
     mapped_images = []
     cp_counter = 0
@@ -243,20 +280,19 @@ def create_latent_space_dataset(root_dir, dataset_name, batch_size, size_z, num_
         print(f"{counter} images left")
         print(f"Label: {data_label.item()}")
 
-        max_retries = 2
-        opt_threshold = 60
-        ignore_rules_below_threshold = 75
-        immediate_retry_threshold = 110
-        max_opt_iterations = 20000
+        max_retries = 0
+        opt_threshold = 0.001
+        ignore_rules_below_threshold = 10000
+        immediate_retry_threshold = 1000000
 
+        plot_image(data_point[0])
         mapped_z, reconstruction_loss, retry = lsm.map_image_to_point_in_latent_space(image=data_point,
-                                                                                      batch_size=1,
                                                                                       max_opt_iterations=max_opt_iterations,
-                                                                                      plateu_threshold=0.0005,
+                                                                                      plateu_threshold=0,
                                                                                       check_every_n_iter=5000,
-                                                                                      learning_rate=0.01,
-                                                                                      print_every_n_iters=5000,
-                                                                                      retry_after_n_iters=30000,
+                                                                                      learning_rate=0.0001,
+                                                                                      print_every_n_iters=1000,
+                                                                                      retry_after_n_iters=3000000,
                                                                                       ignore_rules_below_threshold=ignore_rules_below_threshold,
                                                                                       opt_threshold=opt_threshold,
                                                                                       immediate_retry_threshold=immediate_retry_threshold)
@@ -266,7 +302,6 @@ def create_latent_space_dataset(root_dir, dataset_name, batch_size, size_z, num_
                 i += 1
                 counter -= 1
                 print("Retry Limit reached. Moving on to next sample")
-                print('Original Image That Could Not Be Mapped')
                 data_point, data_label = next(iterator)
                 print('-----------------------')
                 continue
@@ -277,8 +312,12 @@ def create_latent_space_dataset(root_dir, dataset_name, batch_size, size_z, num_
                 continue
 
         retry_counter = 0
+
+        mapped_img = generator(mapped_z)[0]
+        plot_image(mapped_img)
         mapped_images.append(mapped_z)
-        add_line_to_csv(csv_path=csv_path, entries=[f'mapped_z_{counter}.pt', data_label.item(), math.floor(reconstruction_loss)])
+        add_line_to_csv(csv_path=csv_path,
+                        entries=[f'mapped_z_{counter}.pt', data_label.item(), math.floor(reconstruction_loss)])
         torch.save(mapped_z, os.path.join(dataset_folder, f'mapped_z_{counter}.pt'))
         cp_counter += 1
 
@@ -287,3 +326,10 @@ def create_latent_space_dataset(root_dir, dataset_name, batch_size, size_z, num_
         data_point, data_label = next(iterator)
 
     print('All images in dataset were mapped')
+
+
+def plot_image(img):
+    img = (img * 0.5) + 0.5
+    img = img.permute(1, 2, 0)
+    imshow(img.detach().cpu().numpy())
+    plt.show()
