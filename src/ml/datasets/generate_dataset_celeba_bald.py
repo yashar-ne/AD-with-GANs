@@ -18,22 +18,22 @@ from src.ml.datasets.generate_dataset import train_and_save_gan, add_line_to_csv
 # Hyperparameter
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-batch_size = 128
+batch_size = 512
 learning_rate = 0.0002
-gan_num_epochs = 10
+gan_num_epochs = 50
 num_color_channels = 3
-num_feature_maps_g = 64
-num_feature_maps_d = 64
-image_size = 64
+num_feature_maps_g = 128
+num_feature_maps_d = 128
+image_size = 128
 size_z = 100
 test_size = 1
 directions_count = 110
-num_imgs = None  # None = Take all images
+num_imgs = 100000
 
 map_anomalies = True
 map_normals = True
-tmp_directory = '../../../data_backup'
-data_root_directory = '../../../data'
+tmp_directory = '../data_backup'
+data_root_directory = '../data'
 dataset_name = 'DS5_celebA_bald'
 
 celebA_directory = os.path.join(tmp_directory, 'celebA')
@@ -97,6 +97,44 @@ class CelebGenerator(nn.Module):
         return self.forward(x + shift)
 
 
+class CelebGenerator128(nn.Module):
+    def __init__(self):
+        super(CelebGenerator128, self).__init__()
+        self.main = nn.Sequential(  # input is Z, going into a convolution
+            nn.ConvTranspose2d(size_z, num_feature_maps_g * 16, 4, 1, 0, bias=False),
+            nn.BatchNorm2d(num_feature_maps_g * 16),
+            nn.ReLU(True),
+            # state size. ``(ngf*8) x 4 x 4``
+            nn.ConvTranspose2d(num_feature_maps_g * 16, num_feature_maps_g * 8, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps_g * 8),
+            nn.ReLU(True),
+            # state size. ``(ngf*4) x 8 x 8``
+            nn.ConvTranspose2d(num_feature_maps_g * 8, num_feature_maps_g * 4, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps_g * 4),
+            nn.ReLU(True),
+            # state size. ``(ngf*2) x 16 x 16``
+            nn.ConvTranspose2d(num_feature_maps_g * 4, num_feature_maps_g * 2, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps_g * 2),
+            nn.ReLU(True),
+            # state size. ``(ngf) x 32 x 32``
+            nn.ConvTranspose2d(num_feature_maps_g * 2, num_feature_maps_g, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps_g),
+            nn.ReLU(True),
+            # state size. ``(ngf) x 64 x 64``
+            nn.ConvTranspose2d(num_feature_maps_g, num_color_channels, 4, 2, 1, bias=False),
+            nn.Tanh()
+            # state size. ``(nc) x 128 x 128``
+        )
+
+    def forward(self, input):
+        return self.main(input)
+
+    def gen_shifted(self, x, shift):
+        shift = torch.unsqueeze(shift, -1)
+        shift = torch.unsqueeze(shift, -1)
+        return self.forward(x + shift)
+
+
 class CelebDiscriminator(nn.Module):
     def __init__(self):
         super(CelebDiscriminator, self).__init__()
@@ -131,6 +169,53 @@ class CelebDiscriminator(nn.Module):
         out = self.layer2(out)
         out = self.layer3(out)
         out = self.layer4(out)
+        feature = out
+        out = self.fc(out)
+        # return out.view(-1, 1).squeeze(1), feature
+        return out, feature
+
+
+class CelebDiscriminator128(nn.Module):
+    def __init__(self):
+        super(CelebDiscriminator128, self).__init__()
+        self.layer1 = nn.Sequential(
+            nn.Conv2d(num_color_channels, num_feature_maps_d, 4, 2, 1, bias=False),
+            nn.LeakyReLU(0.2, inplace=True),
+        )
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(num_feature_maps_d, num_feature_maps_d * 2, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps_d * 2),
+            nn.LeakyReLU(0.2, inplace=True),
+        )
+        self.layer3 = nn.Sequential(
+            nn.Conv2d(num_feature_maps_d * 2, num_feature_maps_d * 4, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps_d * 4),
+            nn.LeakyReLU(0.2, inplace=True),
+        )
+
+        self.layer4 = nn.Sequential(
+            nn.Conv2d(num_feature_maps_d * 4, num_feature_maps_d * 8, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps_d * 8),
+            nn.LeakyReLU(0.2, inplace=True),
+        )
+
+        self.layer5 = nn.Sequential(
+            nn.Conv2d(num_feature_maps_d * 8, num_feature_maps_d * 16, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(num_feature_maps_d * 16),
+            nn.LeakyReLU(0.2, inplace=True),
+        )
+
+        self.fc = nn.Sequential(
+            nn.Conv2d(num_feature_maps_d * 16, 1, 4, 1, 0, bias=False),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        out = self.layer1(x)
+        out = self.layer2(out)
+        out = self.layer3(out)
+        out = self.layer4(out)
+        out = self.layer5(out)
         feature = out
         out = self.fc(out)
         # return out.view(-1, 1).squeeze(1), feature
@@ -224,10 +309,9 @@ transform = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
 ])
 
-celeb_generator = CelebGenerator().to(device)
-celeb_discriminator = CelebDiscriminator().to(device)
+celeb_generator = CelebGenerator128().to(device)
+celeb_discriminator = CelebDiscriminator128().to(device)
 celeb_reconstructor = CelebReconstructor(width=2).to(device)
-
 
 # generate_dataset(root_dir=data_root_directory,
 #                  temp_directory=tmp_directory,
@@ -236,21 +320,20 @@ celeb_reconstructor = CelebReconstructor(width=2).to(device)
 #                  generate_anomalies=generate_anomalies_bald,
 #                  ano_fraction=0.1)
 
-# train_and_save_gan(root_dir=data_root_directory,
-#                    dataset_name=dataset_name,
-#                    size_z=size_z,
-#                    num_epochs=gan_num_epochs,
-#                    num_feature_maps_g=num_feature_maps_g,
-#                    num_feature_maps_d=num_feature_maps_d,
-#                    num_color_channels=num_color_channels,
-#                    batch_size=batch_size,
-#                    device=device,
-#                    learning_rate=learning_rate,
-#                    generator=celeb_generator,
-#                    discriminator=celeb_discriminator,
-#                    transform=transform,
-#                    num_imgs=num_imgs)
-
+train_and_save_gan(root_dir=data_root_directory,
+                   dataset_name=dataset_name,
+                   size_z=size_z,
+                   num_epochs=gan_num_epochs,
+                   num_feature_maps_g=num_feature_maps_g,
+                   num_feature_maps_d=num_feature_maps_d,
+                   num_color_channels=num_color_channels,
+                   batch_size=batch_size,
+                   device=device,
+                   learning_rate=learning_rate,
+                   generator=celeb_generator,
+                   discriminator=celeb_discriminator,
+                   transform=transform,
+                   num_imgs=num_imgs)
 
 # train_direction_matrix(root_dir=data_root_directory,
 #                        dataset_name=dataset_name,

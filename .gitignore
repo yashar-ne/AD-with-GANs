@@ -143,3 +143,4 @@ model_gen.ckpt
 /saved_models/discriminator.BACKUP.pkl
 /saved_models/generator.BACKUP.pkl
 /data_backup/
+/checkpoints/

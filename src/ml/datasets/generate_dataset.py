@@ -20,7 +20,7 @@ from src.ml.models.generator import Generator
 from src.ml.datasets.ano_mnist import AnoMNIST
 
 
-def get_dataloader(dataset_folder, batch_size, transform=None, num_imgs=None):
+def get_dataloader(dataset_folder, batch_size, transform=None, nrows=None):
     if not transform:
         transform = transforms.Compose([
             transforms.ToTensor(),
@@ -30,7 +30,7 @@ def get_dataloader(dataset_folder, batch_size, transform=None, num_imgs=None):
     ano_mnist_dataset = AnoMNIST(
         root_dir=dataset_folder,
         transform=transform,
-        num_imgs=num_imgs
+        nrows=nrows
     )
 
     return torch.utils.data.DataLoader(ano_mnist_dataset, batch_size=batch_size, shuffle=True)
@@ -94,10 +94,8 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
         discriminator = Discriminator(num_feature_maps=num_feature_maps_d,
                                       num_color_channels=num_color_channels).to(device)
 
-    dataset = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=batch_size, transform=transform,
-                             num_imgs=num_imgs)
+    dataloader = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=batch_size, transform=transform, nrows=num_imgs)
     criterion = nn.BCELoss()
-    fixed_noise = torch.randn(64, size_z, 1, 1, device=device)
 
     real_label = 1.
     fake_label = 0.
@@ -105,12 +103,9 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
 
     optimizer_g = optim.Adam(generator.parameters(), lr=learning_rate, betas=(adam_beta1, 0.999))
     optimizer_d = optim.Adam(discriminator.parameters(), lr=learning_rate, betas=(adam_beta1, 0.999))
-    img_list = []
     g_losses = []
     d_losses = []
     iters = 0
-
-    dataloader = dataset
 
     print("Starting Training Loop...")
     for epoch in range(num_epochs):
@@ -164,7 +159,7 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
         print('[%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
               % (epoch + 1, num_epochs, loss_d.item(), loss_g.item(), d_x, d_g_z1, d_g_z2))
 
-        if epoch > 0 and epoch % 50 == 0:
+        if epoch == 1 or epoch % 5 == 0:
             save_gan_checkpoint(checkpoint_folder, discriminator, epoch, generator)
 
     save_gan_models(dataset_folder, discriminator, generator)
@@ -246,7 +241,7 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
 
     os.makedirs(dataset_folder, exist_ok=True)
     csv_path = os.path.join(dataset_folder, "latent_space_mappings.csv")
-    dataset = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=1, transform=transform)
+    dataset = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=1, transform=transform, nrows=1)
 
     if not generator and not discriminator:
         generator, discriminator = load_gan(root_dir=root_dir,
