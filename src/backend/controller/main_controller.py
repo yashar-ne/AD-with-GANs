@@ -5,14 +5,12 @@ from fastapi import status, HTTPException
 from src.backend.db import save_session_labels_to_db
 from src.backend.models.SessionLabelsModel import SessionLabelsModel
 from src.backend.models.ValidationResultsModel import ValidationResultsModel
-from src.ml.latent_direction_visualizer import LatentDirectionVisualizer, get_random_strip_as_numpy_array
+from src.ml.latent_direction_visualizer import LatentDirectionVisualizer
+from src.ml.models.celebA.celeb_generator import CelebGenerator
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
-from src.backend.models.ImageStripModel import ImageStripModel
-from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
-    generate_base64_images_from_tensor, extract_weights_from_model_and_apply_pca
+from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list
 from src.ml.validation import load_data_points, get_lof_roc_auc_for_given_dims, \
-    get_tsne_for_original_data, \
     get_roc_auc_for_average_distance_metric
 
 
@@ -37,7 +35,8 @@ class MainController:
                                                                    bias=uses_bias)
                     matrix_a_linear.load_state_dict(matrix_state)
                     direction_matrices.update({f: {'matrix_a': matrix_a_linear, 'direction_count': input_dim}})
-            g: Generator = Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1)
+
+            g = self.get_generator_by_dataset_name(dataset_name)
             g.load_state_dict(torch.load(generator_path, map_location=torch.device(self.device)))
             self.datasets.update({
                 dataset_name: {
@@ -110,3 +109,10 @@ class MainController:
             .get('direction_matrices') \
             .get(direction_matrix_name) \
             .get('matrix_a')
+
+    def get_generator_by_dataset_name(self, dataset_name):
+        match dataset_name:
+            case "DS5_celebA_bald":
+                return CelebGenerator(size_z=self.z_dim, num_feature_maps=64)
+            case _:
+                return Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1)

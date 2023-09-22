@@ -20,7 +20,7 @@ from src.ml.models.generator import Generator
 from src.ml.datasets.ano_mnist import AnoMNIST
 
 
-def get_dataloader(dataset_folder, batch_size, transform=None, nrows=None):
+def get_dataloader(dataset_folder, batch_size, transform=None, nrows=None, shuffle=True):
     if not transform:
         transform = transforms.Compose([
             transforms.ToTensor(),
@@ -30,10 +30,11 @@ def get_dataloader(dataset_folder, batch_size, transform=None, nrows=None):
     ano_mnist_dataset = AnoMNIST(
         root_dir=dataset_folder,
         transform=transform,
-        nrows=nrows
+        nrows=nrows,
+
     )
 
-    return torch.utils.data.DataLoader(ano_mnist_dataset, batch_size=batch_size, shuffle=True)
+    return torch.utils.data.DataLoader(ano_mnist_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=2)
 
 
 def generate_dataset(root_dir, temp_directory, dataset_name, generate_normals, generate_anomalies, ano_fraction):
@@ -94,7 +95,8 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
         discriminator = Discriminator(num_feature_maps=num_feature_maps_d,
                                       num_color_channels=num_color_channels).to(device)
 
-    dataloader = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=batch_size, transform=transform, nrows=num_imgs)
+    dataloader = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=batch_size, transform=transform,
+                                nrows=num_imgs)
     criterion = nn.BCELoss()
 
     real_label = 1.
@@ -116,7 +118,6 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
             bs = real_images.shape[0]
             real_images = real_images.to(device)
             label = torch.full((bs,), real_label, dtype=torch.float, device=device)
-            # output, _ = discriminator(real_images)
             output, _ = discriminator(real_images)
             output = output.view(-1)
             loss_d_real = criterion(output, label)
@@ -126,7 +127,6 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
             noise = torch.randn(bs, size_z, 1, 1, device=device)
             fake_images = generator(noise)
             label.fill_(fake_label)
-            # output, _ = discriminator(fake_images.detach())
             output, _ = discriminator(fake_images.detach())
             output = output.view(-1)
             loss_d_fake = criterion(output, label)
@@ -149,17 +149,12 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
 
             g_losses.append(loss_g.item())
             d_losses.append(loss_d.item())
-
-            # if (iters % 500 == 0) or ((epoch == num_epochs - 1) and (i == len(dataloader) - 1)):
-            #     with torch.no_grad():
-            #         fake = generator(fixed_noise).detach().cpu()
-            #     img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
             iters += 1
 
         print('[%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
               % (epoch + 1, num_epochs, loss_d.item(), loss_g.item(), d_x, d_g_z1, d_g_z2))
 
-        if epoch == 1 or epoch % 5 == 0:
+        if epoch != 0 and epoch % 5 == 0:
             save_gan_checkpoint(checkpoint_folder, discriminator, epoch, generator)
 
     save_gan_models(dataset_folder, discriminator, generator)
@@ -227,11 +222,12 @@ def load_gan(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_map
 
 
 def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_maps_d,
-                                num_color_channels, device,  max_opt_iterations=100000, generator=None, discriminator=None, transform=None):
+                                num_color_channels, device, max_opt_iterations=100000, generator=None,
+                                discriminator=None, transform=None, num_images=101300, start_with_image_number=0):
     print('MAPPING LATENT SPACE POINTS')
     dataset_folder = os.path.join(root_dir, dataset_name, 'dataset')
     dataset_raw_folder = os.path.join(root_dir, dataset_name, 'dataset_raw')
-    if os.path.exists(dataset_folder):
+    if os.path.exists(dataset_folder) and start_with_image_number == 0:
         i = input("Dataset already exists. Do you want to overwrite it? Press y if yes")
         if i == 'y':
             shutil.rmtree(dataset_folder)
@@ -241,7 +237,8 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
 
     os.makedirs(dataset_folder, exist_ok=True)
     csv_path = os.path.join(dataset_folder, "latent_space_mappings.csv")
-    dataset = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=1, transform=transform, nrows=1)
+    dataset = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=1, transform=transform, nrows=num_images,
+                             shuffle=False)
 
     if not generator and not discriminator:
         generator, discriminator = load_gan(root_dir=root_dir,
@@ -257,37 +254,42 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
     discriminator.load_state_dict(
         torch.load(os.path.join(root_dir, dataset_name, "discriminator.pkl"), map_location=torch.device(device)))
 
-
     os.makedirs(dataset_folder, exist_ok=True)
-    add_line_to_csv(csv_path=csv_path, entries=["filename", "label", "reconstruction_loss"])
+    if start_with_image_number == 0:
+        add_line_to_csv(csv_path=csv_path, entries=["filename", "label", "reconstruction_loss"])
 
     lsm: LatentSpaceMapper = LatentSpaceMapper(generator=generator, discriminator=discriminator, device=device)
     mapped_images = []
     cp_counter = 0
-    counter = len(dataset)
+    counter = len(dataset) - start_with_image_number + 1
 
-    i = 0
+    i = start_with_image_number
     retry_counter = 0
     iterator = iter(dataset)
-    data_point, data_label = next(iterator)
+
+    for i in range(start_with_image_number):
+        data_point, data_label = next(iterator)
 
     while counter > 0:
+        if data_label.item() is True:
+            data_point, data_label = next(iterator)
+            continue
+
         print(f"{counter} images left")
         print(f"Label: {data_label.item()}")
 
-        max_retries = 0
-        opt_threshold = 0.001
-        ignore_rules_below_threshold = 10000
-        immediate_retry_threshold = 1000000
+        max_retries = 10
+        opt_threshold = 0.04
+        ignore_rules_below_threshold = 0.15
+        immediate_retry_threshold = 0.2
 
-        plot_image(data_point[0])
         mapped_z, reconstruction_loss, retry = lsm.map_image_to_point_in_latent_space(image=data_point,
                                                                                       max_opt_iterations=max_opt_iterations,
                                                                                       plateu_threshold=0,
                                                                                       check_every_n_iter=5000,
-                                                                                      learning_rate=0.0001,
-                                                                                      print_every_n_iters=1000,
-                                                                                      retry_after_n_iters=3000000,
+                                                                                      learning_rate=0.001,
+                                                                                      print_every_n_iters=5000,
+                                                                                      retry_after_n_iters=100000,
                                                                                       ignore_rules_below_threshold=ignore_rules_below_threshold,
                                                                                       opt_threshold=opt_threshold,
                                                                                       immediate_retry_threshold=immediate_retry_threshold)
@@ -297,6 +299,8 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
                 i += 1
                 counter -= 1
                 print("Retry Limit reached. Moving on to next sample")
+                # print("Could not map this image")
+                # plot_image(data_point[0])
                 data_point, data_label = next(iterator)
                 print('-----------------------')
                 continue
@@ -309,7 +313,8 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
         retry_counter = 0
 
         mapped_img = generator(mapped_z)[0]
-        plot_image(mapped_img)
+        # plot_image(data_point[0])
+        # plot_image(mapped_img)
         mapped_images.append(mapped_z)
         add_line_to_csv(csv_path=csv_path,
                         entries=[f'mapped_z_{counter}.pt', data_label.item(), math.floor(reconstruction_loss)])

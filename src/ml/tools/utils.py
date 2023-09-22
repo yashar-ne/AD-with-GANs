@@ -67,8 +67,11 @@ def extract_weights_from_model_and_apply_pca(matrix_a_linear, pca_component_coun
 
 
 def generate_base64_images_from_tensor(images_tensor):
-    two_d = (np.reshape(images_tensor.numpy(), (28, 28)) * 255).astype(np.uint8)
-    img = Image.fromarray(two_d, 'L')
+    transform = ToPILImage()
+    # two_d = (np.reshape(images_tensor.numpy(), (images_tensor.shape[1], images_tensor.shape[2])) * 255).astype(np.uint8)
+    # img = Image.fromarray(two_d, 'L')
+    images_tensor = (images_tensor * 0.5) + 0.5
+    img = transform(images_tensor)
 
     with io.BytesIO() as buf:
         img.save(buf, format='PNG')

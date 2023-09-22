@@ -23,11 +23,11 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
 
   dataset: string = ''
   directionMatrix: string = ''
-  shiftRange: number = 20
-  shiftCount: number = 20
+  shiftRange: number = 30
+  shiftCount: number = 5
   dim: number = 0
   direction: number = 1
-  maxdim: number = 100
+  maxDim: number = 100
 
   directionSequence: Array<DirectionSequence> = []
   sequenceIndex: number = 0
@@ -98,11 +98,11 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
     this.subscriptionDirectionCount$ = this.bs.getDirectionCount({dataset_name: this.dataset[0], direction_matrix_name: this.directionMatrix})
       .pipe(take(1))
       .subscribe((directionCount: number) => {
-        this.maxdim = directionCount
+        this.maxDim = directionCount
         let direction = 1
         let dimension = 0
         let result = []
-        while (dimension < this.maxdim) {
+        while (dimension < this.maxDim) {
           result.push({dimension: dimension, direction: direction})
           result.push({dimension: dimension, direction: direction*(-1)})
           dimension++
@@ -111,17 +111,6 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
         this.directionSequence = result
       }
     )
-
-    // let direction = 1
-    // let dimension = 0
-    // let result = []
-    // while (dimension < this.maxdim) {
-    //   result.push({dimension: dimension, direction: direction})
-    //   result.push({dimension: dimension, direction: direction*(-1)})
-    //   dimension++
-    // }
-    //
-    // return result
   }
 
   ngOnDestroy(): void {

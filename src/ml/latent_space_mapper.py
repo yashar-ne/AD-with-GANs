@@ -29,7 +29,7 @@ class LatentSpaceMapper:
 
         # scheduler = lr_scheduler.LinearLR(z_optimizer, start_factor=0.4, end_factor=0.001, total_iters=max_opt_iterations-(math.floor(max_opt_iterations*0.2)))
         # scheduler = lr_scheduler.StepLR(z_optimizer, step_size=max_opt_iterations, gamma=0.9)
-        # scheduler = torch.optim.lr_scheduler.CyclicLR(z_optimizer, base_lr=0.01, max_lr=0.4, cycle_momentum=False)
+        scheduler = torch.optim.lr_scheduler.CyclicLR(z_optimizer, base_lr=0.001, max_lr=0.2, cycle_momentum=False)
         for i in range(max_opt_iterations):
             retry = False
 
@@ -74,7 +74,7 @@ class LatentSpaceMapper:
             z_optimizer.zero_grad()
             loss.backward()
             z_optimizer.step()
-            # scheduler.step()
+            scheduler.step()
 
         return z, final_loss, retry
 
