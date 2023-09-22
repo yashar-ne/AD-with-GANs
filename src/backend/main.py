@@ -4,6 +4,7 @@ from fastapi import FastAPI, status, HTTPException
 from fastapi.responses import PlainTextResponse
 from starlette.middleware.cors import CORSMiddleware
 
+from src.backend.models import GetSingleImageModel
 from src.backend.models.GetDirectionCountModel import GetDirectionCountModel
 from src.backend.models.GetValidationResultsModel import GetValidationResultsModel
 from src.backend.models.GetRandomNoiseModel import GetRandomNoiseModel
@@ -30,6 +31,13 @@ async def list_available_datasets():
 @app.post("/get_direction_count")
 async def get_direction_count(body: GetDirectionCountModel):
     return main_controller.get_direction_count(body.dataset_name, body.direction_matrix_name)
+
+
+@app.post("/get_single_image")
+async def get_shifted_images(body: GetSingleImageModel):
+    return main_controller.get_single_image(body.dataset_name,
+                                            body.z
+                                            )
 
 
 @app.post("/get_shifted_images")

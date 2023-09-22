@@ -36,6 +36,11 @@ export class BackendService {
     return this.httpClient.post<Array<number>>(`${this.api_root}/get_random_noise`, getRandomNoise, { responseType: 'json' })
   }
 
+  getSingleImage(getSingleImage: GetSingleImage): Observable<string> {
+    console.log("Getting Shifted Images")
+    return this.httpClient.post<string>(`${this.api_root}/get_shifted_images`, getSingleImage, { responseType: 'json' })
+  }
+
   getShiftedImages(getShiftedImages: GetShiftedImages): Observable<Array<ImageStrip>> {
     console.log("Getting Shifted Images")
     return this.httpClient.post<Array<ImageStrip>>(`${this.api_root}/get_shifted_images`, getShiftedImages, { responseType: 'json' })
@@ -50,4 +55,5 @@ export class BackendService {
     console.log("Getting validation results as base64 strings")
     return this.httpClient.post<ValidationResultsModel>(`${this.api_root}/get_validation_results`, getValidationResultsModel, {responseType: 'json'})
   }
+
 }

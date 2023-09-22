@@ -66,10 +66,8 @@ def extract_weights_from_model_and_apply_pca(matrix_a_linear, pca_component_coun
     return principal_components[:, pca_skipped_components_count:].T
 
 
-def generate_base64_images_from_tensor(images_tensor):
+def generate_base64_image_from_tensor(images_tensor):
     transform = ToPILImage()
-    # two_d = (np.reshape(images_tensor.numpy(), (images_tensor.shape[1], images_tensor.shape[2])) * 255).astype(np.uint8)
-    # img = Image.fromarray(two_d, 'L')
     images_tensor = (images_tensor * 0.5) + 0.5
     img = transform(images_tensor)
 
@@ -86,7 +84,7 @@ def generate_base64_images_from_tensor_list(images_tensor_list):
         image_list.append(
             ImageStripModel(
                 position=idx,
-                image=generate_base64_images_from_tensor(i),
+                image=generate_base64_image_from_tensor(i),
                 direction_position=1,
                 total_directions=1
             )

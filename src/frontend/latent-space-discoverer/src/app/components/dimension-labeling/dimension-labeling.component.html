@@ -8,8 +8,10 @@
     [shiftCountSelectOptions]="shiftCountSelectOptions"
     [shiftRangeSelectOptions]="shiftRangeSelectOptions"
     (generateDirectionSequence)="generateDirectionSequence()"
-    (startHandler)="startHandler()">
+    (startHandler)="startHandler()"
+    (updateDatasetPreviewImage)="updateDatasetPreviewImage()">
   </configuration>
+  <img *ngIf="datasetPreviewImage" class="latent_image" src="{{'data:image/png;base64,' + datasetPreviewImage}}">
 </ng-container>
 <ng-container *ngIf="sessionStarted">
   <latent-display

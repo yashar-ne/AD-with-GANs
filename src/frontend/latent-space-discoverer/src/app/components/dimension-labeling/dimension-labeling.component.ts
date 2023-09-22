@@ -31,6 +31,7 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
 
   directionSequence: Array<DirectionSequence> = []
   sequenceIndex: number = 0
+  datasetPreviewImage!: string
 
   constructor(private router: Router, private bs: BackendService, private ls: LabelingService) { }
 
@@ -111,6 +112,10 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
         this.directionSequence = result
       }
     )
+  }
+
+  updateDatasetPreviewImage(): void {
+
   }
 
   ngOnDestroy(): void {

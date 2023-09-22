@@ -26,13 +26,13 @@ export class ConfigurationComponent {
 
   @Output() startHandler: EventEmitter<any> = new EventEmitter();
   @Output() generateDirectionSequence: EventEmitter<any> = new EventEmitter();
+  @Output() updateDatasetPreviewImage: EventEmitter<any> = new EventEmitter();
 
   startHandlerClick() {
     this.startHandler.emit()
   }
 
   onDatasetSelectChange(value: MatSelectChange) {
-    console.log("DATASET SELECTED", value)
     this.datasetChange.emit(value.value)
     this.directionMatrixSelectOptions = value.value[1]
   }

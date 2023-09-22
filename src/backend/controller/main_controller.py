@@ -9,7 +9,8 @@ from src.ml.latent_direction_visualizer import LatentDirectionVisualizer
 from src.ml.models.celebA.celeb_generator import CelebGenerator
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
-from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list
+from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
+    generate_base64_image_from_tensor
 from src.ml.validation import load_data_points, get_lof_roc_auc_for_given_dims, \
     get_roc_auc_for_average_distance_metric
 
@@ -45,6 +46,12 @@ class MainController:
                     'data': load_data_points(os.path.join(base_path, dataset_name, 'dataset'))
                 }
             })
+
+    def get_single_image(self, dataset_name, z):
+        z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(z), 0), -1), 2).to(self.device)
+        generator = self.datasets.get(dataset_name).get('generator').to(self.device)
+        img = generator(z)
+        generate_base64_image_from_tensor(img)
 
     def get_shifted_images(self, dataset_name, direction_matrix_name, z, shifts_range, shifts_count, dim, direction,
                            pca_component_count=0, pca_skipped_components_count=0):
