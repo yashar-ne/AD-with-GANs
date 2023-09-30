@@ -11,11 +11,13 @@ import {Router} from "@angular/router";
   styleUrls: ['./dimension-labeling.component.scss']
 })
 export class DimensionLabelingComponent implements OnInit, OnDestroy {
-  subscriptionZ$: Subscription | undefined
-  subscriptionDatasets$: Subscription | undefined
-  subscriptionDirectionCount$: Subscription | undefined
-  shiftedImages$: Observable<Array<ImageStrip>> | undefined
+  subscriptionZ$!: Subscription
+  subscriptionDatasets$!: Subscription
+  subscriptionDirectionCount$!: Subscription
+  shiftedImages$!: Observable<Array<ImageStrip>>
+  subscriptionDatasetPreviewImage$!: Subscription
 
+  datasetPreviewImage!: string
   sessionStarted: boolean = false
   datasetSelectOptions: any[] = []
   shiftRangeSelectOptions: number[] = Array.from(Array(100).keys())
@@ -31,7 +33,6 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
 
   directionSequence: Array<DirectionSequence> = []
   sequenceIndex: number = 0
-  datasetPreviewImage!: string
 
   constructor(private router: Router, private bs: BackendService, private ls: LabelingService) { }
 
@@ -115,13 +116,15 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   }
 
   updateDatasetPreviewImage(): void {
-
+    this.subscriptionDatasetPreviewImage$ = this.bs.getSingleImage({dataset_name: this.dataset[0], z: this.ls.getData().z})
+      .subscribe(img => this.datasetPreviewImage = img)
   }
 
   ngOnDestroy(): void {
     this.subscriptionZ$?.unsubscribe()
     this.subscriptionDatasets$?.unsubscribe()
     this.subscriptionDirectionCount$?.unsubscribe()
+    this.subscriptionDatasetPreviewImage$.unsubscribe()
   }
 }
 

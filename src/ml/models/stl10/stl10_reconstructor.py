@@ -1,14 +1,14 @@
-import torch
-import torch.nn as nn
 import numpy as np
+import torch
+from torch import nn
 
 
-class Reconstructor(nn.Module):
-    def __init__(self, directions_count, channels=1, width=2):
-        super(Reconstructor, self).__init__()
+class Stl10Reconstructor(nn.Module):
+    def __init__(self, directions_count, num_channels=3, width=2):
+        super(Stl10Reconstructor, self).__init__()
 
         self.conv = nn.Sequential(
-            nn.Conv2d(channels * 2, 3 * width, kernel_size=2),
+            nn.Conv2d(num_channels * 2, 3 * width, kernel_size=2),
             nn.BatchNorm2d(3 * width),
             nn.ReLU(),
 
@@ -37,11 +37,11 @@ class Reconstructor(nn.Module):
         )
 
     def forward(self, x1, x2):
-        batch_size = x1.shape[0]
+        bs = x1.shape[0]
         combined = torch.cat([x1, x2], dim=1)
         features = self.conv(combined)
         features = features.mean(dim=[-1, -2])
-        features = features.view(batch_size, -1)
+        features = features.view(bs, -1)
 
         logits = self.fc_logits(features)
         shift = self.fc_shift(features)

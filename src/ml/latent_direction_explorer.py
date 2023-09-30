@@ -40,7 +40,7 @@ class LatentDirectionExplorer:
 
         # init Reconstructor
         if not reconstructor:
-            self.reconstructor = Reconstructor(dim=self.matrix_a.input_dim).to(device)
+            self.reconstructor = Reconstructor(directions_count=self.matrix_a.input_dim).to(device)
         else:
             self.reconstructor = reconstructor
 

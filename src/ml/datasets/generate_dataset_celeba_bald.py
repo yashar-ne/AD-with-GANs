@@ -23,18 +23,15 @@ num_feature_maps_d = 64
 image_size = 64
 size_z = 100
 test_size = 1
-directions_count = 50
-direction_train_steps = 2000
+directions_count = 500
+direction_train_steps = 15000
 num_imgs = 101300
 
 map_anomalies = True
 map_normals = True
 tmp_directory = '../data_backup'
 data_root_directory = '../data'
-dataset_name = 'DS5_celebA_bald'
-
-celebA_directory = os.path.join(tmp_directory, 'celebA')
-celebA_imgs_directory = os.path.join(celebA_directory, 'imgs')
+dataset_name = 'DS8_fashionMnist_shirt_sneaker'
 
 
 class AnoCelebA(Dataset):

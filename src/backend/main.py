@@ -1,11 +1,10 @@
 import torch
 import uvicorn
-from fastapi import FastAPI, status, HTTPException
-from fastapi.responses import PlainTextResponse
+from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.backend.models import GetSingleImageModel
 from src.backend.models.GetDirectionCountModel import GetDirectionCountModel
+from src.backend.models.GetSingleImageModel import GetSingleImageModel
 from src.backend.models.GetValidationResultsModel import GetValidationResultsModel
 from src.backend.models.GetRandomNoiseModel import GetRandomNoiseModel
 from src.backend.models.GetShiftedImagesModel import GetShiftedImagesModel

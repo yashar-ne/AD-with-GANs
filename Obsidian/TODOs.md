@@ -1,64 +1,24 @@
-- [x] reread paper [[Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery]]
-	- [x] create article
+- [ ] Update thesis outline
+- [ ] Try out other datasets
+	- [ ] Imagenet
+	- [ ] [MVTec](https://www.mvtec.com/company/research/datasets/mvtec-ad/)
+	- [ ] [CIVAR19](https://www.cs.toronto.edu/~kriz/cifar.html)
+- [ ] Implement alternative benchmarks
+	- [x] Local outlier factor
+	- [ ] i-forrest
+	- [ ] Variational Autoencoder Reconstruction Loss
+	- [ ] AnoGAN (cleanup of existing implementation)
+	- [ ] Supervised binary classifier, n labeled images with n equals number of directions 
 - [ ] Research
 	- [ ] NNs/CNNs
 		- [ ] normalization
 			- [ ] initial
 			- [ ] after layer/batch
-		- [x] convolutional layer
+		- [ ] convolutional layer
 			- [ ] pooling		
-			- [x] kernel
-			- [x] stride
-			- [x] padding
+			- [ ] kernel
+			- [ ] stride
+			- [ ] padding
 		- [ ] why do we use transpose layers in generator?
-- [x] create generator/discriminator NNs in project
-	- [x] don't forget to create separate branch
-	- [x] create regular DCNN
-		- [x] use MNIST
-	- [x] bootstrap everything
-		- [x] create discriminator class
-		- [x] create generator class
-	- [x] create training procedure
-	- [x] plug MNIST into GAN
-- [ ] Try out other datasets
-	- [ ] [MVTec](https://www.mvtec.com/company/research/datasets/mvtec-ad/)
-	- [ ] [CIVAR19](https://www.cs.toronto.edu/~kriz/cifar.html)
-- [x] Adopt loss-functions from [[Unsupervised Anomaly Detection with Generative Adversarial Networks to Guide Marker Discovery]]
-	- [x] Reference [Github AnoGAN](https://github.com/seungjunlee96/AnoGAN-pytorch)
-	- [x] Inference
-- [x] ***Finalize Programming (AnoGAN)
-	- [x] Log anomaly score for input-image
-	- [x] Add ROC-Score
-		- [x] TPR (Specificity) vs. FPR (Sensitivity)
-		- [x] log more data for that
-			- [x] take care that you have a realistic normal/outlier ratio
-	- [x] title of third column is wrong
-	- [x] add another column with subtraction
-		- [x] don't forget abs!
-- [ ] Update thesis outline
-- [x] Paper review
-	- [x] find 10 appropriate paper
-	- [x] find paper cluster
-	- [x] cluster found paper
-	- [x] try to generate a pipe
-	- [x] image matching
-- [ ] Unsupervised Discovery of Interpretable Directions in the GAN Latent Space
-	- [x] Create paper summary 🛫 2023-04-17 📅 2023-04-21 ✅ 2023-04-20
-	- [x] Create augmented MNIST dataset 🛫 2023-04-18 📅 2023-04-21 ✅ 2023-04-21
-	- [ ] Extend AnoGAN to f-AnoGAN 📅 2023-04-21 🛫 2023-04-18 
-		- [ ] Train f-AnoGAN on modified dataset 📅 2023-04-21 🛫 2023-04-19 
-	- [ ] Implement feature discovery method from paper
-		- [ ] Train model and obtain A-Matrix
-	- [ ] Create tiny App that visualizes X samples and lets supervisor label/rate anomalous samples
-	- [ ] Discover axes that are related to found anomalies
-	- [ ] Create new (L2) distance metric where found axes are weighted higher
-	- [ ] Based on new Distance metric, create method to find closes neighbor with respect to fond axes
-	- [ ] Generate anomaly-score, based on this neighbor and found axes
-		- [ ] Use f-AnoGAN for that
-- [ ] Latent Space Explorer
-	- [x] Train multiple batches with latent space discovery
-	- [x] Save all batches as ndarray to file
-	- [x] use file to randomly show a smooth dimension snippet
-	- [x] extend BE/FE to show snippet
-	- [ ] add metadata to snippet
-	- [ ] let user label snippet as anomalous/normal
+- [ ] Paper review
+- [ ] Latent Space Explorer	

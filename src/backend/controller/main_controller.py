@@ -51,7 +51,7 @@ class MainController:
         z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(z), 0), -1), 2).to(self.device)
         generator = self.datasets.get(dataset_name).get('generator').to(self.device)
         img = generator(z)
-        generate_base64_image_from_tensor(img)
+        return generate_base64_image_from_tensor(img[0])
 
     def get_shifted_images(self, dataset_name, direction_matrix_name, z, shifts_range, shifts_count, dim, direction,
                            pca_component_count=0, pca_skipped_components_count=0):

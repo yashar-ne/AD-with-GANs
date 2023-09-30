@@ -8,6 +8,7 @@ import {SessionLabelsModel} from "../models/session-labels.model";
 import {GetValidationResultsModel} from "../models/get-validation-results-model.model";
 import {ValidationResultsModel} from "../models/validation-results-model.model";
 import {GetDirectionCountModel} from "../models/get-direction-count-model.model";
+import {GetSingleImage} from "../models/get-single-image.model";
 
 @Injectable({
   providedIn: 'root'
@@ -38,7 +39,7 @@ export class BackendService {
 
   getSingleImage(getSingleImage: GetSingleImage): Observable<string> {
     console.log("Getting Shifted Images")
-    return this.httpClient.post<string>(`${this.api_root}/get_shifted_images`, getSingleImage, { responseType: 'json' })
+    return this.httpClient.post<string>(`${this.api_root}/get_single_image`, getSingleImage, { responseType: 'json' })
   }
 
   getShiftedImages(getShiftedImages: GetShiftedImages): Observable<Array<ImageStrip>> {

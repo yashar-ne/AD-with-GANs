@@ -18,13 +18,11 @@ class CelebDiscriminator(nn.Module):
             nn.BatchNorm2d(num_feature_maps * 4),
             nn.LeakyReLU(0.2, inplace=True),
         )
-
         self.layer4 = nn.Sequential(
             nn.Conv2d(num_feature_maps * 4, num_feature_maps * 8, 4, 2, 1, bias=False),
             nn.BatchNorm2d(num_feature_maps * 8),
             nn.LeakyReLU(0.2, inplace=True),
         )
-
         self.fc = nn.Sequential(
             nn.Conv2d(num_feature_maps * 8, 1, 4, 1, 0, bias=False),
             nn.Sigmoid()

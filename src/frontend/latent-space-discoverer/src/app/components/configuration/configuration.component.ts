@@ -34,6 +34,7 @@ export class ConfigurationComponent {
 
   onDatasetSelectChange(value: MatSelectChange) {
     this.datasetChange.emit(value.value)
+    this.updateDatasetPreviewImage.emit()
     this.directionMatrixSelectOptions = value.value[1]
   }
 

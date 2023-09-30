@@ -64,7 +64,7 @@ def get_roc_auc_for_average_distance_metric(latent_space_data_points, latent_spa
             cos_angle = data_point @ d
             direction_scores.append(cos_angle)
             # direction_scores.append(data_point @ d)
-        scores.append(max(direction_scores))
+        scores.append(sum(direction_scores))
 
     y = np.array([-1 if d is False else 1 for d in latent_space_data_labels])
     return get_roc_curve_as_base64(y, scores)

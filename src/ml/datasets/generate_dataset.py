@@ -5,6 +5,7 @@ import csv
 import time
 
 import torch
+import torchvision
 from matplotlib import pyplot as plt
 from matplotlib.pyplot import imshow
 from torch import nn
@@ -79,7 +80,8 @@ def weights_init(m):
 
 def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_maps_g, num_feature_maps_d,
                        num_color_channels, batch_size,
-                       device, learning_rate, transform=None, discriminator=None, generator=None, num_imgs=None):
+                       device, learning_rate, transform=None, discriminator=None, generator=None, num_imgs=None,
+                       save_checkpoint_every_n_epoch=10):
     print('TRAINING GAN')
     dataset_folder = os.path.join(root_dir, dataset_name)
     dataset_raw_folder = os.path.join(dataset_folder, 'dataset_raw')
@@ -154,7 +156,7 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
         print('[%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
               % (epoch + 1, num_epochs, loss_d.item(), loss_g.item(), d_x, d_g_z1, d_g_z2))
 
-        if epoch != 0 and epoch % 5 == 0:
+        if epoch != 0 and epoch % save_checkpoint_every_n_epoch == 0:
             save_gan_checkpoint(checkpoint_folder, discriminator, epoch, generator)
 
     save_gan_models(dataset_folder, discriminator, generator)
@@ -223,7 +225,7 @@ def load_gan(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_map
 
 def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_maps_d,
                                 num_color_channels, device, max_opt_iterations=100000, generator=None,
-                                discriminator=None, transform=None, num_images=101300, start_with_image_number=0):
+                                discriminator=None, transform=None, num_images=0, start_with_image_number=0):
     print('MAPPING LATENT SPACE POINTS')
     dataset_folder = os.path.join(root_dir, dataset_name, 'dataset')
     dataset_raw_folder = os.path.join(root_dir, dataset_name, 'dataset_raw')
@@ -238,7 +240,7 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
     os.makedirs(dataset_folder, exist_ok=True)
     csv_path = os.path.join(dataset_folder, "latent_space_mappings.csv")
     dataset = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=1, transform=transform, nrows=num_images,
-                             shuffle=False)
+                             shuffle=True)
 
     if not generator and not discriminator:
         generator, discriminator = load_gan(root_dir=root_dir,
@@ -255,9 +257,6 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
         torch.load(os.path.join(root_dir, dataset_name, "discriminator.pkl"), map_location=torch.device(device)))
 
     os.makedirs(dataset_folder, exist_ok=True)
-    if start_with_image_number == 0:
-        add_line_to_csv(csv_path=csv_path, entries=["filename", "label", "reconstruction_loss"])
-
     lsm: LatentSpaceMapper = LatentSpaceMapper(generator=generator, discriminator=discriminator, device=device)
     mapped_images = []
     cp_counter = 0
@@ -266,22 +265,21 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
     i = start_with_image_number
     retry_counter = 0
     iterator = iter(dataset)
+    if start_with_image_number == 0:
+        add_line_to_csv(csv_path=csv_path, entries=["filename", "label", "reconstruction_loss"])
+        data_point, data_label = next(iterator)
 
     for i in range(start_with_image_number):
         data_point, data_label = next(iterator)
 
     while counter > 0:
-        if data_label.item() is True:
-            data_point, data_label = next(iterator)
-            continue
-
         print(f"{counter} images left")
         print(f"Label: {data_label.item()}")
 
-        max_retries = 10
-        opt_threshold = 0.04
-        ignore_rules_below_threshold = 0.15
-        immediate_retry_threshold = 0.2
+        max_retries = 5
+        opt_threshold = 0.05
+        ignore_rules_below_threshold = 0.1
+        immediate_retry_threshold = 0.15
 
         mapped_z, reconstruction_loss, retry = lsm.map_image_to_point_in_latent_space(image=data_point,
                                                                                       max_opt_iterations=max_opt_iterations,
@@ -299,8 +297,8 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
                 i += 1
                 counter -= 1
                 print("Retry Limit reached. Moving on to next sample")
-                # print("Could not map this image")
-                # plot_image(data_point[0])
+                print("Could not map this image")
+                plot_image(data_point[0])
                 data_point, data_label = next(iterator)
                 print('-----------------------')
                 continue
@@ -312,7 +310,7 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
 
         retry_counter = 0
 
-        mapped_img = generator(mapped_z)[0]
+        # mapped_img = generator(mapped_z)[0]
         # plot_image(data_point[0])
         # plot_image(mapped_img)
         mapped_images.append(mapped_z)
@@ -328,8 +326,20 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
     print('All images in dataset were mapped')
 
 
+def test_generator(num, size_z, g, g_path, device):
+    fixed_noise = torch.randn(num, size_z, 1, 1, device=device)
+    g.load_state_dict(torch.load(g_path, map_location=torch.device(device)))
+    fake_imgs = g(fixed_noise).detach().cpu()
+    with torch.no_grad():
+        grid = torchvision.utils.make_grid(fake_imgs, nrow=8, normalize=True)
+        grid_np = grid.cpu().numpy().transpose(1, 2, 0)  # channel dim should be last
+        plt.matshow(grid_np)
+        plt.axis("off")
+        plt.show()
+
+
 def plot_image(img):
     img = (img * 0.5) + 0.5
-    img = img.permute(1, 2, 0)
-    imshow(img.detach().cpu().numpy())
+    img = img.cpu().detach().numpy().transpose(1, 2, 0)
+    imshow(img)
     plt.show()
