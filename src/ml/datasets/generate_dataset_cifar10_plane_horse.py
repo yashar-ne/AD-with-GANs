@@ -9,7 +9,7 @@ import torchvision
 import torchvision.transforms as transforms
 
 from src.ml.datasets.generate_dataset import add_line_to_csv, create_latent_space_dataset, train_direction_matrix, \
-    generate_dataset, train_and_save_gan
+    generate_dataset, train_and_save_gan, test_generator
 from src.ml.models.cifar10.cifar10_discriminator import Cifar10Discriminator
 from src.ml.models.cifar10.cifar10_generator import Cifar10Generator
 from src.ml.models.cifar10.cifar10_reconstructor import Cifar10Reconstructor
@@ -131,17 +131,5 @@ cifar10_reconstructor = Cifar10Reconstructor(directions_count=directions_count, 
 #                             num_images=num_imgs,
 #                             start_with_image_number=782)
 
-def test_generator(num, g, g_path):
-    fixed_noise = torch.randn(num, size_z, 1, 1, device=device)
-    g.load_state_dict(torch.load(g_path, map_location=torch.device(device)))
-    fake_imgs = cifar10_generator(fixed_noise).detach().cpu()
-    with torch.no_grad():
-        grid = torchvision.utils.make_grid(fake_imgs, nrow=8, normalize=True)
-        grid_np = grid.cpu().numpy().transpose(1, 2, 0)  # channel dim should be last
-        plt.matshow(grid_np)
-        plt.axis("off")
-        plt.show()
-
-
-test_generator(32, cifar10_generator,
-               '/home/yashar/git/AD-with-GANs/data/DS6_cifar10_plane_horse/generator.pkl')
+test_generator(64, size_z, cifar10_generator,
+               '/home/yashar/git/AD-with-GANs/data/DS6_cifar10_plane_horse/generator.pkl', device)

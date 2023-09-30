@@ -149,17 +149,3 @@ train_direction_matrix(root_dir=data_root_directory,
 #                             num_images=num_imgs,
 #                             start_with_image_number=782)
 
-# def test_generator(num, g, g_path):
-#     fixed_noise = torch.randn(num, size_z, 1, 1, device=device)
-#     g.load_state_dict(torch.load(g_path, map_location=torch.device(device)))
-#     fake_imgs = celeb_generator(fixed_noise).detach().cpu()
-#     with torch.no_grad():
-#         grid = torchvision.utils.make_grid(fake_imgs, nrow=8, normalize=True)
-#         grid_np = grid.cpu().numpy().transpose(1, 2, 0)  # channel dim should be last
-#         plt.matshow(grid_np)
-#         plt.axis("off")
-#         plt.show()
-#
-#
-# test_generator(64, celeb_generator,
-#                '/home/yashar/git/AD-with-GANs/checkpoints/DS5_celebA_bald/generator_epoch_40_1694857394.8047323.pkl')

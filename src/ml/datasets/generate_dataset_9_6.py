@@ -21,7 +21,7 @@ map_anomalies = True
 map_normals = True
 temp_directory = '../../../data_backup'
 data_root_directory = '../../../data'
-dataset_name = 'TEST'
+dataset_name = 'DS01_mnist_9_6_percent'
 
 
 def generate_normals_9(dataset_folder, csv_path, temp_directory):

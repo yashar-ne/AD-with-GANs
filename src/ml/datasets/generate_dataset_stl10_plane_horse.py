@@ -9,7 +9,7 @@ import torchvision
 import torchvision.transforms as transforms
 
 from src.ml.datasets.generate_dataset import add_line_to_csv, create_latent_space_dataset, train_direction_matrix, \
-    generate_dataset, train_and_save_gan
+    generate_dataset, train_and_save_gan, test_generator
 from src.ml.models.stl10.stl10_discriminator import Stl10Discriminator1
 from src.ml.models.stl10.stl10_generator import Stl10Generator
 from src.ml.models.stl10.stl10_reconstructor import Stl10Reconstructor
@@ -127,17 +127,17 @@ stl10_reconstructor = Stl10Reconstructor(directions_count=directions_count, widt
 #                             generator=stl10_generator,
 #                             discriminator=stl10_discriminator)
 
-def test_generator(num, g, g_path):
-    fixed_noise = torch.randn(num, size_z, 1, 1, device=device)
-    g.load_state_dict(torch.load(g_path, map_location=torch.device(device)))
-    fake_imgs = stl10_generator(fixed_noise).detach().cpu()
-    with torch.no_grad():
-        grid = torchvision.utils.make_grid(fake_imgs, nrow=8, normalize=True)
-        grid_np = grid.cpu().numpy().transpose(1, 2, 0)  # channel dim should be last
-        plt.matshow(grid_np)
-        plt.axis("off")
-        plt.show()
+# def test_generator(num, g, g_path):
+#     fixed_noise = torch.randn(num, size_z, 1, 1, device=device)
+#     g.load_state_dict(torch.load(g_path, map_location=torch.device(device)))
+#     fake_imgs = stl10_generator(fixed_noise).detach().cpu()
+#     with torch.no_grad():
+#         grid = torchvision.utils.make_grid(fake_imgs, nrow=8, normalize=True)
+#         grid_np = grid.cpu().numpy().transpose(1, 2, 0)  # channel dim should be last
+#         plt.matshow(grid_np)
+#         plt.axis("off")
+#         plt.show()
 
 
-test_generator(64, stl10_generator,
-               '/home/yashar/git/AD-with-GANs/data/DS7_stl10_plane_horse/generator.pkl')
+test_generator(64, size_z, stl10_generator,
+               '/home/yashar/git/AD-with-GANs/data/DS7_stl10_plane_horse/generator.pkl', device)
