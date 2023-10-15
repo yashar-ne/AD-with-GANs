@@ -86,6 +86,7 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
     dataset_folder = os.path.join(root_dir, dataset_name)
     dataset_raw_folder = os.path.join(dataset_folder, 'dataset_raw')
     checkpoint_folder = os.path.join(root_dir, '..', 'checkpoints', dataset_name)
+    if os.path.exists(checkpoint_folder): shutil.rmtree(checkpoint_folder)
 
     if not generator:
         generator = Generator(size_z=size_z,
@@ -109,7 +110,7 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
     optimizer_d = optim.Adam(discriminator.parameters(), lr=learning_rate, betas=(adam_beta1, 0.999))
     g_losses = []
     d_losses = []
-    iters = 0
+    iterations = 0
 
     print("Starting Training Loop...")
     for epoch in range(num_epochs):
@@ -151,13 +152,13 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
 
             g_losses.append(loss_g.item())
             d_losses.append(loss_d.item())
-            iters += 1
+            iterations += 1
 
         print('[%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
               % (epoch + 1, num_epochs, loss_d.item(), loss_g.item(), d_x, d_g_z1, d_g_z2))
 
         if epoch != 0 and epoch % save_checkpoint_every_n_epoch == 0:
-            save_gan_checkpoint(checkpoint_folder, discriminator, epoch, generator)
+            save_gan_checkpoint(checkpoint_folder, size_z, discriminator, epoch, iterations, generator, device)
 
     save_gan_models(dataset_folder, discriminator, generator)
     plt.figure(figsize=(10, 5))
@@ -176,14 +177,17 @@ def save_gan_models(dataset_folder, discriminator, generator):
     torch.save(discriminator.state_dict(), os.path.join(dataset_folder, f'discriminator.pkl'))
 
 
-def save_gan_checkpoint(checkpoint_folder, discriminator, epoch, generator):
+def save_gan_checkpoint(checkpoint_folder, size_z, discriminator, epoch, iteration, generator, device):
     print("Saving GAN Checkpoints...")
     os.makedirs(checkpoint_folder, exist_ok=True)
-    timestamp = time.time()
+    generator_filename = f'generator_epoch_{epoch}_iteration_{iteration}.pkl'
+    discriminator_filename = f'discriminator_epoch_{epoch}_iteration_{iteration}.pkl'
     torch.save(generator.state_dict(),
-               os.path.join(checkpoint_folder, f'generator_epoch_{epoch}_{timestamp}.pkl'))
+               os.path.join(checkpoint_folder, generator_filename))
     torch.save(discriminator.state_dict(),
-               os.path.join(checkpoint_folder, f'discriminator_epoch_{epoch}_{timestamp}.pkl'))
+               os.path.join(checkpoint_folder, discriminator_filename))
+
+    test_generator(128, size_z, generator, os.path.join(checkpoint_folder, generator_filename), device)
 
 
 def train_direction_matrix(root_dir, dataset_name, direction_count, steps, device, use_bias=True, generator=None,
@@ -225,7 +229,11 @@ def load_gan(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_map
 
 def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_maps_d,
                                 num_color_channels, device, max_opt_iterations=100000, generator=None,
-                                discriminator=None, transform=None, num_images=0, start_with_image_number=0):
+                                discriminator=None, transform=None, num_images=0, start_with_image_number=0,
+                                max_retries=3, opt_threshold=0.045, ignore_rules_below_threshold=0.055,
+                                immediate_retry_threshold=0.06, only_consider_anos=False,
+                                plateu_threshold=-1, check_every_n_iter=5000, learning_rate=0.001,
+                                print_every_n_iters=5000, retry_after_n_iters=5000, draw_images=False):
     print('MAPPING LATENT SPACE POINTS')
     dataset_folder = os.path.join(root_dir, dataset_name, 'dataset')
     dataset_raw_folder = os.path.join(root_dir, dataset_name, 'dataset_raw')
@@ -273,21 +281,21 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
         data_point, data_label = next(iterator)
 
     while counter > 0:
+        if data_label.item() is False and only_consider_anos:
+            counter -= 1
+            data_point, data_label = next(iterator)
+            continue
+
         print(f"{counter} images left")
         print(f"Label: {data_label.item()}")
 
-        max_retries = 5
-        opt_threshold = 0.05
-        ignore_rules_below_threshold = 0.1
-        immediate_retry_threshold = 0.15
-
         mapped_z, reconstruction_loss, retry = lsm.map_image_to_point_in_latent_space(image=data_point,
                                                                                       max_opt_iterations=max_opt_iterations,
-                                                                                      plateu_threshold=0,
-                                                                                      check_every_n_iter=5000,
-                                                                                      learning_rate=0.001,
-                                                                                      print_every_n_iters=5000,
-                                                                                      retry_after_n_iters=100000,
+                                                                                      plateu_threshold=plateu_threshold,
+                                                                                      check_every_n_iter=check_every_n_iter,
+                                                                                      learning_rate=learning_rate,
+                                                                                      print_every_n_iters=print_every_n_iters,
+                                                                                      retry_after_n_iters=retry_after_n_iters,
                                                                                       ignore_rules_below_threshold=ignore_rules_below_threshold,
                                                                                       opt_threshold=opt_threshold,
                                                                                       immediate_retry_threshold=immediate_retry_threshold)
@@ -310,9 +318,11 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
 
         retry_counter = 0
 
-        # mapped_img = generator(mapped_z)[0]
-        # plot_image(data_point[0])
-        # plot_image(mapped_img)
+        if draw_images:
+            mapped_img = generator(mapped_z)[0]
+            plot_image(data_point[0])
+            plot_image(mapped_img)
+
         mapped_images.append(mapped_z)
         add_line_to_csv(csv_path=csv_path,
                         entries=[f'mapped_z_{counter}.pt', data_label.item(), math.floor(reconstruction_loss)])
@@ -331,7 +341,7 @@ def test_generator(num, size_z, g, g_path, device):
     g.load_state_dict(torch.load(g_path, map_location=torch.device(device)))
     fake_imgs = g(fixed_noise).detach().cpu()
     with torch.no_grad():
-        grid = torchvision.utils.make_grid(fake_imgs, nrow=8, normalize=True)
+        grid = torchvision.utils.make_grid(fake_imgs, nrow=16, normalize=True)
         grid_np = grid.cpu().numpy().transpose(1, 2, 0)  # channel dim should be last
         plt.matshow(grid_np)
         plt.axis("off")

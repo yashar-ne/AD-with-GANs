@@ -12,19 +12,20 @@ from matplotlib.pyplot import imshow
 from src.ml.models.celebA.celeb_generator import CelebGenerator
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
+from src.ml.models.mvtec128.mvtec_generator import MvTecGenerator
 from src.ml.tools.utils import one_hot
 from src.ml.validation import load_data_points, get_roc_auc_for_average_distance_metric
 
-base_path = '../data/DS5_celebA_bald'
+base_path = '../data/DS9_mvtec_hazelnut'
 generator_path = os.path.join(base_path, 'generator.pkl')
-direction_matrix_path = 'direction_matrices/direction_matrix_steps_1000_bias_k_30.pkl'
+direction_matrix_path = 'direction_matrices/direction_matrix_steps_2000_bias_k_10.pkl'
 full_direction_matrix_path = os.path.join(base_path, direction_matrix_path)
 
 num_directions = int(direction_matrix_path.split(".")[0].split("_")[-1])
 z_dim = 100
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-g: CelebGenerator = CelebGenerator(size_z=z_dim, num_feature_maps=64)
+g = MvTecGenerator(size_z=z_dim, num_feature_maps=64)
 g.load_state_dict(torch.load(generator_path, map_location=torch.device(device)))
 direction_matrix: MatrixALinear = MatrixALinear(input_dim=num_directions, output_dim=100, bias=True)
 direction_matrix.load_state_dict(torch.load(full_direction_matrix_path, map_location=torch.device(device)))
@@ -57,7 +58,7 @@ sorted_aucs = sorted(aucs, key=itemgetter(2), reverse=True)
 print(sorted_aucs)
 print(f'\n Highest performing direction {sorted_aucs[0]}')
 
-combine_n_highest = 5
+combine_n_highest = 3
 anomalous_directions = []
 for i in range(combine_n_highest):
     anomalous_directions.append((sorted_aucs[i][0], sorted_aucs[i][1]))
@@ -93,4 +94,4 @@ def print_shifted_image(noise, shift):
 
 
 z = torch.randn(1, z_dim, 1, 1, device=device)
-print_shifted_image(z, 10)
+print_shifted_image(z, 3)

@@ -5,11 +5,14 @@ import os
 import numpy as np
 import seaborn
 import torch
+import torchvision
+from PIL import Image
 from matplotlib import pyplot as plt
 import seaborn as sns
 from sklearn import metrics
 import csv
 from sklearn.manifold import TSNE
+from sklearn.neighbors import LocalOutlierFactor
 from sklearn.preprocessing import normalize
 
 from src.ml.tools.utils import extract_weights_from_model
@@ -69,6 +72,32 @@ def get_roc_auc_for_average_distance_metric(latent_space_data_points, latent_spa
     y = np.array([-1 if d is False else 1 for d in latent_space_data_labels])
     return get_roc_curve_as_base64(y, scores)
 
+
+def get_lof_roc_auc_for_image_data(dataset_name, n_neighbours):
+    transform = torchvision.transforms.Compose(
+        [torchvision.transforms.ToTensor(),
+         torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+
+    image_data = []
+    y = []
+    image_folder = os.path.join('../data', dataset_name, 'dataset_raw')
+    csv_file_path = os.path.join('../data', dataset_name, 'dataset_raw', 'anomnist_dataset.csv')
+    with open(csv_file_path, 'r') as csvfile:
+        datareader = csv.reader(csvfile)
+        next(datareader)
+        for row in datareader:
+            image_path = os.path.join(image_folder, row[0])
+            img = Image.open(image_path)
+            img = transform(img)
+            image_data.append(img.flatten().numpy())
+            y.append(-1 if row[1] == 'True' else 1)
+
+    lof = LocalOutlierFactor(n_neighbors=n_neighbours)
+    lof.fit_predict(image_data)
+
+    result = get_roc_curve_as_base64(y, lof.negative_outlier_factor_)
+
+    return result
 
 def get_lof_roc_auc_for_given_dims(direction_matrix,
                                    anomalous_directions,

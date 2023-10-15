@@ -24,8 +24,9 @@ num_feature_maps_d = 64
 image_size = 28
 size_z = 100
 directions_count = 30
-direction_train_steps = 1500
+direction_train_steps = 2000
 num_imgs = 0
+max_opt_iterations = 10000
 
 map_anomalies = True
 map_normals = True
@@ -120,10 +121,21 @@ create_latent_space_dataset(root_dir=data_root_directory,
                             num_feature_maps_d=num_feature_maps_d,
                             num_color_channels=num_color_channels,
                             device=device,
-                            max_opt_iterations=10000,
+                            max_opt_iterations=max_opt_iterations,
                             generator=generator,
                             discriminator=discriminator,
-                            num_images=num_imgs)
+                            num_images=num_imgs,
+                            max_retries=3,
+                            opt_threshold=0.06,
+                            ignore_rules_below_threshold=0.08,
+                            immediate_retry_threshold=0.1,
+                            plateu_threshold=-1,
+                            check_every_n_iter=5000,
+                            learning_rate=0.001,
+                            print_every_n_iters=5000,
+                            retry_after_n_iters=5000,
+                            draw_images=False
+                            )
 
 # test_generator(64, size_z, generator,
 #                '/home/yashar/git/AD-with-GANs/data/DS8_fashion_mnist_shirt_sneaker/generator.pkl', device)

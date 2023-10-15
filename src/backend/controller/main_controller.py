@@ -9,10 +9,12 @@ from src.ml.latent_direction_visualizer import LatentDirectionVisualizer
 from src.ml.models.celebA.celeb_generator import CelebGenerator
 from src.ml.models.generator import Generator
 from src.ml.models.matrix_a_linear import MatrixALinear
+from src.ml.models.mvtec128.mvtec_generator import MvTecGenerator
+from src.ml.models.stl10.stl10_generator import Stl10Generator
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
     generate_base64_image_from_tensor
 from src.ml.validation import load_data_points, get_lof_roc_auc_for_given_dims, \
-    get_roc_auc_for_average_distance_metric
+    get_roc_auc_for_average_distance_metric, get_lof_roc_auc_for_image_data
 
 
 class MainController:
@@ -61,7 +63,8 @@ class MainController:
                                   pca_skipped_components_count) if pca_component_count > 0 else a
         a.to(self.device)
         visualizer = LatentDirectionVisualizer(matrix_a_linear=a,
-                                               generator=self.datasets.get(dataset_name).get('generator').to(self.device),
+                                               generator=self.datasets.get(dataset_name).get('generator').to(
+                                                   self.device),
                                                device=self.device)
         shifted_images = visualizer.create_shifted_images(z, shifts_range, shifts_count, dim, direction)
         return generate_base64_images_from_tensor_list(shifted_images)
@@ -76,7 +79,8 @@ class MainController:
 
     def get_validation_results(self, dataset_name, direction_matrix_name, anomalous_directions):
 
-        direction_matrix = self.__get_direction_matrix(dataset_name=dataset_name, direction_matrix_name=direction_matrix_name)
+        direction_matrix = self.__get_direction_matrix(dataset_name=dataset_name,
+                                                       direction_matrix_name=direction_matrix_name)
         latent_space_data_points = self.datasets.get(dataset_name).get('data')[0]
         latent_space_data_labels = self.datasets.get(dataset_name).get('data')[1]
 
@@ -87,7 +91,7 @@ class MainController:
             latent_space_data_labels=latent_space_data_labels
         )
 
-        roc_auc_ignore_labels, _ = get_lof_roc_auc_for_given_dims(
+        roc_auc_plot_ignore_labels, _ = get_lof_roc_auc_for_given_dims(
             direction_matrix=direction_matrix,
             anomalous_directions=anomalous_directions,
             latent_space_data_points=latent_space_data_points,
@@ -96,13 +100,19 @@ class MainController:
             use_default_distance_metric=True
         )
 
+        # roc_auc_plot_image_data = get_lof_roc_auc_for_image_data(dataset_name=dataset_name, n_neighbours=20)
+
         if not roc_auc:
             raise HTTPException(
                 status_code=status.HTTP_406_NOT_ACCEPTABLE,
                 detail="Only ano to ano directions were labeled"
             )
 
-        return ValidationResultsModel(roc_auc_plot_one_hot=roc_auc, roc_auc_plot_ignore_labels=roc_auc_ignore_labels)
+        return ValidationResultsModel(
+            roc_auc_plot_one_hot=roc_auc,
+            roc_auc_plot_ignore_labels=roc_auc_plot_ignore_labels,
+            # roc_auc_plot_image_data=roc_auc_plot_image_data
+        )
 
     @staticmethod
     def save_session_labels_to_db(session_labels: SessionLabelsModel):
@@ -121,5 +131,9 @@ class MainController:
         match dataset_name:
             case "DS5_celebA_bald":
                 return CelebGenerator(size_z=self.z_dim, num_feature_maps=64)
+            case "DS9_mvtec_hazelnut":
+                return MvTecGenerator(size_z=self.z_dim, num_feature_maps=64)
+            case "DS7_stl10_plane_horse":
+                return Stl10Generator(size_z=self.z_dim, num_feature_maps=32)
             case _:
                 return Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1)
