@@ -64,10 +64,9 @@ async def save_session_labels_to_db(body: SessionLabelsModel):
 
 @app.post("/get_validation_results")
 async def get_validation_results(body: GetValidationResultsModel):
-    result = main_controller.get_validation_results(dataset_name=body.dataset,
-                                                    direction_matrix_name=body.direction_matrix,
-                                                    anomalous_directions=body.weighted_dims)
-    return result
+    return main_controller.get_validation_results(dataset_name=body.dataset,
+                                                  direction_matrix_name=body.direction_matrix,
+                                                  anomalous_directions=body.weighted_dims)
 
 
 if __name__ == "__main__":
