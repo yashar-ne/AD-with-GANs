@@ -131,7 +131,7 @@ class MainController:
         match dataset_name:
             case "DS5_celebA_bald":
                 return CelebGenerator(size_z=self.z_dim, num_feature_maps=64)
-            case "DS9_mvtec_hazelnut":
+            case "DS9_mvtec_hazelnut" | "DS10_mvtec_hazelnut_5_percent":
                 return MvTecGenerator(size_z=self.z_dim, num_feature_maps=64)
             case "DS7_stl10_plane_horse":
                 return Stl10Generator(size_z=self.z_dim, num_feature_maps=32)

@@ -32,16 +32,7 @@ class LatentSpaceMapper:
         scheduler = torch.optim.lr_scheduler.CyclicLR(z_optimizer, base_lr=0.001, max_lr=0.2, cycle_momentum=False)
         for i in range(max_opt_iterations):
             retry = False
-
-            fake = self.generator(z.to(self.device))
-            _, f_real = self.discriminator(image.to(self.device))
-            _, f_fake = self.discriminator(fake)
-
-            loss_r = self.criterion(image.to(self.device), fake)
-            loss_d = self.criterion(f_real, f_fake)
-            loss = (1 - 0.1) * loss_r + 0.1 * loss_d
-
-            # loss = self.__get_anomaly_score(z, image.to(self.device))
+            loss = self.__get_anomaly_score(z, image)
             final_loss = loss.data.item()
 
             if i == 1:
@@ -78,20 +69,14 @@ class LatentSpaceMapper:
 
         return z, final_loss, retry
 
-    def __get_anomaly_score(self, z, real):
+    def __get_anomaly_score(self, z, image):
         lamda = 0.1
         fake = self.generator(z.to(self.device))
-        loss_r = torch.sum(torch.abs(real - fake))
-
-        # return loss_r
-
-        _, f_real = self.discriminator(real)
+        _, f_real = self.discriminator(image.to(self.device))
         _, f_fake = self.discriminator(fake)
-        loss_d = torch.sum(torch.abs(f_real - f_fake))
 
-        lossR = self.criterion(real, fake)
-        lossD = self.criterion(f_real, f_fake)
-        # loss = (1 - alpha) * lossR + alpha * lossD
+        loss_r = self.criterion(image.to(self.device), fake)
+        loss_d = self.criterion(f_real, f_fake)
+        loss = (1 - lamda) * loss_r + lamda * loss_d
 
-        # return (1 - lamda) * loss_r + lamda * loss_d
-        return (1 - lamda) * lossR + lamda * lossD
+        return loss

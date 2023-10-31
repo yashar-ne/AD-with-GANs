@@ -9,7 +9,7 @@ import torchvision
 import torchvision.transforms as transforms
 
 from src.ml.datasets.generate_dataset import add_line_to_csv, create_latent_space_dataset, train_direction_matrix, \
-    generate_dataset, train_and_save_gan, test_generator
+    generate_dataset, train_and_save_gan, test_generator_and_show_plot
 from src.ml.models.stl10.stl10_discriminator import Stl10Discriminator1
 from src.ml.models.stl10.stl10_generator import Stl10Generator
 from src.ml.models.stl10.stl10_reconstructor import Stl10Reconstructor
@@ -139,5 +139,5 @@ stl10_reconstructor = Stl10Reconstructor(directions_count=directions_count, widt
 #         plt.show()
 
 
-test_generator(64, size_z, stl10_generator,
+test_generator_and_show_plot(64, size_z, stl10_generator,
                '/home/yashar/git/AD-with-GANs/data/DS7_stl10_plane_horse/generator.pkl', device)

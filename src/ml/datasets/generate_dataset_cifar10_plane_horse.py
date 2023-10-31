@@ -9,7 +9,7 @@ import torchvision
 import torchvision.transforms as transforms
 
 from src.ml.datasets.generate_dataset import add_line_to_csv, create_latent_space_dataset, train_direction_matrix, \
-    generate_dataset, train_and_save_gan, test_generator
+    generate_dataset, train_and_save_gan, test_generator_and_show_plot
 from src.ml.models.cifar10.cifar10_discriminator import Cifar10Discriminator
 from src.ml.models.cifar10.cifar10_generator import Cifar10Generator
 from src.ml.models.cifar10.cifar10_reconstructor import Cifar10Reconstructor
@@ -131,5 +131,5 @@ cifar10_reconstructor = Cifar10Reconstructor(directions_count=directions_count, 
 #                             num_images=num_imgs,
 #                             start_with_image_number=782)
 
-test_generator(64, size_z, cifar10_generator,
+test_generator_and_show_plot(64, size_z, cifar10_generator,
                '/home/yashar/git/AD-with-GANs/data/DS6_cifar10_plane_horse/generator.pkl', device)

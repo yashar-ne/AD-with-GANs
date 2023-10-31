@@ -4,12 +4,14 @@ import shutil
 import csv
 import time
 
+import matplotlib
 import torch
 import torchvision
 from matplotlib import pyplot as plt
 from matplotlib.pyplot import imshow
 from torch import nn
 import torch.optim as optim
+from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import DataLoader
 from torchvision import transforms
 import torchvision.utils as vutils
@@ -18,7 +20,7 @@ from src.ml.latent_direction_explorer import LatentDirectionExplorer
 from src.ml.latent_space_mapper import LatentSpaceMapper
 from src.ml.models.discriminator import Discriminator
 from src.ml.models.generator import Generator
-from src.ml.datasets.ano_mnist import AnoMNIST
+from src.ml.datasets.ano_mnist import AnoDataset
 
 
 def get_dataloader(dataset_folder, batch_size, transform=None, nrows=None, shuffle=True):
@@ -28,11 +30,10 @@ def get_dataloader(dataset_folder, batch_size, transform=None, nrows=None, shuff
             transforms.Normalize(mean=(.5,), std=(.5,))
         ])
 
-    ano_mnist_dataset = AnoMNIST(
+    ano_mnist_dataset = AnoDataset(
         root_dir=dataset_folder,
         transform=transform,
         nrows=nrows,
-
     )
 
     return torch.utils.data.DataLoader(ano_mnist_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=2)
@@ -81,7 +82,8 @@ def weights_init(m):
 def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_maps_g, num_feature_maps_d,
                        num_color_channels, batch_size,
                        device, learning_rate, transform=None, discriminator=None, generator=None, num_imgs=None,
-                       save_checkpoint_every_n_epoch=10):
+                       save_checkpoint_every_n_epoch=10, initial_state_generator=None,
+                       initial_state_discriminator=None):
     print('TRAINING GAN')
     dataset_folder = os.path.join(root_dir, dataset_name)
     dataset_raw_folder = os.path.join(dataset_folder, 'dataset_raw')
@@ -92,7 +94,12 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
         generator = Generator(size_z=size_z,
                               num_feature_maps=num_feature_maps_g,
                               num_color_channels=num_color_channels).to(device)
-    generator.apply(weights_init)
+
+    if initial_state_generator is not None and initial_state_discriminator is not None:
+        generator.load_state_dict(torch.load(initial_state_generator, map_location=torch.device(device)))
+        discriminator.load_state_dict(torch.load(initial_state_discriminator, map_location=torch.device(device)))
+    else:
+        generator.apply(weights_init)
 
     if not discriminator:
         discriminator = Discriminator(num_feature_maps=num_feature_maps_d,
@@ -111,6 +118,11 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
     g_losses = []
     d_losses = []
     iterations = 0
+
+    # scheduler_step_size = num_epochs // 5
+    # scheduler_gamma = 0.5
+    # scheduler_g = StepLR(optimizer_g, scheduler_step_size, gamma=scheduler_gamma)
+    # scheduler_d = StepLR(optimizer_d, scheduler_step_size, gamma=scheduler_gamma)
 
     print("Starting Training Loop...")
     for epoch in range(num_epochs):
@@ -138,6 +150,7 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
             d_g_z1 = output.mean().item()
             loss_d = loss_d_real + loss_d_fake
             optimizer_d.step()
+            # scheduler_d.step()
 
             # Generator
             generator.zero_grad()
@@ -149,10 +162,14 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
             loss_g.backward()
             d_g_z2 = output.mean().item()
             optimizer_g.step()
+            # scheduler_g.step()
 
             g_losses.append(loss_g.item())
             d_losses.append(loss_d.item())
             iterations += 1
+
+        # print('[%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f\tLR: %.10f'
+        #       % (epoch + 1, num_epochs, loss_d.item(), loss_g.item(), d_x, d_g_z1, d_g_z2, scheduler_g.get_last_lr()[0]))
 
         print('[%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
               % (epoch + 1, num_epochs, loss_d.item(), loss_g.item(), d_x, d_g_z1, d_g_z2))
@@ -180,14 +197,16 @@ def save_gan_models(dataset_folder, discriminator, generator):
 def save_gan_checkpoint(checkpoint_folder, size_z, discriminator, epoch, iteration, generator, device):
     print("Saving GAN Checkpoints...")
     os.makedirs(checkpoint_folder, exist_ok=True)
-    generator_filename = f'generator_epoch_{epoch}_iteration_{iteration}.pkl'
-    discriminator_filename = f'discriminator_epoch_{epoch}_iteration_{iteration}.pkl'
+    filename_state = f"epoch_{epoch}_iteration_{iteration}"
+    generator_filename = f'{filename_state}_generator.pkl'
+    discriminator_filename = f'{filename_state}_discriminator.pkl'
     torch.save(generator.state_dict(),
                os.path.join(checkpoint_folder, generator_filename))
     torch.save(discriminator.state_dict(),
                os.path.join(checkpoint_folder, discriminator_filename))
 
-    test_generator(128, size_z, generator, os.path.join(checkpoint_folder, generator_filename), device)
+    # test_generator_and_show_plot(128, size_z, generator, os.path.join(checkpoint_folder, generator_filename), device)
+    test_generator_and_save_plot(128, size_z, generator, os.path.join(checkpoint_folder, generator_filename), device, filename=os.path.join(checkpoint_folder, f'{filename_state}_generated_images.png'))
 
 
 def train_direction_matrix(root_dir, dataset_name, direction_count, steps, device, use_bias=True, generator=None,
@@ -263,6 +282,9 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
         torch.load(os.path.join(root_dir, dataset_name, "generator.pkl"), map_location=torch.device(device)))
     discriminator.load_state_dict(
         torch.load(os.path.join(root_dir, dataset_name, "discriminator.pkl"), map_location=torch.device(device)))
+
+    generator.eval()
+    discriminator.eval()
 
     os.makedirs(dataset_folder, exist_ok=True)
     lsm: LatentSpaceMapper = LatentSpaceMapper(generator=generator, discriminator=discriminator, device=device)
@@ -345,11 +367,23 @@ def test_generator(num, size_z, g, g_path, device):
         grid_np = grid.cpu().numpy().transpose(1, 2, 0)  # channel dim should be last
         plt.matshow(grid_np)
         plt.axis("off")
-        plt.show()
+        return plt
+
+
+def test_generator_and_show_plot(num, size_z, g, g_path, device):
+    test_generator(num, size_z, g, g_path, device)
+    plt.show(block=False)
+    plt.close()
+
+
+def test_generator_and_save_plot(num, size_z, g, g_path, device, filename):
+    test_generator(num, size_z, g, g_path, device)
+    plt.savefig(filename)
+    plt.close()
 
 
 def plot_image(img):
     img = (img * 0.5) + 0.5
     img = img.cpu().detach().numpy().transpose(1, 2, 0)
     imshow(img)
-    plt.show()
+    plt.show(block=False)

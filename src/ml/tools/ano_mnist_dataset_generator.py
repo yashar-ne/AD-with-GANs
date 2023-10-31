@@ -2,7 +2,7 @@ from torch.utils.data import RandomSampler
 from torchvision.datasets import MNIST
 from torchvision.transforms import transforms
 
-from src.ml.datasets.ano_mnist import AnoMNIST
+from src.ml.datasets.ano_mnist import AnoDataset
 from torchvision import datasets
 import torch
 
@@ -72,7 +72,7 @@ def generate_lined_image_files(base_folder, num, labels=[]):
 
 
 def get_ano_mnist_dataset(transform, root_dir, labels=[9], train_size=0.9):
-    ano_mnist_dataset = AnoMNIST(
+    ano_mnist_dataset = AnoDataset(
         root_dir=root_dir,
         transform=transform
     )

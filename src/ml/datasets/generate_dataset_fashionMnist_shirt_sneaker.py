@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 from torchvision.transforms import transforms
 
 from src.ml.datasets.generate_dataset import add_line_to_csv, create_latent_space_dataset, train_direction_matrix, \
-    generate_dataset, train_and_save_gan, test_generator
+    generate_dataset, train_and_save_gan, test_generator_and_show_plot
 
 from src.ml.models.discriminator import Discriminator
 from src.ml.models.generator import Generator
