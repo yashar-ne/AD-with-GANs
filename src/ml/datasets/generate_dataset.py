@@ -1,25 +1,25 @@
+import csv
 import math
 import os
 import shutil
-import csv
 
 import torch
+import torch.optim as optim
 import torchvision
 from matplotlib import pyplot as plt
 from matplotlib.pyplot import imshow
 from torch import nn
-import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
+from src.ml.datasets.ano_mnist import AnoDataset
 from src.ml.latent_direction_explorer import LatentDirectionExplorer
 from src.ml.latent_space_mapper import LatentSpaceMapper
 from src.ml.models.base.discriminator import Discriminator
 from src.ml.models.base.generator import Generator
-from src.ml.datasets.ano_mnist import AnoDataset
 
 
-def get_dataloader(dataset_folder, batch_size, transform=None, nrows=None, shuffle=True):
+def get_dataloader(dataset_folder, batch_size, transform=None, nrows=0, shuffle=True):
     if not transform:
         transform = transforms.Compose([
             transforms.ToTensor(),
@@ -202,7 +202,8 @@ def save_gan_checkpoint(checkpoint_folder, size_z, discriminator, epoch, iterati
                os.path.join(checkpoint_folder, discriminator_filename))
 
     # test_generator_and_show_plot(128, size_z, generator, os.path.join(checkpoint_folder, generator_filename), device)
-    test_generator_and_save_plot(128, size_z, generator, os.path.join(checkpoint_folder, generator_filename), device, filename=os.path.join(checkpoint_folder, f'{filename_state}_generated_images.png'))
+    test_generator_and_save_plot(128, size_z, generator, os.path.join(checkpoint_folder, generator_filename), device,
+                                 filename=os.path.join(checkpoint_folder, f'{filename_state}_generated_images.png'))
 
 
 def train_direction_matrix(root_dir, dataset_name, direction_count, steps, device, use_bias=True, generator=None,

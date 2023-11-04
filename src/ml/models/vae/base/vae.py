@@ -1,3 +1,5 @@
+# see https://github.com/AxelNathanson/pytorch-Variational-Autoencoder
+
 import torch
 import torch.nn as nn
 import torch.utils.data
@@ -11,6 +13,7 @@ class BetaVAE(nn.Module):
                  image_dim: int = 28,
                  beta: int = 1):
         super().__init__()
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.beta = beta
         self.latent_dim = latent_dim
         self.kl_weight = kl_weight
@@ -70,7 +73,7 @@ class BetaVAE(nn.Module):
         return self.activation(z)
 
     @staticmethod
-    def reparameterization(self, mu, log_sigma):
+    def reparameterization(mu, log_sigma):
         # This is done to make sure we get a positive semi-definite cov-matrix.
         sigma = torch.exp(log_sigma * .5)
 
@@ -80,15 +83,15 @@ class BetaVAE(nn.Module):
         return z
 
     def forward(self, x):
-        mu, log_sigma = self.encode(x)
-        z = self.reparameterization(mu, log_sigma)
+        mu, log_sigma = self.encode(x.to(self.device))
+        z = self.reparameterization(mu=mu, log_sigma=log_sigma)
         output = self.decode(z).view(-1, self.in_channels, self.image_dim, self.image_dim)
         return output, (mu, log_sigma)
 
     def compute_loss(self, x, output, mu, log_sigma):
         # First we compare how well we have recreated the image
-        mse_loss = nn.functional.binary_cross_entropy(output.view(x.shape[0], -1),
-                                                      x.view(x.shape[0], -1))
+        mse_loss = nn.functional.binary_cross_entropy(output.to(self.device).view(x.shape[0], -1),
+                                                      x.to(self.device).view(x.shape[0], -1))
 
         # Then the KL_divergence
         kl_div = torch.mean(-0.5 * torch.sum(1 + log_sigma - mu ** 2 - log_sigma.exp(), dim=1), dim=0)
