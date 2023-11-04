@@ -7,8 +7,8 @@ import torch
 
 from torchvision.utils import make_grid
 
-from src.ml.models.generator import Generator
-from src.ml.models.matrix_a_linear import MatrixALinear
+from src.ml.models.base.generator import Generator
+from src.ml.models.base.matrix_a_linear import MatrixALinear
 from src.ml.tools.utils import one_hot, to_image
 from PIL import Image
 

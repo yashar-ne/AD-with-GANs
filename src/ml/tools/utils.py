@@ -1,14 +1,12 @@
 import torch
-import numpy as np
 import base64
 import io
-from PIL import Image
 
 from torchvision.transforms import ToPILImage
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import normalize
 from src.backend.models.ImageStripModel import ImageStripModel
-from src.ml.models.matrix_a_linear import MatrixALinear
+from src.ml.models.base.matrix_a_linear import MatrixALinear
 
 
 def generate_noise(batch_size, z_dim, device):

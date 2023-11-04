@@ -5,9 +5,9 @@ import time
 import torch
 import torch.nn as nn
 
-from src.ml.models.generator import Generator
-from src.ml.models.matrix_a_linear import MatrixALinear
-from src.ml.models.reconstructor import Reconstructor
+from src.ml.models.base.generator import Generator
+from src.ml.models.base.matrix_a_linear import MatrixALinear
+from src.ml.models.base.reconstructor import Reconstructor
 
 from src.ml.tools.utils import generate_noise
 

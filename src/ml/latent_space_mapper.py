@@ -1,8 +1,7 @@
 import torch
-import tqdm
 
-from src.ml.models.discriminator import Discriminator
-from src.ml.models.generator import Generator
+from src.ml.models.base.discriminator import Discriminator
+from src.ml.models.base.generator import Generator
 
 
 class LatentSpaceMapper:

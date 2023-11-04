@@ -2,15 +2,13 @@ import torchvision
 import torch
 import os
 
-from matplotlib import pyplot as plt
 from torchvision.transforms import transforms
 
-from src.ml.datasets.generate_dataset import add_line_to_csv, create_latent_space_dataset, train_direction_matrix, \
-    generate_dataset, train_and_save_gan, test_generator_and_show_plot
+from src.ml.datasets.generate_dataset import add_line_to_csv, create_latent_space_dataset
 
-from src.ml.models.discriminator import Discriminator
-from src.ml.models.generator import Generator
-from src.ml.models.reconstructor import Reconstructor
+from src.ml.models.base.discriminator import Discriminator
+from src.ml.models.base.generator import Generator
+from src.ml.models.base.reconstructor import Reconstructor
 
 # Hyperparameter
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

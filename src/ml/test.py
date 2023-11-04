@@ -9,9 +9,7 @@ import torch
 from matplotlib import pyplot as plt
 from matplotlib.pyplot import imshow
 
-from src.ml.models.celebA.celeb_generator import CelebGenerator
-from src.ml.models.generator import Generator
-from src.ml.models.matrix_a_linear import MatrixALinear
+from src.ml.models.base.matrix_a_linear import MatrixALinear
 from src.ml.models.mvtec128.mvtec_generator import MvTecGenerator
 from src.ml.tools.utils import one_hot
 from src.ml.validation import load_data_points, get_roc_auc_for_average_distance_metric

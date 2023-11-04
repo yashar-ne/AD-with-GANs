@@ -7,14 +7,14 @@ from src.backend.models.SessionLabelsModel import SessionLabelsModel
 from src.backend.models.ValidationResultsModel import ValidationResultsModel
 from src.ml.latent_direction_visualizer import LatentDirectionVisualizer
 from src.ml.models.celebA.celeb_generator import CelebGenerator
-from src.ml.models.generator import Generator
-from src.ml.models.matrix_a_linear import MatrixALinear
+from src.ml.models.base.generator import Generator
+from src.ml.models.base.matrix_a_linear import MatrixALinear
 from src.ml.models.mvtec128.mvtec_generator import MvTecGenerator
 from src.ml.models.stl10.stl10_generator import Stl10Generator
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
     generate_base64_image_from_tensor
 from src.ml.validation import load_data_points, get_lof_roc_auc_for_given_dims, \
-    get_roc_auc_for_average_distance_metric, get_lof_roc_auc_for_image_data
+    get_roc_auc_for_average_distance_metric
 
 
 class MainController:
