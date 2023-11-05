@@ -1,11 +1,10 @@
+import os
 import random
 
-from torchvision.datasets import MNIST
 import torch
-import os
+from torchvision.datasets import MNIST
 
-from src.ml.datasets.generate_dataset import train_and_save_gan, add_line_to_csv, generate_dataset, \
-    train_direction_matrix, create_latent_space_dataset
+from src.ml.datasets.generate_dataset import add_line_to_csv, train_direction_matrix
 
 # Hyperparameter
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -22,7 +21,7 @@ test_size = 1
 
 map_anomalies = True
 map_normals = True
-temp_directory = '../../../data_backup'
+temp_directory = '../../../data_temp'
 data_root_directory = '../../../data'
 dataset_name = 'DS4_mnist_9_9lined_10_percent'
 
@@ -56,7 +55,8 @@ def generate_anomalies_6(dataset_folder, csv_path, temp_directory, ano_fraction)
     anos = [d for d in mnist_dataset if (d[1] == ano_class)]
     anos = anos[:round(len(anos) * ano_fraction)]
     for i, (img, label) in enumerate(anos):
-        augmentation_thickness = random.randint(3, max_augmentation_thickness) if randomize_augmentation_thickness else augmentation_thickness
+        augmentation_thickness = random.randint(3,
+                                                max_augmentation_thickness) if randomize_augmentation_thickness else augmentation_thickness
         random_idx = random.randint(4, 20)
         for j in range(img.size[0]):
             for k in range(augmentation_thickness):

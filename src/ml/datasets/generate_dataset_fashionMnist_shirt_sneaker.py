@@ -1,11 +1,10 @@
-import torchvision
-import torch
 import os
 
+import torch
+import torchvision
 from torchvision.transforms import transforms
 
 from src.ml.datasets.generate_dataset import add_line_to_csv, create_latent_space_dataset
-
 from src.ml.models.base.discriminator import Discriminator
 from src.ml.models.base.generator import Generator
 from src.ml.models.base.reconstructor import Reconstructor
@@ -28,7 +27,7 @@ max_opt_iterations = 10000
 
 map_anomalies = True
 map_normals = True
-tmp_directory = '../data_backup'
+tmp_directory = '../data_temp'
 data_root_directory = '../data'
 dataset_name = 'DS8_fashion_mnist_shirt_sneaker'
 

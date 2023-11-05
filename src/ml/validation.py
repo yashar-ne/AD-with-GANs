@@ -1,16 +1,17 @@
 import base64
+import csv
 import io
 import math
 import os
+
 import numpy as np
 import seaborn
+import seaborn as sns
 import torch
 import torchvision
 from PIL import Image
 from matplotlib import pyplot as plt
-import seaborn as sns
 from sklearn import metrics
-import csv
 from sklearn.manifold import TSNE
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.preprocessing import normalize
@@ -44,7 +45,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # N = 50
 
 # max(lambda_0, lambda_1, lambda_2)
-def get_roc_auc_for_average_distance_metric(latent_space_data_points, latent_space_data_labels, direction_matrix, anomalous_directions):
+def get_roc_auc_for_average_distance_metric(latent_space_data_points, latent_space_data_labels, direction_matrix,
+                                            anomalous_directions):
     inlier = []
     latent_space_data_points = normalize(latent_space_data_points, axis=1, norm='l2')
 
@@ -54,7 +56,8 @@ def get_roc_auc_for_average_distance_metric(latent_space_data_points, latent_spa
     average_inlier_vector = np.mean(inlier, axis=0)
 
     direction_matrix = extract_weights_from_model(direction_matrix)
-    directions = [direction_matrix[d[0]] * d[1] for d in anomalous_directions if (d[0], d[1] * -1) not in anomalous_directions]
+    directions = [direction_matrix[d[0]] * d[1] for d in anomalous_directions if
+                  (d[0], d[1] * -1) not in anomalous_directions]
 
     if len(directions) == 0:
         return None, None
@@ -81,7 +84,7 @@ def get_lof_roc_auc_for_image_data(dataset_name, n_neighbours):
     image_data = []
     y = []
     image_folder = os.path.join('../data', dataset_name, 'dataset_raw')
-    csv_file_path = os.path.join('../data', dataset_name, 'dataset_raw', 'anomnist_dataset.csv')
+    csv_file_path = os.path.join('../data', dataset_name, 'dataset_raw', 'ano_dataset.csv')
     with open(csv_file_path, 'r') as csvfile:
         datareader = csv.reader(csvfile)
         next(datareader)
@@ -99,13 +102,13 @@ def get_lof_roc_auc_for_image_data(dataset_name, n_neighbours):
 
     return result
 
+
 def get_lof_roc_auc_for_given_dims(direction_matrix,
                                    anomalous_directions,
                                    latent_space_data_points,
                                    latent_space_data_labels,
                                    n_neighbours,
                                    use_default_distance_metric=False):
-
     direction_matrix = extract_weights_from_model(direction_matrix)
     weighted_lof = WeightedLocalOutlierFactor(direction_matrix=direction_matrix,
                                               anomalous_directions=anomalous_directions,

@@ -1,8 +1,9 @@
-from torchvision.datasets import MNIST
-import torch
 import os
 
-from src.ml.datasets.generate_dataset import train_and_save_gan, add_line_to_csv, generate_dataset
+import torch
+from torchvision.datasets import MNIST
+
+from src.ml.datasets.generate_dataset import train_and_save_gan, add_line_to_csv
 
 # Hyperparameter
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -19,7 +20,7 @@ test_size = 1
 
 map_anomalies = True
 map_normals = True
-temp_directory = '../../../data_backup'
+temp_directory = '../../../data_temp'
 data_root_directory = '../../../data'
 dataset_name = 'DS01_mnist_9_6_percent'
 

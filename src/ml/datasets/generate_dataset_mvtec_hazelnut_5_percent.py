@@ -1,21 +1,14 @@
 import sys
+
 sys.path.append('/home/yashar/git/AD-with-GANs/')
 
-
-import time
-
 from PIL import Image, ImageOps
-from matplotlib import pyplot as plt
-from torch.utils.data import Dataset
-import pandas as pd
 import torch
 import os
 
-import torchvision
 import torchvision.transforms as transforms
 
-from src.ml.datasets.generate_dataset import add_line_to_csv, create_latent_space_dataset, train_direction_matrix, \
-    generate_dataset, train_and_save_gan, test_generator_and_show_plot, test_generator_and_save_plot, test_generator
+from src.ml.datasets.generate_dataset import add_line_to_csv, create_latent_space_dataset
 from src.ml.models.mvtec128.mvtec_discriminator import MvTecDiscriminator
 from src.ml.models.mvtec128.mvtec_generator import MvTecGenerator
 from src.ml.models.mvtec128.mvtec_reconstructor import MvTecReconstructor
@@ -53,7 +46,7 @@ draw_images = True
 
 map_anomalies = True
 map_normals = True
-tmp_directory = '../data_backup'
+tmp_directory = '../data_temp'
 data_root_directory = '../data'
 dataset_name = 'DS10_mvtec_hazelnut_5_percent'
 
@@ -220,7 +213,6 @@ create_latent_space_dataset(root_dir=data_root_directory,
                             print_every_n_iters=print_every_n_iters,
                             retry_after_n_iters=retry_after_n_iters,
                             draw_images=draw_images)
-
 
 # test_generator(128, size_z, mvtec_128_generator, '/home/yashar/git/AD-with-GANs/checkpoints/DS10_mvtec_hazelnut_5_percent/generator_epoch_4600_iteration_4601.pkl', device)
 

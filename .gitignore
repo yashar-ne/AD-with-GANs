@@ -142,6 +142,6 @@ model_gen.ckpt
 /out_dir/
 /saved_models/discriminator.BACKUP.pkl
 /saved_models/generator.BACKUP.pkl
-/data_backup/
+/data_temp/
 /checkpoints/
 /add_pythonpath.sh

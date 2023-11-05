@@ -1,15 +1,10 @@
-from PIL import Image, ImageOps
-from matplotlib import pyplot as plt
-from torch.utils.data import Dataset
-import pandas as pd
-import torch
 import os
 
-import torchvision
+import torch
 import torchvision.transforms as transforms
+from PIL import Image, ImageOps
 
-from src.ml.datasets.generate_dataset import add_line_to_csv, create_latent_space_dataset, train_direction_matrix, \
-    generate_dataset, train_and_save_gan, test_generator_and_show_plot
+from src.ml.datasets.generate_dataset import add_line_to_csv, train_direction_matrix
 from src.ml.models.mvtec128.mvtec_discriminator import MvTecDiscriminator
 from src.ml.models.mvtec128.mvtec_generator import MvTecGenerator
 from src.ml.models.mvtec128.mvtec_reconstructor import MvTecReconstructor
@@ -31,7 +26,7 @@ num_imgs = 0
 
 map_anomalies = True
 map_normals = True
-tmp_directory = '../data_backup'
+tmp_directory = '../data_temp'
 data_root_directory = '../data'
 dataset_name = 'DS9_mvtec_hazelnut'
 
@@ -143,7 +138,6 @@ transform = transforms.Compose(
 mvtec_128_generator = MvTecGenerator(size_z=size_z, num_feature_maps=num_feature_maps_g).to(device)
 mvtec_128_discriminator = MvTecDiscriminator(num_feature_maps=num_feature_maps_d).to(device)
 mvtec_128_reconstructor = MvTecReconstructor(directions_count=directions_count, width=2).to(device)
-
 
 # generate_dataset(root_dir=data_root_directory,
 #                  temp_directory=tmp_directory,

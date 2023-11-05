@@ -1,15 +1,11 @@
-from PIL import Image
-from matplotlib import pyplot as plt
-from torch.utils.data import Dataset
-import pandas as pd
 import torch
 import os
 
+import torch
 import torchvision
 import torchvision.transforms as transforms
 
-from src.ml.datasets.generate_dataset import add_line_to_csv, create_latent_space_dataset, train_direction_matrix, \
-    generate_dataset, train_and_save_gan, test_generator_and_show_plot
+from src.ml.datasets.generate_dataset import add_line_to_csv, test_generator_and_show_plot
 from src.ml.models.stl10.stl10_discriminator import Stl10Discriminator1
 from src.ml.models.stl10.stl10_generator import Stl10Generator
 from src.ml.models.stl10.stl10_reconstructor import Stl10Reconstructor
@@ -32,7 +28,7 @@ num_imgs = 0
 
 map_anomalies = True
 map_normals = True
-tmp_directory = '../data_backup'
+tmp_directory = '../data_temp'
 data_root_directory = '../data'
 dataset_name = 'DS7_stl10_plane_horse'
 
@@ -63,7 +59,7 @@ def generate_anomalies(dataset_folder, csv_path, temp_directory, ano_fraction):
         if d[1] == ano_class:
             anos.append(d)
 
-    anos = anos[:round(len(anos)*ano_fraction)]
+    anos = anos[:round(len(anos) * ano_fraction)]
     for i, img in enumerate(anos):
         img = (img[0] * 0.5) + 0.5
         img = transforms.ToPILImage()(img)
@@ -81,7 +77,6 @@ transform = transforms.Compose(
 stl10_generator = Stl10Generator(size_z=size_z, num_feature_maps=num_feature_maps_g).to(device)
 stl10_discriminator = Stl10Discriminator1(num_feature_maps=num_feature_maps_d).to(device)
 stl10_reconstructor = Stl10Reconstructor(directions_count=directions_count, width=2).to(device)
-
 
 # generate_dataset(root_dir=data_root_directory,
 #                  temp_directory=tmp_directory,
@@ -140,4 +135,4 @@ stl10_reconstructor = Stl10Reconstructor(directions_count=directions_count, widt
 
 
 test_generator_and_show_plot(64, size_z, stl10_generator,
-               '/home/yashar/git/AD-with-GANs/data/DS7_stl10_plane_horse/generator.pkl', device)
+                             '/home/yashar/git/AD-with-GANs/data/DS7_stl10_plane_horse/generator.pkl', device)

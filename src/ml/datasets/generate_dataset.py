@@ -39,7 +39,7 @@ def generate_dataset(root_dir, temp_directory, dataset_name, generate_normals, g
     print('GENERATING BASE DATASET')
     dataset_root_folder = os.path.join(root_dir, dataset_name)
     dataset_folder = os.path.join(dataset_root_folder, 'dataset_raw')
-    csv_path = os.path.join(dataset_folder, "anomnist_dataset.csv")
+    csv_path = os.path.join(dataset_folder, "ano_dataset.csv")
 
     if os.path.exists(dataset_root_folder):
         i = input("Dataset already exists. Do you want to overwrite it? Press y if yes")

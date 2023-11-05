@@ -1,12 +1,12 @@
-from PIL import Image
-from torch.utils.data import Dataset
-import pandas as pd
-import torch
 import os
 
+import pandas as pd
+import torch
+from PIL import Image
+from torch.utils.data import Dataset
 from torchvision.transforms import transforms
 
-from src.ml.datasets.generate_dataset import add_line_to_csv, create_latent_space_dataset, train_direction_matrix
+from src.ml.datasets.generate_dataset import add_line_to_csv, train_direction_matrix
 from src.ml.models.celebA.celeb_discriminator import CelebDiscriminator
 from src.ml.models.celebA.celeb_generator import CelebGenerator
 from src.ml.models.celebA.celeb_reconstructor import CelebReconstructor
@@ -29,7 +29,7 @@ num_imgs = 101300
 
 map_anomalies = True
 map_normals = True
-tmp_directory = '../data_backup'
+tmp_directory = '../data_temp'
 data_root_directory = '../data'
 dataset_name = 'DS8_fashionMnist_shirt_sneaker'
 
@@ -148,4 +148,3 @@ train_direction_matrix(root_dir=data_root_directory,
 #                             discriminator=celeb_discriminator,
 #                             num_images=num_imgs,
 #                             start_with_image_number=782)
-

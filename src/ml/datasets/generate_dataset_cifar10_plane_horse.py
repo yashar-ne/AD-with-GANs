@@ -1,15 +1,11 @@
-from PIL import Image
-from matplotlib import pyplot as plt
-from torch.utils.data import Dataset
-import pandas as pd
 import torch
 import os
 
+import torch
 import torchvision
 import torchvision.transforms as transforms
 
-from src.ml.datasets.generate_dataset import add_line_to_csv, create_latent_space_dataset, train_direction_matrix, \
-    generate_dataset, train_and_save_gan, test_generator_and_show_plot
+from src.ml.datasets.generate_dataset import add_line_to_csv, test_generator_and_show_plot
 from src.ml.models.cifar10.cifar10_discriminator import Cifar10Discriminator
 from src.ml.models.cifar10.cifar10_generator import Cifar10Generator
 from src.ml.models.cifar10.cifar10_reconstructor import Cifar10Reconstructor
@@ -32,7 +28,7 @@ num_imgs = 10000
 
 map_anomalies = True
 map_normals = True
-tmp_directory = '../data_backup'
+tmp_directory = '../data_temp'
 data_root_directory = '../data'
 dataset_name = 'DS6_cifar10_plane_horse'
 
@@ -65,7 +61,7 @@ def generate_anomalies(dataset_folder, csv_path, temp_directory, ano_fraction):
         if d[1] == ano_class:
             anos.append(d)
 
-    anos = anos[:round(len(anos)*ano_fraction)]
+    anos = anos[:round(len(anos) * ano_fraction)]
     for i, img in enumerate(anos):
         img = (img[0] * 0.5) + 0.5
         img = transforms.ToPILImage()(img)
@@ -83,7 +79,6 @@ transform = transforms.Compose(
 cifar10_generator = Cifar10Generator(size_z=size_z, num_feature_maps=num_feature_maps_g).to(device)
 cifar10_discriminator = Cifar10Discriminator(num_feature_maps=num_feature_maps_d).to(device)
 cifar10_reconstructor = Cifar10Reconstructor(directions_count=directions_count, width=2).to(device)
-
 
 # generate_dataset(root_dir=data_root_directory,
 #                  temp_directory=tmp_directory,
@@ -132,4 +127,4 @@ cifar10_reconstructor = Cifar10Reconstructor(directions_count=directions_count, 
 #                             start_with_image_number=782)
 
 test_generator_and_show_plot(64, size_z, cifar10_generator,
-               '/home/yashar/git/AD-with-GANs/data/DS6_cifar10_plane_horse/generator.pkl', device)
+                             '/home/yashar/git/AD-with-GANs/data/DS6_cifar10_plane_horse/generator.pkl', device)

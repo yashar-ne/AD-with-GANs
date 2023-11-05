@@ -1,15 +1,15 @@
+import csv
+import os
+import random
+import shutil
+
+import torch
 from torch.utils.data import RandomSampler
+from torchvision import datasets
 from torchvision.datasets import MNIST
 from torchvision.transforms import transforms
 
 from src.ml.datasets.ano_mnist import AnoDataset
-from torchvision import datasets
-import torch
-
-import os
-import shutil
-import random
-import csv
 
 
 def generate_lined_mnist_images(base_folder, num, max_augmentation_thickness=5,
@@ -29,7 +29,7 @@ def generate_lined_mnist_images(base_folder, num, max_augmentation_thickness=5,
         dataset = dataset.data
 
     ano_mnist_drop_folder = os.path.join(base_folder, "AnoMNIST")
-    csv_path = os.path.join(ano_mnist_drop_folder, "anomnist_dataset.csv")
+    csv_path = os.path.join(ano_mnist_drop_folder, "ano_dataset.csv")
 
     os.makedirs(base_folder, exist_ok=True)
     os.makedirs(ano_mnist_drop_folder, exist_ok=True)
@@ -55,7 +55,7 @@ def generate_lined_mnist_images(base_folder, num, max_augmentation_thickness=5,
 
 def generate_lined_image_files(base_folder, num, labels=[]):
     ano_mnist_drop_folder = os.path.join(base_folder, "AnoMNIST")
-    csv_path = os.path.join(ano_mnist_drop_folder, "anomnist_dataset.csv")
+    csv_path = os.path.join(ano_mnist_drop_folder, "ano_dataset.csv")
 
     if os.path.exists(ano_mnist_drop_folder):
         shutil.rmtree(ano_mnist_drop_folder)
@@ -105,7 +105,7 @@ def get_ano_class_mnist_dataset(root_dir, transform, norm_class=9, ano_class=6, 
     norms = [d for d in mnist_dataset if (d[1] == norm_class)]
     anos = [d for d in mnist_dataset if (d[1] == ano_class)]
 
-    return torch.utils.data.ConcatDataset([norms, anos[:round(ano_fraction*len(anos))]])
+    return torch.utils.data.ConcatDataset([norms, anos[:round(ano_fraction * len(anos))]])
 
 
 # generate_anomalous_image_files(base_folder='/home/yashar/git/python/AD-with-GANs/data', num=2000, labels=[9]) # num normals 5949
