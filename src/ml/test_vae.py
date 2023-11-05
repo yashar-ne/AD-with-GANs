@@ -1,3 +1,4 @@
+import torch
 from matplotlib import pyplot as plt
 from torchvision.transforms import transforms
 
@@ -31,25 +32,37 @@ def result_grid(n_col, n_rows, original_data, recreation_data):
     plt.show()
 
 
+########################################################
+
+batch_size = 128
 transform = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize(mean=(0.5,),
-                         std=(0.5,),
-                         inplace=True),
 ])
 
-train_set = get_dataloader(
+full_dataset = get_dataloader(
     dataset_folder="/home/yashar/git/AD-with-GANs/data/DS8_fashion_mnist_shirt_sneaker/dataset_raw",
     batch_size=128,
     transform=transform)
 
-model = BetaVAE(in_channels=1, latent_dim=10, kl_weight=1)
-solver = Solver(model, train_set)
+train_size = int(0.9 * len(full_dataset.dataset))
+val_size = len(full_dataset.dataset) - train_size
+train_set, val_set = torch.utils.data.random_split(full_dataset.dataset, [train_size, val_size])
 
-solver.train(50)
+test_set = full_dataset.dataset
+
+model = BetaVAE(in_channels=1, latent_dim=10, kl_weight=1)
+
+kwargs = {'learning_rate': 1e-3,
+          'batch_size': 512,
+          'lr_rate_decay': 0.5,
+          'decay_every_': 10,
+          'weight_decay': 1e-5}
+solver = Solver(model, train_set, val_set, test_set, **kwargs)
+
+solver.train(200)
 solver.plot_training_loss()
 
-_, (X_test, _) = next(enumerate(train_set))
+_, (X_test, _) = next(enumerate(full_dataset))
 output, (_, _) = model.forward(X_test)
 
 n_col = 6

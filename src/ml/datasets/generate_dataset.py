@@ -26,13 +26,13 @@ def get_dataloader(dataset_folder, batch_size, transform=None, nrows=0, shuffle=
             transforms.Normalize(mean=(.5,), std=(.5,))
         ])
 
-    ano_mnist_dataset = AnoDataset(
+    ano_dataset = AnoDataset(
         root_dir=dataset_folder,
         transform=transform,
         nrows=nrows,
     )
 
-    return torch.utils.data.DataLoader(ano_mnist_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=2)
+    return torch.utils.data.DataLoader(ano_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=2)
 
 
 def generate_dataset(root_dir, temp_directory, dataset_name, generate_normals, generate_anomalies, ano_fraction):
