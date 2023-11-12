@@ -145,3 +145,6 @@ model_gen.ckpt
 /data_temp/
 /checkpoints/
 /add_pythonpath.sh
+
+*.pkl
+*.BACKUP
