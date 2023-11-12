@@ -3,9 +3,8 @@ import io
 import os
 from operator import itemgetter
 
-from PIL import Image
-
 import torch
+from PIL import Image
 from matplotlib import pyplot as plt
 from matplotlib.pyplot import imshow
 

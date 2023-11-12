@@ -31,7 +31,7 @@ map_anomalies = True
 map_normals = True
 tmp_directory = '../data_temp'
 data_root_directory = '../data'
-dataset_name = 'DS8_fashionMnist_shirt_sneaker'
+dataset_name = 'DS5_celebA_bald'
 
 
 class AnoCelebA(Dataset):

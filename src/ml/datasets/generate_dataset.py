@@ -6,11 +6,11 @@ import shutil
 import torch
 import torch.optim as optim
 import torchvision
+from PIL import Image, ImageOps
 from matplotlib import pyplot as plt
 from matplotlib.pyplot import imshow
 from torch import nn
 from torch.utils.data import DataLoader
-from torchvision import transforms
 
 from src.ml.datasets.ano_mnist import AnoDataset
 from src.ml.latent_direction_explorer import LatentDirectionExplorer
@@ -19,13 +19,7 @@ from src.ml.models.base.discriminator import Discriminator
 from src.ml.models.base.generator import Generator
 
 
-def get_dataloader(dataset_folder, batch_size, transform=None, nrows=0, shuffle=True):
-    if not transform:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean=(.5,), std=(.5,))
-        ])
-
+def get_dataloader(dataset_folder, batch_size, transform, nrows=0, shuffle=True):
     ano_dataset = AnoDataset(
         root_dir=dataset_folder,
         transform=transform,
@@ -58,6 +52,23 @@ def generate_dataset(root_dir, temp_directory, dataset_name, generate_normals, g
 
     generate_normals(dataset_folder, csv_path, temp_directory)
     generate_anomalies(dataset_folder, csv_path, temp_directory, ano_fraction)
+
+
+def equalize_image_sizes(final_image_size, root_dir, dataset_name):
+    dataset_folder = os.path.join(root_dir, dataset_name, 'dataset_raw')
+    for file in os.listdir(dataset_folder):
+        if file.endswith(".png"):
+            im = Image.open(file)
+            old_size = im.size
+
+            ratio = float(final_image_size) / max(old_size)
+            new_size = tuple([int(x * ratio) for x in old_size])
+
+            delta_w = final_image_size - new_size[0]
+            delta_h = final_image_size - new_size[1]
+            padding = (delta_w // 2, delta_h // 2, delta_w - (delta_w // 2), delta_h - (delta_h // 2))
+            new_im = ImageOps.expand(im, padding)
+            new_im.save(os.path.join(dataset_folder, file))
 
 
 def add_line_to_csv(csv_path, entries: list[str]):
@@ -243,13 +254,26 @@ def load_gan(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_map
     return generator, discriminator
 
 
-def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_maps_d,
-                                num_color_channels, device, max_opt_iterations=100000, generator=None,
-                                discriminator=None, transform=None, num_images=0, start_with_image_number=0,
-                                max_retries=3, opt_threshold=0.045, ignore_rules_below_threshold=0.055,
-                                immediate_retry_threshold=0.06, only_consider_anos=False,
-                                plateu_threshold=-1, check_every_n_iter=5000, learning_rate=0.001,
-                                print_every_n_iters=5000, retry_after_n_iters=5000, draw_images=False):
+def create_latent_space_dataset(root_dir,
+                                dataset_name,
+                                size_z,
+                                num_feature_maps_g,
+                                num_feature_maps_d,
+                                num_color_channels,
+                                device,
+                                n_iterations=100000,
+                                generator=None,
+                                discriminator=None,
+                                transform=None,
+                                num_images=0,
+                                start_with_image_number=0,
+                                max_retries=3,
+                                retry_threshold=0.06,
+                                only_consider_anos=False,
+                                retry_check_after_iter=5000,
+                                learning_rate=0.001,
+                                print_every_n_iters=5000,
+                                draw_images=False):
     print('MAPPING LATENT SPACE POINTS')
     dataset_folder = os.path.join(root_dir, dataset_name, 'dataset')
     dataset_raw_folder = os.path.join(root_dir, dataset_name, 'dataset_raw')
@@ -309,15 +333,11 @@ def create_latent_space_dataset(root_dir, dataset_name, size_z, num_feature_maps
         print(f"Label: {data_label.item()}")
 
         mapped_z, reconstruction_loss, retry = lsm.map_image_to_point_in_latent_space(image=data_point,
-                                                                                      max_opt_iterations=max_opt_iterations,
-                                                                                      plateu_threshold=plateu_threshold,
-                                                                                      check_every_n_iter=check_every_n_iter,
+                                                                                      n_iterations=n_iterations,
+                                                                                      retry_check_after_iter=retry_check_after_iter,
                                                                                       learning_rate=learning_rate,
                                                                                       print_every_n_iters=print_every_n_iters,
-                                                                                      retry_after_n_iters=retry_after_n_iters,
-                                                                                      ignore_rules_below_threshold=ignore_rules_below_threshold,
-                                                                                      opt_threshold=opt_threshold,
-                                                                                      immediate_retry_threshold=immediate_retry_threshold)
+                                                                                      retry_threshold=retry_threshold)
         if retry:
             if retry_counter == max_retries:
                 retry_counter = 0
