@@ -1,14 +1,14 @@
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
 
 
 class Reconstructor(nn.Module):
-    def __init__(self, directions_count, channels=1, width=2):
+    def __init__(self, directions_count, num_channels=1, width=2):
         super(Reconstructor, self).__init__()
 
         self.conv = nn.Sequential(
-            nn.Conv2d(channels * 2, 3 * width, kernel_size=2),
+            nn.Conv2d(num_channels * 2, 3 * width, kernel_size=2),
             nn.BatchNorm2d(3 * width),
             nn.ReLU(),
 

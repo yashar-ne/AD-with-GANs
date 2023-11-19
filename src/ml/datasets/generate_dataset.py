@@ -6,13 +6,13 @@ import shutil
 import torch
 import torch.optim as optim
 import torchvision
-from PIL import Image, ImageOps
+from PIL import Image
 from matplotlib import pyplot as plt
 from matplotlib.pyplot import imshow
 from torch import nn
 from torch.utils.data import DataLoader
 
-from src.ml.datasets.ano_mnist import AnoDataset
+from src.ml.datasets.ano_dataset import AnoDataset
 from src.ml.latent_direction_explorer import LatentDirectionExplorer
 from src.ml.latent_space_mapper import LatentSpaceMapper
 from src.ml.models.base.discriminator import Discriminator
@@ -54,21 +54,25 @@ def generate_dataset(root_dir, temp_directory, dataset_name, generate_normals, g
     generate_anomalies(dataset_folder, csv_path, temp_directory, ano_fraction)
 
 
-def equalize_image_sizes(final_image_size, root_dir, dataset_name):
+def equalize_image_sizes(final_image_size, root_dir, dataset_name, num_color_channels):
     dataset_folder = os.path.join(root_dir, dataset_name, 'dataset_raw')
+    background_color = (0, 0, 0) if num_color_channels == 3 else 0
     for file in os.listdir(dataset_folder):
         if file.endswith(".png"):
-            im = Image.open(file)
-            old_size = im.size
+            im = Image.open(os.path.join(dataset_folder, file))
+            width, height = im.size
+            if width == height:
+                im = im.resize((final_image_size, final_image_size))
+            elif width > height:
+                result = Image.new(im.mode, (width, width), background_color)
+                result.paste(im, (0, (width - height) // 2))
+                im = result.resize((final_image_size, final_image_size))
+            else:
+                result = Image.new(im.mode, (height, height), background_color)
+                result.paste(im, ((height - width) // 2, 0))
+                im = result.resize((final_image_size, final_image_size))
 
-            ratio = float(final_image_size) / max(old_size)
-            new_size = tuple([int(x * ratio) for x in old_size])
-
-            delta_w = final_image_size - new_size[0]
-            delta_h = final_image_size - new_size[1]
-            padding = (delta_w // 2, delta_h // 2, delta_w - (delta_w // 2), delta_h - (delta_h // 2))
-            new_im = ImageOps.expand(im, padding)
-            new_im.save(os.path.join(dataset_folder, file))
+            im.save(os.path.join(dataset_folder, file))
 
 
 def add_line_to_csv(csv_path, entries: list[str]):
@@ -197,8 +201,10 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
 
 def save_gan_models(dataset_folder, discriminator, generator):
     print("Saving Generator and Discriminator...")
-    torch.save(generator.state_dict(), os.path.join(dataset_folder, f'generator.pkl'))
-    torch.save(discriminator.state_dict(), os.path.join(dataset_folder, f'discriminator.pkl'))
+    torch.save(generator.state_dict(), os.path.join(dataset_folder, 'generator.pkl'))
+    torch.save(generator, os.path.join(dataset_folder, 'generator_model.pkl'))
+    torch.save(discriminator.state_dict(), os.path.join(dataset_folder, 'discriminator.pkl'))
+    torch.save(discriminator, os.path.join(dataset_folder, 'discriminator_model.pkl'))
 
 
 def save_gan_checkpoint(checkpoint_folder, size_z, discriminator, epoch, iteration, generator, device):
@@ -217,7 +223,14 @@ def save_gan_checkpoint(checkpoint_folder, size_z, discriminator, epoch, iterati
                                  filename=os.path.join(checkpoint_folder, f'{filename_state}_generated_images.png'))
 
 
-def train_direction_matrix(root_dir, dataset_name, direction_count, steps, device, use_bias=True, generator=None,
+def train_direction_matrix(root_dir,
+                           dataset_name,
+                           direction_count,
+                           steps,
+                           device,
+                           num_channels=1,
+                           use_bias=True,
+                           generator=None,
                            reconstructor=None):
     print('TRAINING DIRECTION MATRIX')
     dataset_root_folder = os.path.join(root_dir, dataset_name)
@@ -230,6 +243,7 @@ def train_direction_matrix(root_dir, dataset_name, direction_count, steps, devic
                                       directions_count=direction_count,
                                       bias=use_bias,
                                       device=device,
+                                      num_channels=num_channels,
                                       saved_models_path=direction_matrices_folder,
                                       generator=generator,
                                       reconstructor=reconstructor)
@@ -261,7 +275,7 @@ def create_latent_space_dataset(root_dir,
                                 num_feature_maps_d,
                                 num_color_channels,
                                 device,
-                                n_iterations=100000,
+                                n_latent_space_search_iterations=100000,
                                 generator=None,
                                 discriminator=None,
                                 transform=None,
@@ -287,7 +301,10 @@ def create_latent_space_dataset(root_dir,
 
     os.makedirs(dataset_folder, exist_ok=True)
     csv_path = os.path.join(dataset_folder, "latent_space_mappings.csv")
-    dataset = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=1, transform=transform, nrows=num_images,
+    dataset = get_dataloader(dataset_folder=dataset_raw_folder,
+                             batch_size=1,
+                             transform=transform,
+                             nrows=num_images,
                              shuffle=True)
 
     if not generator and not discriminator:
@@ -333,7 +350,7 @@ def create_latent_space_dataset(root_dir,
         print(f"Label: {data_label.item()}")
 
         mapped_z, reconstruction_loss, retry = lsm.map_image_to_point_in_latent_space(image=data_point,
-                                                                                      n_iterations=n_iterations,
+                                                                                      n_iterations=n_latent_space_search_iterations,
                                                                                       retry_check_after_iter=retry_check_after_iter,
                                                                                       learning_rate=learning_rate,
                                                                                       print_every_n_iters=print_every_n_iters,

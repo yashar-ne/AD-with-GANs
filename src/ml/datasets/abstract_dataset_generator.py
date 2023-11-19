@@ -1,10 +1,11 @@
+import os
 from abc import ABC, abstractmethod
 
 import torch
 import torchvision.transforms as transforms
 
 from src.ml.datasets.generate_dataset import create_latent_space_dataset, train_direction_matrix, generate_dataset, \
-    train_and_save_gan, equalize_image_sizes
+    train_and_save_gan, equalize_image_sizes, test_generator_and_show_plot
 from src.ml.models.base.discriminator_master import DiscriminatorMaster
 from src.ml.models.base.generator_master import GeneratorMaster
 from src.ml.models.base.reconstructor import Reconstructor
@@ -13,25 +14,25 @@ from src.ml.models.base.reconstructor import Reconstructor
 class AbstractDatasetGenerator(ABC):
     def __init__(self,
                  dataset_name,
+                 num_color_channels,
+                 gan_num_epochs,
+                 num_imgs=0,
                  root_dir='../data',
                  temp_directory='../data_temp',
-                 num_color_channels=3,
                  batch_size=512,
                  image_size=64,
                  size_z=100,
                  learning_rate=0.001,
-                 gan_num_epochs=2500,
                  num_feature_maps_g=64,
                  num_feature_maps_d=64,
-                 num_imgs=0,
                  save_checkpoint_every_n_epoch=100,
                  directions_count=30,
                  direction_train_steps=2500,
                  use_bias=True,
-                 n_iterations=5000,
+                 n_latent_space_search_iterations=5000,
                  max_retries=5,
                  retry_threshold=0.1,
-                 only_consider_anos=True,
+                 only_consider_anos=False,
                  retry_check_after_iter=2500,
                  start_learning_rate=0.0001,
                  print_every_n_iters=2500,
@@ -52,7 +53,7 @@ class AbstractDatasetGenerator(ABC):
         self.directions_count = directions_count
         self.direction_train_steps = direction_train_steps
         self.use_bias = use_bias
-        self.n_iterations = n_iterations
+        self.n_latent_space_search_iterations = n_latent_space_search_iterations
         self.max_retries = max_retries
         self.retry_threshold = retry_threshold
         self.only_consider_anos = only_consider_anos
@@ -80,6 +81,7 @@ class AbstractDatasetGenerator(ABC):
                                                  dropout_rate=0.1).to(self.device)
 
         self.reconstructor = Reconstructor(directions_count=self.directions_count,
+                                           num_channels=self.num_color_channels,
                                            width=2).to(self.device)
 
     @abstractmethod
@@ -90,20 +92,21 @@ class AbstractDatasetGenerator(ABC):
     def generate_anomalies(self, dataset_folder, csv_path, temp_directory, ano_fraction):
         pass
 
-    def run_generate_dataset(self):
+    def run_generate_dataset(self, ano_fraction=0.1):
         generate_dataset(root_dir=self.root_dir,
                          temp_directory=self.temp_directory,
                          dataset_name=self.dataset_name,
                          generate_normals=self.generate_normals,
                          generate_anomalies=self.generate_anomalies,
-                         ano_fraction=0.1)
+                         ano_fraction=ano_fraction)
 
     def run_equalize_image_sizes(self):
         equalize_image_sizes(final_image_size=self.image_size,
                              root_dir=self.root_dir,
-                             dataset_name=self.dataset_name)
+                             dataset_name=self.dataset_name,
+                             num_color_channels=self.num_color_channels)
 
-    def run_train_and_save_gan(self):
+    def run_train_and_save_gan(self, display_generator_test=False):
         train_and_save_gan(root_dir=self.root_dir,
                            dataset_name=self.dataset_name,
                            size_z=self.size_z,
@@ -119,6 +122,13 @@ class AbstractDatasetGenerator(ABC):
                            transform=self.transform,
                            num_imgs=self.num_imgs,
                            save_checkpoint_every_n_epoch=self.save_checkpoint_every_n_epoch)
+
+        if display_generator_test:
+            test_generator_and_show_plot(128,
+                                         self.size_z,
+                                         self.generator,
+                                         os.path.join(self.root_dir, self.dataset_name, "generator.pkl"),
+                                         self.device)
 
     def run_train_direction_matrix(self):
         train_direction_matrix(root_dir=self.root_dir,
@@ -139,7 +149,7 @@ class AbstractDatasetGenerator(ABC):
                                     num_feature_maps_d=self.num_feature_maps_d,
                                     num_color_channels=self.num_color_channels,
                                     device=self.device,
-                                    n_iterations=self.n_iterations,
+                                    n_latent_space_search_iterations=self.n_latent_space_search_iterations,
                                     generator=self.generator,
                                     discriminator=self.discriminator,
                                     max_retries=self.max_retries,
@@ -150,8 +160,8 @@ class AbstractDatasetGenerator(ABC):
                                     print_every_n_iters=self.print_every_n_iters,
                                     draw_images=self.draw_images)
 
-    def run(self):
-        self.run_generate_dataset()
+    def run(self, ano_fraction):
+        self.run_generate_dataset(ano_fraction=ano_fraction)
         self.run_equalize_image_sizes()
         self.run_train_and_save_gan()
         self.run_train_direction_matrix()

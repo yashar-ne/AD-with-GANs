@@ -8,12 +8,18 @@ import torch.nn as nn
 from src.ml.models.base.generator import Generator
 from src.ml.models.base.matrix_a_linear import MatrixALinear
 from src.ml.models.base.reconstructor import Reconstructor
-
 from src.ml.tools.utils import generate_noise
 
 
 class LatentDirectionExplorer:
-    def __init__(self, z_dim, directions_count, device, bias=True, saved_models_path='../../saved_models', generator=None, reconstructor=None):
+    def __init__(self, z_dim,
+                 directions_count,
+                 device,
+                 saved_models_path,
+                 num_channels=1,
+                 bias=True,
+                 generator=None,
+                 reconstructor=None):
         super(LatentDirectionExplorer, self).__init__()
         self.min_shift = 0.5
         self.shift_scale = 6.0
@@ -40,7 +46,9 @@ class LatentDirectionExplorer:
 
         # init Reconstructor
         if not reconstructor:
-            self.reconstructor = Reconstructor(directions_count=self.matrix_a.input_dim).to(device)
+            self.reconstructor = (
+                Reconstructor(directions_count=self.matrix_a.input_dim, num_channels=num_channels).to(device)
+            )
         else:
             self.reconstructor = reconstructor
 
@@ -121,4 +129,3 @@ class LatentDirectionExplorer:
         torch.save(self.matrix_a.state_dict(), f'{self.saved_models_path}/cp/matrix_a_{time.time()}_{iteration}.pkl')
         torch.save(self.reconstructor.state_dict(),
                    f'{self.saved_models_path}/cp/reconstructor_{time.time()}_{iteration}.pkl')
-

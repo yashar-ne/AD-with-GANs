@@ -28,6 +28,7 @@ class MainController:
         for dataset_name in self.dataset_names:
             matrix_a_path = os.path.join(base_path, dataset_name, 'direction_matrices')
             generator_path = os.path.join(base_path, dataset_name, 'generator.pkl')
+            generator_model_path = os.path.join(base_path, dataset_name, 'generator_model.pkl')
             direction_matrices = {}
             for f in os.listdir(matrix_a_path):
                 if os.path.isfile(os.path.join(matrix_a_path, f)):
@@ -40,8 +41,9 @@ class MainController:
                     matrix_a_linear.load_state_dict(matrix_state)
                     direction_matrices.update({f: {'matrix_a': matrix_a_linear, 'direction_count': input_dim}})
 
-            g = self.get_generator_by_dataset_name(dataset_name)
-            g.load_state_dict(torch.load(generator_path, map_location=torch.device(self.device)))
+            # g = self.get_generator_by_dataset_name(dataset_name)
+            g = torch.load(generator_model_path, map_location=torch.device(self.device))
+            # g.load_state_dict(torch.load(generator_path, map_location=torch.device(self.device)))
             self.datasets.update({
                 dataset_name: {
                     'direction_matrices': direction_matrices,
@@ -137,4 +139,8 @@ class MainController:
             case "DS7_stl10_plane_horse":
                 return Stl10Generator(size_z=self.z_dim, num_feature_maps=32)
             case _:
-                return Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1)
+                try:
+                    return Generator(size_z=self.z_dim, num_feature_maps=64,
+                                     num_color_channels=3)
+                except:
+                    return Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1)
