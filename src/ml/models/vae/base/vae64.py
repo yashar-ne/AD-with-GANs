@@ -124,6 +124,11 @@ class VAE64(nn.Module):
         loss = mse_loss + self.beta * self.kl_weight * kl_div
         return loss, (mse_loss, kl_div)
 
+    def predict(self, x):
+        output, _, _ = self.forward(x)
+        return nn.functional.binary_cross_entropy(output.view(x.shape[0], -1),
+                                                  x.to(self.device).view(x.shape[0], -1))
+
     def compute_reconstruction_probability(self, img):
         batch_size = len(img)
         latent_mu, latent_sigma = self.encoder(img)
@@ -155,3 +160,10 @@ class VAE64(nn.Module):
                 plt.subplot(122)
                 plt.imshow(np.squeeze(out_img))
                 plt.show()
+
+    def predict_samples(self, dataset, num_samples=10):
+        self.eval()
+        for data in random.sample(list(dataset), num_samples):
+            imgs, _ = data
+            loss = self.predict(imgs.to(self.device))
+            print(loss.item())
