@@ -3,8 +3,8 @@ from matplotlib import pyplot as plt
 from torchvision.transforms import transforms
 
 from src.ml.datasets.generate_dataset import get_dataloader
-from src.ml.models.vae.base.solver import Solver
-from src.ml.models.vae.base.vae import BetaVAE
+from src.ml.models.vae.base.beta_vae import BetaVAE
+from src.ml.models.vae.base.beta_vae_solver import BetaVAESolver
 
 
 def result_grid(n_col, n_rows, original_data, recreation_data):
@@ -40,7 +40,7 @@ transform = transforms.Compose([
 ])
 
 full_dataset = get_dataloader(
-    dataset_folder="/home/yashar/git/AD-with-GANs/data/DS8_fashion_mnist_shirt_sneaker/dataset_raw",
+    dataset_folder="/home/yashar/git/AD-with-GANs/data/DS14_fashionmnist_shirt_sneaker/dataset_raw",
     batch_size=128,
     transform=transform)
 
@@ -57,9 +57,9 @@ kwargs = {'learning_rate': 1e-3,
           'lr_rate_decay': 0.5,
           'decay_every_': 10,
           'weight_decay': 1e-5}
-solver = Solver(model, train_set, val_set, test_set, **kwargs)
+solver = BetaVAESolver(model, train_set, val_set, test_set, **kwargs)
 
-solver.train(200)
+solver.train_model(200)
 solver.plot_training_loss()
 
 _, (X_test, _) = next(enumerate(full_dataset))

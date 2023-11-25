@@ -3,12 +3,12 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from src.ml.models.vae.base.vae import BetaVAE
+from src.ml.models.vae.base.beta_vae import BetaVAE
 
 torch.set_default_dtype(torch.float)
 
 
-class Solver(object):
+class BetaVAESolver(object):
     def __init__(self, model: BetaVAE, train_set, validation_set=None, test_set=None, **kwargs):
         self.model = model
         self.train_set = train_set
@@ -34,7 +34,7 @@ class Solver(object):
 
         self.model.to(self.device)
 
-        # Reset all of my saved history
+        # Reset saved history
         self._reset()
         self.epoch_acc = None
 
@@ -56,9 +56,9 @@ class Solver(object):
             image {tensor} -- Input to model
         """
         # Forward pass
-        output, (mu, logsigma) = self.model(image)
+        output, (mu, log_sigma) = self.model(image)
 
-        loss, (mse_loss, kl_div) = self.model.compute_loss(image, output, mu, logsigma)
+        loss, (mse_loss, kl_div) = self.model.compute_loss(image, output, mu, log_sigma)
 
         # Backward
         self.optimizer.zero_grad()
@@ -69,7 +69,7 @@ class Solver(object):
         self.train_kl_loss.append(kl_div.item())
         self.train_mse_loss.append(mse_loss.item())
 
-    def train(self, num_epochs=10):
+    def train_model(self, num_epochs=10):
         train_loader = DataLoader(self.train_set,
                                   batch_size=self.batch_size,
                                   shuffle=True)
@@ -97,9 +97,9 @@ class Solver(object):
                         image, _ = data
                         image.to(self.device)
 
-                        output, (mu, logsigma) = self.model(image)
+                        output, (mu, log_sigma) = self.model(image)
 
-                        loss, (mse_loss, kl_div) = self.model.compute_loss(image, output, mu, logsigma)
+                        loss, (mse_loss, kl_div) = self.model.compute_loss(image, output, mu, log_sigma)
 
                         self.val_loss_history.append(loss.item())
                         self.val_kl_loss.append(kl_div.item())
@@ -109,27 +109,6 @@ class Solver(object):
                                                Loss=torch.tensor(self.val_loss_history[-10:]).mean().item(),
                                                KL_loss=torch.tensor(self.val_kl_loss[-10:]).mean().item(),
                                                MSE_loss=torch.tensor(self.val_mse_loss[-10:]).mean().item())
-
-                # Finnish the epoch with updating the lr_rate.
-                self.scheduler.step()
-
-    def overtrain_sample(self, num_epochs=10):
-        train_loader = DataLoader(self.train_set,
-                                  batch_size=self.batch_size,
-                                  shuffle=True)
-
-        for epoch in range(num_epochs):
-            with tqdm(train_loader, desc='Training', position=0, leave=True) as Batches:
-                self.model.train()
-                for data in Batches:
-                    image, _ = data
-                    image.to(self.device)
-
-                    self._train_step(image)
-                    Batches.set_postfix(Epoch=f'{epoch + 1}/{num_epochs}',
-                                        Loss=torch.tensor(self.train_loss_history[-10:]).mean().item(),
-                                        KL_loss=torch.tensor(self.train_kl_loss[-10:]).mean().item(),
-                                        MSE_loss=torch.tensor(self.train_mse_loss[-10:]).mean().item())
 
                 # Finnish the epoch with updating the lr_rate.
                 self.scheduler.step()
