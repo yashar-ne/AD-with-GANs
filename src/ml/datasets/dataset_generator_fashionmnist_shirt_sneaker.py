@@ -12,7 +12,7 @@ class DatasetGeneratorMnist_9_6(AbstractDatasetGenerator):
         super().__init__(
             dataset_name='DS14_fashionmnist_shirt_sneaker',
             num_color_channels=1,
-            gan_num_epochs=50,
+            num_epochs=50,
             n_latent_space_search_iterations=1000,
             draw_images=True,
             num_imgs=0,

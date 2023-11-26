@@ -11,10 +11,12 @@ from matplotlib import pyplot as plt
 from matplotlib.pyplot import imshow
 from torch import nn
 from torch.utils.data import DataLoader
+from torchvision.transforms import transforms
 
 from src.ml.datasets.ano_dataset import AnoDataset
 from src.ml.latent_direction_explorer import LatentDirectionExplorer
 from src.ml.latent_space_mapper import LatentSpaceMapper
+from src.ml.models.base.beta_vae64 import BetaVAE64
 from src.ml.models.base.discriminator import Discriminator
 from src.ml.models.base.generator import Generator
 
@@ -266,6 +268,24 @@ def load_gan(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_map
         torch.load(os.path.join(root_dir, dataset_name, "discriminator.pkl"), map_location=torch.device(device)))
 
     return generator, discriminator
+
+
+def train_beta_vae(device, root_dir, dataset_name, num_color_channels, num_epochs, batch_size):
+    print('TRAINING BETA VARIATIONAL AUTOENCODER FOR VALIDATION')
+    dataset_folder = os.path.join(root_dir, dataset_name)
+    dataset_raw_folder = os.path.join(dataset_folder, 'dataset_raw')
+    checkpoint_folder = os.path.join(root_dir, '..', 'checkpoints', dataset_name)
+    if os.path.exists(checkpoint_folder): shutil.rmtree(checkpoint_folder)
+
+    vae = BetaVAE64(device=device, num_color_channels=num_color_channels, num_epochs=num_epochs)
+
+    transform = transforms.Compose([transforms.ToTensor()])
+    dataloader = get_dataloader(dataset_folder=dataset_raw_folder,
+                                batch_size=batch_size,
+                                transform=transform)
+
+    vae.train_model(dataloader)
+    torch.save(vae, os.path.join(dataset_folder, 'vae_model.pkl'))
 
 
 def create_latent_space_dataset(root_dir,

@@ -2,26 +2,27 @@ import torch
 from torchvision.transforms import transforms
 
 from src.ml.datasets.generate_dataset import get_dataloader
-from src.ml.models.vae.base.vae64 import VAE64
+from src.ml.models.base.beta_vae64 import BetaVAE64
+from src.ml.validation import get_vae_roc_auc_for_image_data
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 batch_size = 512
-learning_rate = 1e-3
-num_epochs = 30
+num_epochs = 40
+num_color_channels = 3
 transform = transforms.Compose([transforms.ToTensor()])
 
 full_dataloader = get_dataloader(
-    dataset_folder="/home/yashar/git/AD-with-GANs/data/DS14_fashionmnist_shirt_sneaker/dataset_raw",
+    # dataset_folder="/home/yashar/git/AD-with-GANs/data/DS12_mnist_9_6/dataset_raw",
+    dataset_folder="/home/yashar/git/AD-with-GANs/data/DS13_celeba_bald/dataset_raw",
     batch_size=batch_size,
     transform=transform)
 
-net = VAE64(device=device, img_channels=1, num_epochs=100)
-net.train_model(full_dataloader)
-net.draw_samples(full_dataloader, 10)
-net.predict_samples(full_dataloader)
+net = BetaVAE64(device=device, num_color_channels=num_color_channels, num_epochs=num_epochs)
+roc_auc = get_vae_roc_auc_for_image_data(root_dir='/home/yashar/git/AD-with-GANs/data', dataset_name='DS13_celeba_bald')
 
-# d = next(iter(full_dataloader))
-# loss = net.compute_reconstruction_probability(d[0][0].to(net.device))
-#
-# print(loss)
+print(roc_auc)
+
+# net.train_model(full_dataloader)
+# net.draw_samples(full_dataloader, 10)
+# net.predict_samples(full_dataloader)

@@ -1,10 +1,12 @@
-import torch
 import base64
 import io
+import os
 
-from torchvision.transforms import ToPILImage
+import torch
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import normalize
+from torchvision.transforms import ToPILImage
+
 from src.backend.models.ImageStripModel import ImageStripModel
 from src.ml.models.base.matrix_a_linear import MatrixALinear
 
@@ -89,3 +91,11 @@ def generate_base64_images_from_tensor_list(images_tensor_list):
         )
 
     return image_list
+
+
+def get_folders_from_dataset_name(root_dir, dataset_name):
+    dataset_folder = os.path.join(root_dir, dataset_name)
+    dataset_raw_folder = os.path.join(dataset_folder, 'dataset_raw')
+    checkpoint_folder = os.path.join(root_dir, '..', 'checkpoints', dataset_name)
+
+    return dataset_folder, dataset_raw_folder, checkpoint_folder

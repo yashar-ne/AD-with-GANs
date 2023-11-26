@@ -9,9 +9,9 @@ from src.ml.datasets.generate_dataset import add_line_to_csv
 class DatasetGeneratorMnist_9_6(AbstractDatasetGenerator):
     def __init__(self):
         super().__init__(
-            dataset_name='DS12_mnist_5_6',
+            dataset_name='DS12_mnist_9_6',
             num_color_channels=1,
-            gan_num_epochs=50,
+            num_epochs=50,
             n_latent_space_search_iterations=1000,
             draw_images=False,
             num_imgs=0,

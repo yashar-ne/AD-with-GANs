@@ -5,7 +5,7 @@ import torch
 import torchvision.transforms as transforms
 
 from src.ml.datasets.generate_dataset import create_latent_space_dataset, train_direction_matrix, generate_dataset, \
-    train_and_save_gan, equalize_image_sizes, test_generator_and_show_plot
+    train_and_save_gan, equalize_image_sizes, test_generator_and_show_plot, train_beta_vae
 from src.ml.models.base.discriminator_master import DiscriminatorMaster
 from src.ml.models.base.generator_master import GeneratorMaster
 from src.ml.models.base.reconstructor import Reconstructor
@@ -15,7 +15,7 @@ class AbstractDatasetGenerator(ABC):
     def __init__(self,
                  dataset_name,
                  num_color_channels,
-                 gan_num_epochs,
+                 num_epochs,
                  num_imgs=0,
                  root_dir='../data',
                  temp_directory='../data_temp',
@@ -45,7 +45,7 @@ class AbstractDatasetGenerator(ABC):
         self.image_size = image_size
         self.size_z = size_z
         self.learning_rate = learning_rate
-        self.gan_num_epochs = gan_num_epochs
+        self.num_epochs = num_epochs
         self.num_feature_maps_g = num_feature_maps_g
         self.num_feature_maps_d = num_feature_maps_d
         self.num_imgs = num_imgs
@@ -110,7 +110,7 @@ class AbstractDatasetGenerator(ABC):
         train_and_save_gan(root_dir=self.root_dir,
                            dataset_name=self.dataset_name,
                            size_z=self.size_z,
-                           num_epochs=self.gan_num_epochs,
+                           num_epochs=self.num_epochs,
                            num_feature_maps_g=self.num_feature_maps_g,
                            num_feature_maps_d=self.num_feature_maps_d,
                            num_color_channels=self.num_color_channels,
@@ -140,6 +140,14 @@ class AbstractDatasetGenerator(ABC):
                                generator=self.generator,
                                reconstructor=self.reconstructor)
 
+    def run_train_beta_vae(self):
+        train_beta_vae(device=self.device,
+                       root_dir=self.root_dir,
+                       dataset_name=self.dataset_name,
+                       num_color_channels=self.num_color_channels,
+                       num_epochs=self.num_epochs,
+                       batch_size=self.batch_size)
+
     def run_create_latent_space_dataset(self):
         create_latent_space_dataset(root_dir=self.root_dir,
                                     transform=self.transform,
@@ -165,4 +173,5 @@ class AbstractDatasetGenerator(ABC):
         self.run_equalize_image_sizes()
         self.run_train_and_save_gan()
         self.run_train_direction_matrix()
+        self.run_train_beta_vae()
         self.run_create_latent_space_dataset()

@@ -13,10 +13,9 @@ class DatasetGeneratorCelebA_Bald(AbstractDatasetGenerator):
         super().__init__(
             dataset_name='DS13_celeba_bald',
             num_color_channels=3,
-            gan_num_epochs=100,
+            num_epochs=20,
             n_latent_space_search_iterations=2000,
-            draw_images=False,
-            num_imgs=0,
+            draw_images=False
         )
 
     def generate_normals(self, dataset_folder, csv_path, temp_directory):
@@ -61,8 +60,9 @@ class DatasetGeneratorCelebA_Bald(AbstractDatasetGenerator):
 
 
 ds_generator = DatasetGeneratorCelebA_Bald()
-ds_generator.run_generate_dataset()
-ds_generator.run_equalize_image_sizes()
-ds_generator.run_train_and_save_gan(display_generator_test=True)
-ds_generator.run_train_direction_matrix()
-ds_generator.run_create_latent_space_dataset()
+# ds_generator.run_generate_dataset()
+# ds_generator.run_equalize_image_sizes()
+# ds_generator.run_train_and_save_gan(display_generator_test=True)
+# ds_generator.run_train_direction_matrix()
+ds_generator.run_train_beta_vae()
+# ds_generator.run_create_latent_space_dataset()
