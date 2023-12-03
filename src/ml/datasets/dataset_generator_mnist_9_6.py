@@ -11,10 +11,12 @@ class DatasetGeneratorMnist_9_6(AbstractDatasetGenerator):
         super().__init__(
             dataset_name='DS12_mnist_9_6',
             num_color_channels=1,
-            num_epochs=50,
-            n_latent_space_search_iterations=1000,
+            num_epochs=100,
+            n_latent_space_search_iterations=1500,
             draw_images=False,
             num_imgs=0,
+            directions_count=30,
+            direction_train_steps=1500
         )
 
     def generate_normals(self, dataset_folder, csv_path, temp_directory):
@@ -47,4 +49,11 @@ class DatasetGeneratorMnist_9_6(AbstractDatasetGenerator):
             add_line_to_csv(csv_path, [file_name, "True"])
 
 
-DatasetGeneratorMnist_9_6().run(ano_fraction=0.1)
+ds_generator = DatasetGeneratorMnist_9_6()
+
+# ds_generator.run_generate_dataset()
+# ds_generator.run_equalize_image_sizes()
+# ds_generator.run_train_and_save_gan()
+# ds_generator.run_train_direction_matrix()
+# ds_generator.run_train_beta_vae()
+ds_generator.run_create_latent_space_dataset()

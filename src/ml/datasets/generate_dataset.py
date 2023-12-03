@@ -214,11 +214,15 @@ def save_gan_checkpoint(checkpoint_folder, size_z, discriminator, epoch, iterati
     os.makedirs(checkpoint_folder, exist_ok=True)
     filename_state = f"epoch_{epoch}_iteration_{iteration}"
     generator_filename = f'{filename_state}_generator.pkl'
+    generator_model_filename = f'{filename_state}_generator_model.pkl'
     discriminator_filename = f'{filename_state}_discriminator.pkl'
+    discriminator_model_filename = f'{filename_state}_discriminator_model.pkl'
     torch.save(generator.state_dict(),
                os.path.join(checkpoint_folder, generator_filename))
+    torch.save(generator, os.path.join(checkpoint_folder, generator_model_filename))
     torch.save(discriminator.state_dict(),
                os.path.join(checkpoint_folder, discriminator_filename))
+    torch.save(discriminator, os.path.join(checkpoint_folder, discriminator_model_filename))
 
     # test_generator_and_show_plot(128, size_z, generator, os.path.join(checkpoint_folder, generator_filename), device)
     test_generator_and_save_plot(128, size_z, generator, os.path.join(checkpoint_folder, generator_filename), device,
@@ -348,7 +352,7 @@ def create_latent_space_dataset(root_dir,
     lsm: LatentSpaceMapper = LatentSpaceMapper(generator=generator, discriminator=discriminator, device=device)
     mapped_images = []
     cp_counter = 0
-    counter = len(dataset) - start_with_image_number + 1
+    counter = len(dataset) - start_with_image_number - 1
 
     i = start_with_image_number
     retry_counter = 0

@@ -106,7 +106,7 @@ class AbstractDatasetGenerator(ABC):
                              dataset_name=self.dataset_name,
                              num_color_channels=self.num_color_channels)
 
-    def run_train_and_save_gan(self, display_generator_test=False):
+    def run_train_and_save_gan(self, display_generator_test=True):
         train_and_save_gan(root_dir=self.root_dir,
                            dataset_name=self.dataset_name,
                            size_z=self.size_z,

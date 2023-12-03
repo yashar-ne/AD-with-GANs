@@ -9,6 +9,11 @@
         <div class="labeling_results_description_text">ROC Curve after performing distance metric on labeled directions</div>
       </div>
 
+      <div class="validation-results-grid-item" *ngIf="validationResults.roc_auc_for_vae_validation">
+        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_for_vae_validation}}">
+        <div class="labeling_results_description_text">ROC Curve after performing VAE reconstruction error score on image data</div>
+      </div>
+
       <div class="validation-results-grid-item" *ngIf="validationResults.roc_auc_for_image_data">
         <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_for_image_data}}">
         <div class="labeling_results_description_text">ROC Curve after performing Local Outlier Factor on plain image data</div>

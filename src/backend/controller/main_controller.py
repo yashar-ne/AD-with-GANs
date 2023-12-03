@@ -14,12 +14,13 @@ from src.ml.models.mvtec128.mvtec_generator import MvTecGenerator
 from src.ml.models.stl10.stl10_generator import Stl10Generator
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
     generate_base64_image_from_tensor
-from src.ml.validation import load_data_points, get_lof_roc_auc_for_given_dims, \
-    get_roc_auc_for_average_distance_metric
+from src.ml.validation import load_data_points, get_lof_roc_auc, \
+    get_roc_auc_for_average_distance_metric, get_vae_roc_auc_for_image_data
 
 
 class MainController:
     def __init__(self, base_path, z_dim, bias=False):
+        self.base_path = base_path
         self.dataset_names = os.listdir(base_path)
         self.z_dim = z_dim
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -29,6 +30,7 @@ class MainController:
             matrix_a_path = os.path.join(base_path, dataset_name, 'direction_matrices')
             generator_path = os.path.join(base_path, dataset_name, 'generator.pkl')
             generator_model_path = os.path.join(base_path, dataset_name, 'generator_model.pkl')
+            vae_model_path = os.path.join(base_path, dataset_name, 'vae_model.pkl')
             direction_matrices = {}
             for f in os.listdir(matrix_a_path):
                 if os.path.isfile(os.path.join(matrix_a_path, f)):
@@ -43,11 +45,13 @@ class MainController:
 
             # g = self.get_generator_by_dataset_name(dataset_name)
             g = torch.load(generator_model_path, map_location=torch.device(self.device))
+            vae = torch.load(vae_model_path, map_location=torch.device(self.device))
             # g.load_state_dict(torch.load(generator_path, map_location=torch.device(self.device)))
             self.datasets.update({
                 dataset_name: {
                     'direction_matrices': direction_matrices,
                     'generator': g,
+                    'vae': vae,
                     'data': load_data_points(os.path.join(base_path, dataset_name, 'dataset'))
                 }
             })
@@ -94,7 +98,7 @@ class MainController:
             latent_space_data_labels=latent_space_data_labels
         )
 
-        roc_auc_plot_ignore_labels, _ = get_lof_roc_auc_for_given_dims(
+        lof_roc_auc_plot_ignore_labels, _ = get_lof_roc_auc(
             direction_matrix=direction_matrix,
             anomalous_directions=anomalous_directions,
             latent_space_data_points=latent_space_data_points,
@@ -102,6 +106,10 @@ class MainController:
             n_neighbours=20,
             use_default_distance_metric=True
         )
+
+        roc_auc_for_vae_validation, _ = get_vae_roc_auc_for_image_data(root_dir=self.base_path,
+                                                                       dataset_name=dataset_name,
+                                                                       vae=self.datasets.get(dataset_name).get('vae'))
 
         # roc_auc_plot_image_data = get_lof_roc_auc_for_image_data(dataset_name=dataset_name, n_neighbours=20)
 
@@ -113,7 +121,8 @@ class MainController:
 
         return ValidationResultsModel(
             roc_auc_plot_one_hot=roc_auc,
-            roc_auc_plot_ignore_labels=roc_auc_plot_ignore_labels,
+            roc_auc_plot_ignore_labels=lof_roc_auc_plot_ignore_labels,
+            roc_auc_for_vae_validation=roc_auc_for_vae_validation
             # roc_auc_plot_image_data=roc_auc_plot_image_data
         )
 

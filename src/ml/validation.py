@@ -104,12 +104,12 @@ def get_lof_roc_auc_for_image_data(dataset_name, n_neighbours):
     return result
 
 
-def get_lof_roc_auc_for_given_dims(direction_matrix,
-                                   anomalous_directions,
-                                   latent_space_data_points,
-                                   latent_space_data_labels,
-                                   n_neighbours,
-                                   use_default_distance_metric=False):
+def get_lof_roc_auc(direction_matrix,
+                    anomalous_directions,
+                    latent_space_data_points,
+                    latent_space_data_labels,
+                    n_neighbours,
+                    use_default_distance_metric=False):
     direction_matrix = extract_weights_from_model(direction_matrix)
     weighted_lof = WeightedLocalOutlierFactor(direction_matrix=direction_matrix,
                                               anomalous_directions=anomalous_directions,
@@ -123,11 +123,14 @@ def get_lof_roc_auc_for_given_dims(direction_matrix,
     return get_roc_curve_as_base64(y, weighted_lof.get_negative_outlier_factor())
 
 
-def get_vae_roc_auc_for_image_data(root_dir, dataset_name):
+def get_vae_roc_auc_for_image_data(root_dir, dataset_name, vae=None):
     transform = torchvision.transforms.Compose(
         [torchvision.transforms.ToTensor()])
     dataset_folder, dataset_raw_folder, checkpoint_folder = get_folders_from_dataset_name(root_dir, dataset_name)
-    vae: BetaVAE64 = torch.load(os.path.join(dataset_folder, 'vae_model.pkl'))
+
+    if vae is None:
+        vae: BetaVAE64 = torch.load(os.path.join(dataset_folder, 'vae_model.pkl'))
+        
     vae.eval()
     vae.cpu()
     image_scores = []
