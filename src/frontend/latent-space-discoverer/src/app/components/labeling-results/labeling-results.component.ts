@@ -48,6 +48,4 @@ export class LabelingResultsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscription$?.unsubscribe()
   }
-
-  protected readonly undefined = undefined;
 }

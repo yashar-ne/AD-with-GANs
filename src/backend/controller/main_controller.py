@@ -7,15 +7,14 @@ from src.backend.db import save_session_labels_to_db
 from src.backend.models.SessionLabelsModel import SessionLabelsModel
 from src.backend.models.ValidationResultsModel import ValidationResultsModel
 from src.ml.latent_direction_visualizer import LatentDirectionVisualizer
-from src.ml.models.base.generator import Generator
 from src.ml.models.base.matrix_a_linear import MatrixALinear
-from src.ml.models.celebA.celeb_generator import CelebGenerator
-from src.ml.models.mvtec128.mvtec_generator import MvTecGenerator
-from src.ml.models.stl10.stl10_generator import Stl10Generator
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
     generate_base64_image_from_tensor
-from src.ml.validation import load_data_points, get_lof_roc_auc, \
-    get_roc_auc_for_average_distance_metric, get_vae_roc_auc_for_image_data
+from src.ml.validation.knn_validation import get_knn_validation
+from src.ml.validation.latent_distance_validation import get_roc_auc_for_average_distance_metric
+from src.ml.validation.lof_validation import get_roc_auc_lof
+from src.ml.validation.vae_validation import get_vae_roc_auc_for_image_data
+from src.ml.validation.validation_utils import load_data_points
 
 
 class MainController:
@@ -98,20 +97,16 @@ class MainController:
             latent_space_data_labels=latent_space_data_labels
         )
 
-        lof_roc_auc_plot_ignore_labels, _ = get_lof_roc_auc(
-            direction_matrix=direction_matrix,
-            anomalous_directions=anomalous_directions,
-            latent_space_data_points=latent_space_data_points,
-            latent_space_data_labels=latent_space_data_labels,
+        roc_auc_lof, _ = get_roc_auc_lof(
+            dataset_name=dataset_name,
             n_neighbours=20,
-            use_default_distance_metric=True
         )
 
-        roc_auc_for_vae_validation, _ = get_vae_roc_auc_for_image_data(root_dir=self.base_path,
-                                                                       dataset_name=dataset_name,
-                                                                       vae=self.datasets.get(dataset_name).get('vae'))
+        roc_auc_vae, _ = get_vae_roc_auc_for_image_data(root_dir=self.base_path,
+                                                        dataset_name=dataset_name,
+                                                        vae=self.datasets.get(dataset_name).get('vae'))
 
-        # roc_auc_plot_image_data = get_lof_roc_auc_for_image_data(dataset_name=dataset_name, n_neighbours=20)
+        roc_auc_1nn, _ = get_knn_validation(dataset_name=dataset_name, k=1)
 
         if not roc_auc:
             raise HTTPException(
@@ -120,10 +115,10 @@ class MainController:
             )
 
         return ValidationResultsModel(
-            roc_auc_plot_one_hot=roc_auc,
-            roc_auc_plot_ignore_labels=lof_roc_auc_plot_ignore_labels,
-            roc_auc_for_vae_validation=roc_auc_for_vae_validation
-            # roc_auc_plot_image_data=roc_auc_plot_image_data
+            roc_auc=roc_auc,
+            roc_auc_lof=roc_auc_lof,
+            roc_auc_vae=roc_auc_vae,
+            roc_auc_1nn=roc_auc_1nn,
         )
 
     @staticmethod
@@ -138,18 +133,3 @@ class MainController:
             .get('direction_matrices') \
             .get(direction_matrix_name) \
             .get('matrix_a')
-
-    def get_generator_by_dataset_name(self, dataset_name):
-        match dataset_name:
-            case "DS5_celebA_bald":
-                return CelebGenerator(size_z=self.z_dim, num_feature_maps=64)
-            case "DS9_mvtec_hazelnut" | "DS10_mvtec_hazelnut_5_percent":
-                return MvTecGenerator(size_z=self.z_dim, num_feature_maps=64)
-            case "DS7_stl10_plane_horse":
-                return Stl10Generator(size_z=self.z_dim, num_feature_maps=32)
-            case _:
-                try:
-                    return Generator(size_z=self.z_dim, num_feature_maps=64,
-                                     num_color_channels=3)
-                except:
-                    return Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1)

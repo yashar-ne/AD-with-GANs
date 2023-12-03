@@ -3,26 +3,27 @@
   <ng-container *ngIf="validationResults else imagesLoading">
     <div class="labeling_results_title_text">Session done. You successfully labeled all directions</div>
 
-    <div class="validation-results-grid-wrapper" *ngIf="validationResults.roc_auc_plot_one_hot">
+    <div class="validation-results-grid-wrapper" *ngIf="validationResults.roc_auc">
       <div class="validation-results-grid-item">
-        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_plot_one_hot}}">
+        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc}}">
         <div class="labeling_results_description_text">ROC Curve after performing distance metric on labeled directions</div>
       </div>
 
-      <div class="validation-results-grid-item" *ngIf="validationResults.roc_auc_for_vae_validation">
-        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_for_vae_validation}}">
+      <div class="validation-results-grid-item" *ngIf="validationResults.roc_auc_vae">
+        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_vae}}">
         <div class="labeling_results_description_text">ROC Curve after performing VAE reconstruction error score on image data</div>
       </div>
 
-      <div class="validation-results-grid-item" *ngIf="validationResults.roc_auc_for_image_data">
-        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_for_image_data}}">
+      <div class="validation-results-grid-item" *ngIf="validationResults.roc_auc_lof">
+        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_lof}}">
         <div class="labeling_results_description_text">ROC Curve after performing Local Outlier Factor on plain image data</div>
       </div>
 
-      <div class="validation-results-grid-item" *ngIf="validationResults.roc_auc_plot_ignore_labels">
-        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_plot_ignore_labels}}">
-        <div class="labeling_results_description_text">ROC Curve after performing Local Outlier Factor (eucledean distance)</div>
+      <div class="validation-results-grid-item" *ngIf="validationResults.roc_auc_1nn">
+        <img class="latent_image" src="{{'data:image/png;base64,' + validationResults.roc_auc_1nn}}">
+        <div class="labeling_results_description_text">ROC Curve after performing 1-NN on plain image data</div>
       </div>
+
     </div>
     <button
       class="button yes"
