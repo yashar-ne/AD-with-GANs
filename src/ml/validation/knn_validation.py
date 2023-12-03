@@ -24,8 +24,9 @@ def get_knn_validation(dataset_name, k):
             X.append(np.asarray(img).flatten())
             y.append(1 if row[1] == 'True' else 0)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.95)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
     knn = KNeighborsClassifier(n_neighbors=k)
     knn.fit(X_train, y_train)
+    pred = knn.predict(X_test)
 
-    return get_roc_curve_as_base64(y_test, knn.predict(X_test))
+    return get_roc_curve_as_base64(y_test, pred)

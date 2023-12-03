@@ -26,4 +26,4 @@ class AnoDataset(Dataset):
         if self.transform:
             image = self.transform(image)
 
-        return image, image_label
+        return image, image_label, self.label.iloc[idx, 0]

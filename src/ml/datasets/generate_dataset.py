@@ -1,5 +1,4 @@
 import csv
-import math
 import os
 import shutil
 
@@ -358,8 +357,8 @@ def create_latent_space_dataset(root_dir,
     retry_counter = 0
     iterator = iter(dataset)
     if start_with_image_number == 0:
-        add_line_to_csv(csv_path=csv_path, entries=["filename", "label", "reconstruction_loss"])
-        data_point, data_label = next(iterator)
+        add_line_to_csv(csv_path=csv_path, entries=["filename", "label", "original_filename", "reconstruction_loss"])
+        data_point, data_label, orig_filename = next(iterator)
 
     for i in range(start_with_image_number):
         data_point, data_label = next(iterator)
@@ -405,13 +404,14 @@ def create_latent_space_dataset(root_dir,
 
         mapped_images.append(mapped_z)
         add_line_to_csv(csv_path=csv_path,
-                        entries=[f'mapped_z_{counter}.pt', data_label.item(), math.floor(reconstruction_loss)])
+                        entries=[f'mapped_z_{counter}.pt', data_label.item(), orig_filename[0],
+                                 reconstruction_loss])
         torch.save(mapped_z, os.path.join(dataset_folder, f'mapped_z_{counter}.pt'))
         cp_counter += 1
 
         i += 1
         counter -= 1
-        data_point, data_label = next(iterator)
+        data_point, data_label, orig_filename = next(iterator)
 
     print('All images in dataset were mapped')
 

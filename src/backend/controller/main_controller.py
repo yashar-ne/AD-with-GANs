@@ -10,6 +10,7 @@ from src.ml.latent_direction_visualizer import LatentDirectionVisualizer
 from src.ml.models.base.matrix_a_linear import MatrixALinear
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
     generate_base64_image_from_tensor
+from src.ml.validation.ano_gan_validation import get_roc_auc_for_ano_gan_validation
 from src.ml.validation.knn_validation import get_knn_validation
 from src.ml.validation.latent_distance_validation import get_roc_auc_for_average_distance_metric
 from src.ml.validation.lof_validation import get_roc_auc_lof
@@ -108,6 +109,8 @@ class MainController:
 
         roc_auc_1nn, _ = get_knn_validation(dataset_name=dataset_name, k=1)
 
+        roc_auc_ano_gan, _ = get_roc_auc_for_ano_gan_validation(dataset_name=dataset_name)
+
         if not roc_auc:
             raise HTTPException(
                 status_code=status.HTTP_406_NOT_ACCEPTABLE,
@@ -119,6 +122,7 @@ class MainController:
             roc_auc_lof=roc_auc_lof,
             roc_auc_vae=roc_auc_vae,
             roc_auc_1nn=roc_auc_1nn,
+            roc_auc_ano_gan=roc_auc_ano_gan,
         )
 
     @staticmethod
