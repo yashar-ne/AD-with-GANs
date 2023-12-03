@@ -4,12 +4,11 @@ import random
 import shutil
 
 import torch
+from src.ml.dataset_generation.ano_mnist import AnoDataset
 from torch.utils.data import RandomSampler
 from torchvision import datasets
 from torchvision.datasets import MNIST
 from torchvision.transforms import transforms
-
-from src.ml.datasets.ano_mnist import AnoDataset
 
 
 def generate_lined_mnist_images(base_folder, num, max_augmentation_thickness=5,

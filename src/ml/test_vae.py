@@ -1,7 +1,7 @@
 import torch
 from torchvision.transforms import transforms
 
-from src.ml.datasets.generate_dataset import get_dataloader
+from src.ml.dataset_generation.generate_dataset import get_dataloader
 from src.ml.models.base.beta_vae64 import BetaVAE64
 from src.ml.validation.vae_validation import get_vae_roc_auc_for_image_data
 

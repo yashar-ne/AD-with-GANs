@@ -2,8 +2,8 @@ import os
 
 from PIL import Image, ImageOps
 
-from src.ml.datasets.abstract_dataset_generator import AbstractDatasetGenerator
-from src.ml.datasets.generate_dataset import add_line_to_csv
+from src.ml.dataset_generation.abstract_dataset_generator import AbstractDatasetGenerator
+from src.ml.dataset_generation.generate_dataset import add_line_to_csv
 
 
 class DatasetGeneratorMvTecHazelnut(AbstractDatasetGenerator):

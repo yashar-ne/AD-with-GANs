@@ -2,14 +2,14 @@ import os
 
 from torchvision.datasets import MNIST
 
-from src.ml.datasets.abstract_dataset_generator import AbstractDatasetGenerator
-from src.ml.datasets.generate_dataset import add_line_to_csv
+from src.ml.dataset_generation.abstract_dataset_generator import AbstractDatasetGenerator
+from src.ml.dataset_generation.generate_dataset import add_line_to_csv
 
 
 class DatasetGeneratorMnist_9_6(AbstractDatasetGenerator):
     def __init__(self):
         super().__init__(
-            dataset_name='mnist_9_6_with_ano_gan',
+            dataset_name='DS12_mnist_9_6',
             num_color_channels=1,
             num_epochs=100,
             n_latent_space_search_iterations=1500,
@@ -56,4 +56,4 @@ ds_generator = DatasetGeneratorMnist_9_6()
 # ds_generator.run_train_and_save_gan()
 # ds_generator.run_train_direction_matrix()
 # ds_generator.run_train_beta_vae()
-# ds_generator.run_create_latent_space_dataset()
+ds_generator.run_create_latent_space_dataset()

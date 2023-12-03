@@ -12,7 +12,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torchvision.transforms import transforms
 
-from src.ml.datasets.ano_dataset import AnoDataset
+from src.ml.dataset_generation.ano_dataset import AnoDataset
 from src.ml.latent_direction_explorer import LatentDirectionExplorer
 from src.ml.latent_space_mapper import LatentSpaceMapper
 from src.ml.models.base.beta_vae64 import BetaVAE64

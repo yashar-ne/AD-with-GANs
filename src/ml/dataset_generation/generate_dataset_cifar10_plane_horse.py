@@ -1,44 +1,44 @@
-import torch
 import os
 
 import torch
 import torchvision
 import torchvision.transforms as transforms
 
-from src.ml.datasets.generate_dataset import add_line_to_csv, test_generator_and_show_plot
-from src.ml.models.stl10.stl10_discriminator import Stl10Discriminator1
-from src.ml.models.stl10.stl10_generator import Stl10Generator
-from src.ml.models.stl10.stl10_reconstructor import Stl10Reconstructor
+from src.ml.dataset_generation.generate_dataset import add_line_to_csv, test_generator_and_show_plot
+from src.ml.models.cifar10.cifar10_discriminator import Cifar10Discriminator
+from src.ml.models.cifar10.cifar10_generator import Cifar10Generator
+from src.ml.models.cifar10.cifar10_reconstructor import Cifar10Reconstructor
 
 # Hyperparameter
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-batch_size = 128
-learning_rate = 0.0005
-gan_num_epochs = 5000
+batch_size = 2048
+learning_rate = 0.0002
+gan_num_epochs = 1000
 num_color_channels = 3
-num_feature_maps_g = 32
-num_feature_maps_d = 32
-image_size = 96
+num_feature_maps_g = 64
+num_feature_maps_d = 64
+image_size = 32
 size_z = 100
 test_size = 1
-directions_count = 50
-direction_train_steps = 1500
-num_imgs = 0
+directions_count = 500
+direction_train_steps = 15000
+num_imgs = 10000
 
 map_anomalies = True
 map_normals = True
 tmp_directory = '../data_temp'
 data_root_directory = '../data'
-dataset_name = 'DS7_stl10_plane_horse'
+dataset_name = 'DS6_cifar10_plane_horse'
 
 
 def generate_normals(dataset_folder, csv_path, temp_directory):
-    stl10_dataset = torchvision.datasets.STL10(root=temp_directory, download=True, transform=transform)
+    cifar10_dataset = torchvision.datasets.CIFAR10(root=temp_directory, train=True,
+                                                   download=True, transform=transform)
 
-    norm_class = 0
+    norm_class = 1
     norms = []
-    for d in stl10_dataset:
+    for d in cifar10_dataset:
         if d[1] == norm_class:
             norms.append(d)
 
@@ -51,11 +51,12 @@ def generate_normals(dataset_folder, csv_path, temp_directory):
 
 
 def generate_anomalies(dataset_folder, csv_path, temp_directory, ano_fraction):
-    stl10_dataset = torchvision.datasets.STL10(root=temp_directory, download=True, transform=transform)
+    cifar10_dataset = torchvision.datasets.CIFAR10(root=temp_directory, train=True,
+                                                   download=True, transform=transform)
 
     ano_class = 6
     anos = []
-    for d in stl10_dataset:
+    for d in cifar10_dataset:
         if d[1] == ano_class:
             anos.append(d)
 
@@ -74,9 +75,9 @@ transform = transforms.Compose(
     [transforms.ToTensor(),
      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-stl10_generator = Stl10Generator(size_z=size_z, num_feature_maps=num_feature_maps_g).to(device)
-stl10_discriminator = Stl10Discriminator1(num_feature_maps=num_feature_maps_d).to(device)
-stl10_reconstructor = Stl10Reconstructor(directions_count=directions_count, width=2).to(device)
+cifar10_generator = Cifar10Generator(size_z=size_z, num_feature_maps=num_feature_maps_g).to(device)
+cifar10_discriminator = Cifar10Discriminator(num_feature_maps=num_feature_maps_d).to(device)
+cifar10_reconstructor = Cifar10Reconstructor(directions_count=directions_count, width=2).to(device)
 
 # generate_dataset(root_dir=data_root_directory,
 #                  temp_directory=tmp_directory,
@@ -95,8 +96,8 @@ stl10_reconstructor = Stl10Reconstructor(directions_count=directions_count, widt
 #                    batch_size=batch_size,
 #                    device=device,
 #                    learning_rate=learning_rate,
-#                    generator=stl10_generator,
-#                    discriminator=stl10_discriminator,
+#                    generator=cifar10_generator,
+#                    discriminator=cifar10_discriminator,
 #                    transform=transform,
 #                    num_imgs=num_imgs,
 #                    save_checkpoint_every_n_epoch=50)
@@ -107,8 +108,8 @@ stl10_reconstructor = Stl10Reconstructor(directions_count=directions_count, widt
 #                        steps=direction_train_steps,
 #                        device=device,
 #                        use_bias=True,
-#                        generator=stl10_generator,
-#                        reconstructor=stl10_reconstructor)
+#                        generator=celeb_generator,
+#                        reconstructor=celeb_reconstructor)
 
 # create_latent_space_dataset(root_dir=data_root_directory,
 #                             transform=transform,
@@ -118,21 +119,11 @@ stl10_reconstructor = Stl10Reconstructor(directions_count=directions_count, widt
 #                             num_feature_maps_d=num_feature_maps_d,
 #                             num_color_channels=num_color_channels,
 #                             device=device,
-#                             max_opt_iterations=40000,
-#                             generator=stl10_generator,
-#                             discriminator=stl10_discriminator)
+#                             max_opt_iterations=20000,
+#                             generator=celeb_generator,
+#                             discriminator=celeb_discriminator,
+#                             num_images=num_imgs,
+#                             start_with_image_number=782)
 
-# def test_generator(num, g, g_path):
-#     fixed_noise = torch.randn(num, size_z, 1, 1, device=device)
-#     g.load_state_dict(torch.load(g_path, map_location=torch.device(device)))
-#     fake_imgs = stl10_generator(fixed_noise).detach().cpu()
-#     with torch.no_grad():
-#         grid = torchvision.utils.make_grid(fake_imgs, nrow=8, normalize=True)
-#         grid_np = grid.cpu().numpy().transpose(1, 2, 0)  # channel dim should be last
-#         plt.matshow(grid_np)
-#         plt.axis("off")
-#         plt.show()
-
-
-test_generator_and_show_plot(64, size_z, stl10_generator,
-                             '/home/yashar/git/AD-with-GANs/data/DS7_stl10_plane_horse/generator.pkl', device)
+test_generator_and_show_plot(64, size_z, cifar10_generator,
+                             '/home/yashar/git/AD-with-GANs/data/DS6_cifar10_plane_horse/generator.pkl', device)

@@ -4,7 +4,8 @@ from abc import ABC, abstractmethod
 import torch
 import torchvision.transforms as transforms
 
-from src.ml.datasets.generate_dataset import create_latent_space_dataset, train_direction_matrix, generate_dataset, \
+from src.ml.dataset_generation.generate_dataset import create_latent_space_dataset, train_direction_matrix, \
+    generate_dataset, \
     train_and_save_gan, equalize_image_sizes, test_generator_and_show_plot, train_beta_vae
 from src.ml.models.base.discriminator_master import DiscriminatorMaster
 from src.ml.models.base.generator_master import GeneratorMaster
