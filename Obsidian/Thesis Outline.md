@@ -1,0 +1,140 @@
+- Einleitung -> 1
+- Grundbegriffe -> 3
+- Machine Learning -> 15
+	- Überblick
+	- Statistische Lernverfahren
+		- Supervised
+		- Self-Supervised
+		- Unsupervised
+	- Klassische Modelle
+	- Neural Networks
+		- Mathematische Grundlagen
+			- Vektoren
+			- Matrizen
+			- Tensor
+			- Vektor-/Matrix-Operationen
+				- Dot-Product
+				- Inverse
+				- Transpose
+			- Chain-Rule
+			- Ableitung von Matrizen
+			- Wahrscheinlichkeitsrechnung
+				- Statistische Verteilungen
+				- Gaußsche Normalverteilung
+				- Standardabweichung
+				- Normalisierung/Standardisierung
+		- Arten NNs
+			- Generative vs Discriminative Models
+		- Multilayer Perceptron (MLP)
+			- Mathematische Definition
+		- Deep Neural Networks
+			- Forward-Path
+				- Aktivierungsfunktionen
+				- ReLU
+				- Logistic/Sigmoid
+				- Tanh
+			- Backpropagation
+			- Gradient Descent
+			- Optimierungsverfahren
+				- Statistical Gradient Descent
+				- Adam
+			- Loss Functions
+		- Convolutional Neural Networks
+			- Motivation
+			- Convolution
+				- Mathematische Definition
+				- Kernel
+				- Stride
+				- Padding
+				- Pooling
+			- Architekturen
+	- Anwendungen
+- Computer Vision --> 2
+	- Grundlagen 
+	- Relevante Aspekte
+- Anwendungen Machine Learning im Bereich Computer Vision -> 5
+	- Image Classification
+	- Image Segmentation
+	- Generation
+		- Text 2 Image
+		- Inpainting
+	- Anomaly Detection
+	- Aktuelle Beispiele
+		- Stable Diffusion
+		- DALL-E
+- Generative Modelle -> 10
+	- Gaussian Mixtures
+	- Variational Autoencoder
+	- Generative Adversarial Networks
+		- Deep Convolutional GANs (DCGAN)
+	- Diffusion Models
+- Anomaly Detection -> 10
+	- Methoden
+		- Supervised
+		- Unsupervised
+- Umsetzung/Programmierung Machine Learning -> 5
+	- Häufig genutzte Programmiersprachen
+		- R
+		- Python
+		- Julia
+		- C/C++
+	- ScikitLearn
+	- Tensorflow
+	- PyTorch
+		- Autograd
+		- NNs mit PyTorch
+		- CNNs mit Pytorch
+- Anomaly Detection mit GANs -> 20
+	- Related Work
+		- Paper Review
+	- These (WIP)
+	- Methodik
+		- Modell
+		- Datensätze
+		- Training
+		- Deployment
+	- Experimente
+		- Benchmarks
+	- Ergebnisse
+- Zusammenfassung und Fazit -> 2
+- Schluss -> 1
+
+------
+
+**Standard:
+
+- **Abstract**
+- **Introduction** --> 1p
+- **Fundamentals**
+	- Machine Learning
+		- Basics --> 3p
+		- Traditional Methods
+			- kNN --> 1p
+			- Local Outlier Factor --> 1p
+			- PCA --> 1p
+	- Development Basics
+		- Python --> 0,5p
+		- Numpy --> 0,5
+		- sklearn --> 0,5p
+		- Pytorch vs Tensorflow (?) --> 0,5p
+		- Used Dev Setup --> 0,5p
+	- Supervised vs. Unsupervised Learning --> 1p
+	- Deep Learning
+		- Deep-NN --> 2p
+		- Deep-CNN --> 2p
+	- Generative Models
+		- GAN --> 1p
+		- VAE --> 1p
+	- Anomaly Detection --> 1p
+- **Related Work**
+	- CNN --> 2p
+	- GAN --> 2p
+	- VAE --> 1p
+	- AD with VAE --> 1p
+	- Anomaly Detection --> 3p
+	- AnoGAN --> 2p
+	- AnoGAN based paper --> 1p
+	- Latent Space Discovery and related --> 2p
+- **Approach** --> 6p
+- **Evaluation** --> 4p
+- **Discussion** --> 5p
