@@ -138,7 +138,7 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
 
     print("Starting Training Loop...")
     for epoch in range(num_epochs):
-        for i, (real_images, _) in enumerate(dataloader, 0):
+        for i, (real_images, _, _) in enumerate(dataloader, 0):
             # Discriminator
             discriminator.zero_grad()
 
