@@ -30,6 +30,7 @@ export class LabelingResultsComponent implements OnInit, OnDestroy {
             weighted_dims: this.ls.getData().anomalous_dims,
             dataset: this.ls.getData().dataset[0],
             direction_matrix: this.ls.getData().direction_matrix,
+            random_noise: this.ls.getData().z,
           })
         ),
         catchError((err) => {
