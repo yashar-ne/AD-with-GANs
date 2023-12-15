@@ -1,13 +1,13 @@
 - [ ] Update thesis outline
 - [ ] Try out other datasets
 	- [ ] Imagenet
-	- [ ] [MVTec](https://www.mvtec.com/company/research/datasets/mvtec-ad/)
-	- [ ] [CIVAR19](https://www.cs.toronto.edu/~kriz/cifar.html)
+	- [x] [MVTec](https://www.mvtec.com/company/research/datasets/mvtec-ad/) ✅ 2023-12-07
+	- [x] [CIVAR19](https://www.cs.toronto.edu/~kriz/cifar.html) ✅ 2023-12-07
 - [ ] Implement alternative benchmarks
 	- [x] Local outlier factor
 	- [ ] i-forrest
-	- [ ] Variational Autoencoder Reconstruction Loss
-	- [ ] AnoGAN (cleanup of existing implementation)
+	- [x] Variational Autoencoder Reconstruction Loss ✅ 2023-12-07
+	- [x] AnoGAN (cleanup of existing implementation) ✅ 2023-12-07
 	- [ ] Supervised binary classifier, n labeled images with n equals number of directions 
 - [ ] Research
 	- [ ] NNs/CNNs
@@ -21,4 +21,4 @@
 			- [ ] padding
 		- [ ] why do we use transpose layers in generator?
 - [ ] Paper review
-- [ ] Latent Space Explorer	
+- [x] Latent Space Explorer ✅ 2023-12-07

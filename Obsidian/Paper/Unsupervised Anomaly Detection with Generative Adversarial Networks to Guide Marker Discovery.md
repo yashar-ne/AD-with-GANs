@@ -2,7 +2,7 @@
 
 **TL;DR
 - We train a DCGAN, so it generates images from a given domain
-- We take the then trained generator to create two loss functions
+- We take then the trained generator to create two loss functions
 	- Residual Loss
 	- Discriminitive Loss
 - The loss functions are used together with Backpropagation to find the input-noise of a given (anomalous) query image
@@ -39,7 +39,7 @@
 		- $\Large L_{R} = \sum_{}^{} \left| x - G(z_{\gamma}) \right|$
 		
 	- Discrimination loss
-		- Enforces generated image $G(z_{\Gamma})$ to lie in learned mainfold $X$ 
+		- Enforces generated image $G(z_{\Gamma})$ to lie in learned manifold $X$ 
 		- Other than in [[Semantic Image Inpainting with Perceptual and Contextual Losses]] $z_{\Gamma}$ is not updated to better fool the discriminator
 			- **approach is to update $z_{\Gamma}$ so that it matches $G(z_{\Gamma})$ 
 		- Authors use feature matching as proposed in [[Improved Techniques for Training GANs]] (section 3.1) to achieve this
