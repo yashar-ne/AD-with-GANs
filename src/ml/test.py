@@ -7,7 +7,7 @@ from sklearn.manifold import TSNE
 
 from src.ml.models.base.matrix_a_linear import MatrixALinear
 from src.ml.validation.latent_distance_validation import get_roc_auc_for_euclidean_distance_metric, \
-    get_roc_auc_for_average_distance_metric
+    get_roc_auc_for_average_distance_metric, get_roc_auc_for_angle_distance_with_origin_shift
 from src.ml.validation.validation_utils import load_data_points
 
 
@@ -38,6 +38,14 @@ def validate_model(base_path, direction_matrix_path, z, anomalous_direction_indi
                                                        anomalous_direction_indices=anomalous_direction_indices)
 
     print("With cosine angle metric", auc)
+
+    roc, auc = get_roc_auc_for_angle_distance_with_origin_shift(latent_space_data_points=latent_space_data_points,
+                                                                latent_space_data_labels=latent_space_data_labels,
+                                                                direction_matrix=direction_matrix,
+                                                                anomalous_direction_indices=anomalous_direction_indices,
+                                                                z=np.array(z))
+
+    print("With cosine angle metric and origin shift", auc)
 
 
 def visualize_dataset(base_path, title='', n_components=2):
@@ -403,18 +411,24 @@ anomalous_directions_fashionmnist_shirt_sneaker = [
     (23, 1)
 ]
 
-visualize_dataset('../data/DS15_mvtec_hazelnut', title='Hazelnut', n_components=3)
+# visualize_dataset('../data/DS15_mvtec_hazelnut', title='Hazelnut', n_components=3)
 # validate_model('../data/DS15_mvtec_hazelnut', 'direction_matrices/direction_matrix_steps_2500_bias_k_30.pkl',
 #                noise_hazelnut,
 #                anomalous_directions_hazelnut)
 
-visualize_dataset('../data/DS12_mnist_9_6', title='MNIST 9 vs 6')
+# visualize_dataset('../data/DS12_mnist_9_6', title='MNIST 9 vs 6')
 # validate_model('../data/DS12_mnist_9_6', 'direction_matrices/direction_matrix_steps_1500_bias_k_30.pkl',
 #                noise_mnist_9_6,
 #                anomalous_directions_mnist_9_6)
 
-visualize_dataset('../data/DS14_fashionmnist_shirt_sneaker', title='FashionMNIST Shirt vs Sneaker')
-# validate_model('../data/DS14_fashionmnist_shirt_sneaker',
-#                'direction_matrices/direction_matrix_steps_1500_bias_k_30.pkl',
-#                noise_fashionmnist_shirt_sneaker,
-#                anomalous_directions_fashionmnist_shirt_sneaker)
+# visualize_dataset('../data/DS14_fashionmnist_shirt_sneaker', title='FashionMNIST Shirt vs Sneaker')
+validate_model('../data/DS14_fashionmnist_shirt_sneaker',
+               'direction_matrices/direction_matrix_steps_1500_bias_k_30.pkl',
+               noise_fashionmnist_shirt_sneaker,
+               anomalous_directions_fashionmnist_shirt_sneaker)
+
+# g = torch.load('/home/yashar/git/AD-with-GANs/data/DS16_mars_novelty/generator_model.pkl')
+# test_generator(128, 100, g, '/home/yashar/git/AD-with-GANs/data/DS16_mars_novelty/generator.pkl',
+#                torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
+# plt.show(block=False)
+# plt.close()

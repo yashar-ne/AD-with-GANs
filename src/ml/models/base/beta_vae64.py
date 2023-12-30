@@ -112,7 +112,7 @@ class BetaVAE64(nn.Module):
 
         for epoch in range(self.num_epochs):
             for batch_idx, data in enumerate(dataloader, 0):
-                imgs, _ = data
+                imgs, _, _ = data
                 imgs = imgs.to(self.device)
 
                 out, mu, log_var = self(imgs)

@@ -361,12 +361,12 @@ def create_latent_space_dataset(root_dir,
         data_point, data_label, orig_filename = next(iterator)
 
     for i in range(start_with_image_number):
-        data_point, data_label = next(iterator)
+        data_point, data_label, orig_filename = next(iterator)
 
     while counter > 0:
         if data_label.item() is False and only_consider_anos:
             counter -= 1
-            data_point, data_label = next(iterator)
+            data_point, data_label, orig_filename = next(iterator)
             continue
 
         print(f"{counter} images left")
@@ -386,7 +386,7 @@ def create_latent_space_dataset(root_dir,
                 print("Retry Limit reached. Moving on to next sample")
                 print("Could not map this image")
                 plot_image(data_point[0])
-                data_point, data_label = next(iterator)
+                data_point, data_label, orig_filename = next(iterator)
                 print('-----------------------')
                 continue
             else:

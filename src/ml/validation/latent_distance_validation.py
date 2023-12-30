@@ -90,3 +90,35 @@ def get_roc_auc_for_euclidean_distance_metric(latent_space_data_points,
 
     y = np.array([1 if d is False else 0 for d in latent_space_data_labels])
     return get_roc_curve_as_base64(y, scores)
+
+
+def get_roc_auc_for_angle_distance_with_origin_shift(latent_space_data_points,
+                                                     latent_space_data_labels,
+                                                     direction_matrix,
+                                                     anomalous_direction_indices,
+                                                     z):
+    translation_vector = (z / np.linalg.norm(z)) * -1
+    direction_matrix = extract_weights_from_model(direction_matrix)
+
+    latent_space_data_points = normalize(latent_space_data_points, axis=1, norm='l2')
+    direction_matrix = normalize(direction_matrix, axis=1, norm='l2')
+
+    anomalous_directions = [direction_matrix[d[0]] * d[1] for d in anomalous_direction_indices if
+                            (d[0], d[1] * -1) not in anomalous_direction_indices]
+
+    if len(anomalous_directions) == 0:
+        return None, None
+
+    translated_directions = [d + translation_vector for d in anomalous_directions]
+    scores = []
+    for data_point in latent_space_data_points:
+        translated_data_point = data_point + translation_vector
+        direction_scores = []
+        for d in translated_directions:
+            direction_scores.append(np.linalg.norm(translated_data_point - d))
+            direction_scores.append(translated_data_point @ d)
+
+        scores.append(max(direction_scores))
+
+    y = np.array([1 if d is False else 0 for d in latent_space_data_labels])
+    return get_roc_curve_as_base64(y, scores)

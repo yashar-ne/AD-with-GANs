@@ -13,11 +13,12 @@ class DatasetGeneratorMvTecHazelnut(AbstractDatasetGenerator):
             dataset_name='DS16_mars_novelty',
             num_color_channels=3,
             num_epochs=1000,
-            n_latent_space_search_iterations=2500,
+            n_latent_space_search_iterations=4000,
             draw_images=True,
             num_imgs=0,
             directions_count=20,
-            direction_train_steps=1000
+            direction_train_steps=1000,
+            only_consider_anos=True,
         )
 
     def generate_normals(self, dataset_folder, csv_path, temp_directory):
@@ -49,7 +50,7 @@ ds_generator = DatasetGeneratorMvTecHazelnut()
 
 # ds_generator.run_generate_dataset(ano_fraction=0.1)
 # ds_generator.run_equalize_image_sizes()
-ds_generator.run_train_and_save_gan(display_generator_test=True)
+# ds_generator.run_train_and_save_gan(display_generator_test=True)
 # ds_generator.run_train_direction_matrix()
 # ds_generator.run_train_beta_vae()
-# ds_generator.run_create_latent_space_dataset()
+ds_generator.run_create_latent_space_dataset()
