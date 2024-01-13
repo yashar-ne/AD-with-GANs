@@ -120,6 +120,15 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
       .subscribe(img => this.datasetPreviewImage = img)
   }
 
+  reloadNoiseAndPreviewImage(): void {
+    this.subscriptionZ$ = this.bs.getRandomNoise({dim: 100})
+      .pipe(take(1))
+      .subscribe((z: number[]) => {
+        this.ls.data.z = z
+        this.updateDatasetPreviewImage()
+      })
+  }
+
   ngOnDestroy(): void {
     this.subscriptionZ$?.unsubscribe()
     this.subscriptionDatasets$?.unsubscribe()

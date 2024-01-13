@@ -11,7 +11,9 @@
     (startHandler)="startHandler()"
     (updateDatasetPreviewImage)="updateDatasetPreviewImage()">
   </configuration>
-  <div class="dataset_preview_image">
+  <div class="dataset_preview_image"
+    (click)="reloadNoiseAndPreviewImage()"
+  >
     <img *ngIf="datasetPreviewImage" class="latent_image" src="{{'data:image/png;base64,' + datasetPreviewImage}}">
   </div>
 </ng-container>

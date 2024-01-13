@@ -3,12 +3,12 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from src.backend.controller.main_controller import MainController
 from src.backend.models.GetDirectionCountModel import GetDirectionCountModel
-from src.backend.models.GetSingleImageModel import GetSingleImageModel
-from src.backend.models.GetValidationResultsModel import GetValidationResultsModel
 from src.backend.models.GetRandomNoiseModel import GetRandomNoiseModel
 from src.backend.models.GetShiftedImagesModel import GetShiftedImagesModel
-from src.backend.controller.main_controller import MainController
+from src.backend.models.GetSingleImageModel import GetSingleImageModel
+from src.backend.models.GetValidationResultsModel import GetValidationResultsModel
 from src.backend.models.SessionLabelsModel import SessionLabelsModel
 
 main_controller: MainController = MainController(base_path='../data', z_dim=100)
@@ -66,7 +66,8 @@ async def save_session_labels_to_db(body: SessionLabelsModel):
 async def get_validation_results(body: GetValidationResultsModel):
     return main_controller.get_validation_results(dataset_name=body.dataset,
                                                   direction_matrix_name=body.direction_matrix,
-                                                  anomalous_directions=body.weighted_dims)
+                                                  anomalous_directions=body.weighted_dims,
+                                                  random_noise=body.random_noise)
 
 
 if __name__ == "__main__":

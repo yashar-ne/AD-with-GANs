@@ -12,7 +12,7 @@ from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_b
     generate_base64_image_from_tensor
 from src.ml.validation.ano_gan_validation import get_roc_auc_for_ano_gan_validation
 from src.ml.validation.knn_validation import get_knn_validation
-from src.ml.validation.latent_distance_validation import get_roc_auc_for_average_distance_metric
+from src.ml.validation.latent_distance_validation import get_roc_auc_for_euclidean_distance_metric
 from src.ml.validation.lof_validation import get_roc_auc_lof
 from src.ml.validation.vae_validation import get_vae_roc_auc_for_image_data
 from src.ml.validation.validation_utils import load_data_points
@@ -84,18 +84,19 @@ class MainController:
         return self.datasets.get(dataset_name).get('direction_matrices').get(direction_matrix_name).get(
             'direction_count')
 
-    def get_validation_results(self, dataset_name, direction_matrix_name, anomalous_directions):
+    def get_validation_results(self, dataset_name, direction_matrix_name, anomalous_directions, random_noise):
 
         direction_matrix = self.__get_direction_matrix(dataset_name=dataset_name,
                                                        direction_matrix_name=direction_matrix_name)
         latent_space_data_points = self.datasets.get(dataset_name).get('data')[0]
         latent_space_data_labels = self.datasets.get(dataset_name).get('data')[1]
 
-        roc_auc, _ = get_roc_auc_for_average_distance_metric(
+        roc_auc, _ = get_roc_auc_for_euclidean_distance_metric(
             direction_matrix=direction_matrix,
-            anomalous_directions=anomalous_directions,
+            anomalous_direction_indices=anomalous_directions,
             latent_space_data_points=latent_space_data_points,
-            latent_space_data_labels=latent_space_data_labels
+            latent_space_data_labels=latent_space_data_labels,
+            z=random_noise,
         )
 
         roc_auc_lof, _ = get_roc_auc_lof(

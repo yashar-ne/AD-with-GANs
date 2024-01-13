@@ -144,7 +144,7 @@ model_gen.ckpt
 /saved_models/generator.BACKUP.pkl
 /data_temp/
 /checkpoints/
-/add_pythonpath.sh
+/src/add_pythonpath.sh
 
 *.pkl
 *.BACKUP
