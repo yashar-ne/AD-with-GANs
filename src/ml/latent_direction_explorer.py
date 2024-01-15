@@ -103,6 +103,9 @@ class LatentDirectionExplorer:
     def load_generator(self, path):
         self.g.load_state_dict(torch.load(path, map_location=torch.device(self.device)))
 
+    def set_generator(self, g):
+        self.g = g
+
     def __make_shifts(self, latent_dim, batch_size):
         target_indices = torch.randint(0, self.directions_count, [batch_size])
 
