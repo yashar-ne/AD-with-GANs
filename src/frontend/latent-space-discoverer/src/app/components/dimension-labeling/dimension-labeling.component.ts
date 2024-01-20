@@ -37,11 +37,11 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   constructor(private router: Router, private bs: BackendService, private ls: LabelingService) { }
 
   ngOnInit(): void {
-    this.subscriptionZ$ = this.bs.getRandomNoise({dim: 100})
-      .pipe(take(1))
-      .subscribe((z: number[]) => {
-        this.ls.data.z = z
-      })
+    // this.subscriptionZ$ = this.bs.getRandomNoise({dim: 100, dataset_name: this.dataset[0]})
+    //   .pipe(take(1))
+    //   .subscribe((z: number[]) => {
+    //     this.ls.data.z = z
+    //   })
 
     this.subscriptionDatasets$ = this.bs.listAvailableDatasets()
       .pipe(take(1))
@@ -121,7 +121,7 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
   }
 
   reloadNoiseAndPreviewImage(): void {
-    this.subscriptionZ$ = this.bs.getRandomNoise({dim: 100})
+    this.subscriptionZ$ = this.bs.getRandomNoise({dim: 100, dataset_name: this.dataset[0]})
       .pipe(take(1))
       .subscribe((z: number[]) => {
         this.ls.data.z = z

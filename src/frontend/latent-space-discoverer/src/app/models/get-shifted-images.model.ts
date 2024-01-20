@@ -1,5 +1,5 @@
 export interface GetShiftedImages {
-    z: number[]
+    z: any
     shifts_range: number
     shifts_count: number
     dim: number

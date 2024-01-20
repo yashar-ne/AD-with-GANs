@@ -1,3 +1,9 @@
+import sys
+
+from src.ml.models.StyleGAN.stylegan_generator import StyleGANGenerator
+
+sys.path.append('ml/models/StyleGAN')
+
 import os
 
 import torch
@@ -7,6 +13,7 @@ from src.backend.db import save_session_labels_to_db
 from src.backend.models.SessionLabelsModel import SessionLabelsModel
 from src.backend.models.ValidationResultsModel import ValidationResultsModel
 from src.ml.latent_direction_visualizer import LatentDirectionVisualizer
+from src.ml.models.StyleGAN import dnnlib, legacy
 from src.ml.models.base.matrix_a_linear import MatrixALinear
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
     generate_base64_image_from_tensor
@@ -27,39 +34,70 @@ class MainController:
         self.datasets = {}
 
         for dataset_name in self.dataset_names:
-            matrix_a_path = os.path.join(base_path, dataset_name, 'direction_matrices')
-            generator_path = os.path.join(base_path, dataset_name, 'generator.pkl')
-            generator_model_path = os.path.join(base_path, dataset_name, 'generator_model.pkl')
-            vae_model_path = os.path.join(base_path, dataset_name, 'vae_model.pkl')
-            direction_matrices = {}
-            for f in os.listdir(matrix_a_path):
-                if os.path.isfile(os.path.join(matrix_a_path, f)):
-                    matrix_state = torch.load(os.path.join(matrix_a_path, f), map_location=torch.device(self.device))
-                    input_dim = matrix_state.get('linear.weight').shape[1]
-                    output_dim = matrix_state.get('linear.weight').shape[0]
-                    uses_bias = 'linear.bias' in matrix_state
-                    matrix_a_linear: MatrixALinear = MatrixALinear(input_dim=input_dim, output_dim=output_dim,
-                                                                   bias=uses_bias)
-                    matrix_a_linear.load_state_dict(matrix_state)
-                    direction_matrices.update({f: {'matrix_a': matrix_a_linear, 'direction_count': input_dim}})
+            if dataset_name != 'StyleGAN2_CelebA':
+                direction_matrix_path = os.path.join(base_path, dataset_name, 'direction_matrices')
+                generator_model_path = os.path.join(base_path, dataset_name, 'generator_model.pkl')
+                vae_model_path = os.path.join(base_path, dataset_name, 'vae_model.pkl')
+                direction_matrices = {}
+                for f in os.listdir(direction_matrix_path):
+                    if os.path.isfile(os.path.join(direction_matrix_path, f)):
+                        matrix_state = torch.load(os.path.join(direction_matrix_path, f),
+                                                  map_location=torch.device(self.device))
+                        input_dim = matrix_state.get('linear.weight').shape[1]
+                        output_dim = matrix_state.get('linear.weight').shape[0]
+                        uses_bias = 'linear.bias' in matrix_state
+                        direction_matrix_linear: MatrixALinear = MatrixALinear(input_dim=input_dim,
+                                                                               output_dim=output_dim,
+                                                                               bias=uses_bias)
+                        direction_matrix_linear.load_state_dict(matrix_state)
+                        direction_matrices.update(
+                            {f: {'matrix_a': direction_matrix_linear, 'direction_count': input_dim}})
 
-            # g = self.get_generator_by_dataset_name(dataset_name)
-            g = torch.load(generator_model_path, map_location=torch.device(self.device))
-            vae = torch.load(vae_model_path, map_location=torch.device(self.device))
-            # g.load_state_dict(torch.load(generator_path, map_location=torch.device(self.device)))
-            self.datasets.update({
-                dataset_name: {
-                    'direction_matrices': direction_matrices,
-                    'generator': g,
-                    'vae': vae,
-                    'data': load_data_points(os.path.join(base_path, dataset_name, 'dataset'))
-                }
-            })
+                # g = self.get_generator_by_dataset_name(dataset_name)
+                g = torch.load(generator_model_path, map_location=torch.device(self.device))
+                vae = torch.load(vae_model_path, map_location=torch.device(self.device))
+                # g.load_state_dict(torch.load(generator_path, map_location=torch.device(self.device)))
+                self.datasets.update({
+                    dataset_name: {
+                        'direction_matrices': direction_matrices,
+                        'generator': g,
+                        'vae': vae,
+                        'data': load_data_points(os.path.join(base_path, dataset_name, 'dataset'))
+                    }
+                })
+            else:
+                direction_matrix_path = os.path.join(base_path, dataset_name, 'direction_matrices')
+                model_path = os.path.join(base_path, dataset_name, 'stylegan2-celebahq-256x256.pkl')
+                direction_matrices = {}
+                for f in os.listdir(direction_matrix_path):
+                    if os.path.isfile(os.path.join(direction_matrix_path, f)):
+                        direction_matrix_linear: MatrixALinear = torch.load(os.path.join(direction_matrix_path, f),
+                                                                            map_location=torch.device(self.device))
+                        input_dim = direction_matrix_linear.state_dict().get('linear.weight').shape[1]
+                        direction_matrices.update(
+                            {f: {'matrix_a': direction_matrix_linear, 'direction_count': input_dim}})
+                with dnnlib.util.open_url(model_path) as f:
+                    networks = legacy.load_network_pkl(f)
+                    g: StyleGANGenerator = networks['G_ema'].to(self.device)
+                    g = StyleGANGenerator(g)
+
+                self.datasets.update({
+                    dataset_name: {
+                        'direction_matrices': direction_matrices,
+                        'generator': g,
+                        'vae': None,
+                        'data': None
+                    }
+                })
 
     def get_single_image(self, dataset_name, z):
-        z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(z), 0), -1), 2).to(self.device)
         generator = self.datasets.get(dataset_name).get('generator').to(self.device)
-        img = generator(z)
+        if dataset_name == 'StyleGAN2_CelebA':
+            z = torch.FloatTensor(z).to(self.device)
+            img = generator(z, None, truncation_psi=0.7, noise_mode='const')
+        else:
+            z = torch.unsqueeze(torch.unsqueeze(torch.unsqueeze(torch.FloatTensor(z), 0), -1), 2).to(self.device)
+            img = generator(z)
         return generate_base64_image_from_tensor(img[0])
 
     def get_shifted_images(self, dataset_name, direction_matrix_name, z, shifts_range, shifts_count, dim, direction,
@@ -69,7 +107,7 @@ class MainController:
         a = apply_pca_to_matrix_a(a, pca_component_count,
                                   pca_skipped_components_count) if pca_component_count > 0 else a
         a.to(self.device)
-        visualizer = LatentDirectionVisualizer(matrix_a_linear=a,
+        visualizer = LatentDirectionVisualizer(direction_matrix_linear=a,
                                                generator=self.datasets.get(dataset_name).get('generator').to(
                                                    self.device),
                                                device=self.device)
@@ -130,7 +168,9 @@ class MainController:
     def save_session_labels_to_db(session_labels: SessionLabelsModel):
         save_session_labels_to_db(session_labels=session_labels)
 
-    def get_random_noise(self, z_dim):
+    def get_random_noise(self, z_dim, dataset_name):
+        if dataset_name == 'StyleGAN2_CelebA':
+            return torch.randn(14, 512, device=self.device)
         return generate_noise(batch_size=1, z_dim=z_dim, device=self.device)
 
     def __get_direction_matrix(self, dataset_name, direction_matrix_name):

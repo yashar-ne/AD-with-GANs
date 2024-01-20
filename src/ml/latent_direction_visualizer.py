@@ -1,16 +1,14 @@
 import os
 import random
 
-from matplotlib import pyplot as plt
 import numpy as np
 import torch
-
+from PIL import Image
+from matplotlib import pyplot as plt
 from torchvision.utils import make_grid
 
-from src.ml.models.base.generator import Generator
 from src.ml.models.base.matrix_a_linear import MatrixALinear
 from src.ml.tools.utils import one_hot, to_image
-from PIL import Image
 
 
 def get_random_strip_as_numpy_array(file_path):
@@ -22,11 +20,11 @@ def get_random_strip_as_numpy_array(file_path):
 
 
 class LatentDirectionVisualizer:
-    def __init__(self, generator: Generator, matrix_a_linear: MatrixALinear, device):
+    def __init__(self, generator, direction_matrix_linear: MatrixALinear, device):
         super(LatentDirectionVisualizer, self).__init__()
-        self.g: Generator = generator
-        self.matrix_a_linear: MatrixALinear = matrix_a_linear
-        self.dim = self.g.size_z
+        self.g = generator
+        self.direction_matrix_linear: MatrixALinear = direction_matrix_linear
+        self.dim = self.g.z_dim
         self.device = device
         self.data = []
 
@@ -35,7 +33,7 @@ class LatentDirectionVisualizer:
         os.makedirs(output_directory, exist_ok=True)
 
         step = 20
-        max_dim = self.g.size_z
+        max_dim = self.g.z_dim
         shifts_count = noise_batches.shape[0]
 
         for start in range(0, max_dim - 1, step):
@@ -70,7 +68,7 @@ class LatentDirectionVisualizer:
             ax.imshow(to_image(make_grid(shifts_images, nrow=(2 * shifts_count + 1), padding=1)))
             ax.text(-20, 21, str(text), fontsize=10)
 
-        self.matrix_a_linear.train()
+        self.direction_matrix_linear.train()
 
         return fig, images
 
@@ -80,15 +78,18 @@ class LatentDirectionVisualizer:
         if direction == 0:
             arrangement = np.arange(-shifts_range, shifts_range + 1e-9, shifts_range / shifts_count)
         else:
-            arrangement = np.arange(-shifts_range - 1e-9, 0, shifts_range / shifts_count) if direction == -1 else np.arange(0, shifts_range + 1e-9, shifts_range / shifts_count)
+            arrangement = np.arange(-shifts_range - 1e-9, 0,
+                                    shifts_range / shifts_count) if direction == -1 else np.arange(0,
+                                                                                                   shifts_range + 1e-9,
+                                                                                                   shifts_range / shifts_count)
 
         for shift in arrangement:
             # one_hot obtains a vector with the shift value at the dimension that is supposed to be shifted
             # since matrix_a_linear is only a linear transformation of that vector, the result will be the (by given value)
             # shifted vector at the dimension (index) of the value in the one-hot vector
 
-            shift_vector = one_hot(dims=self.matrix_a_linear.input_dim, value=shift, index=dim).to(self.device)
-            latent_shift = self.matrix_a_linear(shift_vector).to(self.device)
+            shift_vector = one_hot(dims=self.direction_matrix_linear.input_dim, value=shift, index=dim).to(self.device)
+            latent_shift = self.direction_matrix_linear(shift_vector).to(self.device)
 
             shifted_image = self.g.gen_shifted(z, latent_shift).cpu()[0]
             shifted_images.append(shifted_image)

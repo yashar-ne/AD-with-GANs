@@ -53,7 +53,7 @@ async def get_shifted_images(body: GetShiftedImagesModel):
 
 @app.post("/get_random_noise")
 async def get_shifted_images(body: GetRandomNoiseModel):
-    z = main_controller.get_random_noise(body.dim)
+    z = main_controller.get_random_noise(body.dim, body.dataset_name)
     return torch.squeeze(z).tolist()
 
 

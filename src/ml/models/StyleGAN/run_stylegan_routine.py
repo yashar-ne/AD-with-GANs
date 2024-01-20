@@ -1,3 +1,6 @@
+import os.path
+
+import PIL
 import torch
 from torch import nn
 
@@ -9,7 +12,6 @@ from src.ml.models.base.matrix_a_linear import MatrixALinear
 device = torch.device('cuda')
 
 network_pkl = '/home/yashar/git/AD-with-GANs/data/StyleGAN2_CelebA/stylegan2-celebahq-256x256.pkl'
-direction_count = 100
 num_channels = 3
 z_dim = 512
 reconstructor_lr = 0.002
@@ -24,21 +26,19 @@ shift_scale = 6.0
 print('Loading networks from "%s"...' % network_pkl)
 with dnnlib.util.open_url(network_pkl) as f:
     networks = legacy.load_network_pkl(f)
-    G = networks['G'].to(device)
+    G = networks['G_ema'].to(device)
     D = networks['D'].to(device)
-reconstructor = StyleGANReconstructor(directions_count=direction_count,
-                                      num_channels=num_channels,
-                                      width=2).to(device)
 
 
 def generate_noise():
     return torch.randn(14, 512, device=device)
 
 
-def generate_stylegan2_image(z):
-    img = G(z, None, truncation_psi=truncation_psi, noise_mode=noise_mode)
+def generate_stylegan2_image(z, class_id=None, show=False):
+    img = G(z, class_id, truncation_psi=truncation_psi, noise_mode='const')
     img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(device)
-    # PIL.Image.fromarray(img[0].cpu().numpy(), 'RGB').show()
+    if show:
+        PIL.Image.fromarray(img.to(torch.uint8)[0].cpu().numpy(), 'RGB').show()
     return img
 
 
@@ -51,7 +51,7 @@ def train_direction_matrix(steps):
     train_and_save_directions(num_steps=steps)
 
 
-def make_shifts(latent_dim, batch_size=1):
+def make_shifts(latent_dim, direction_count, batch_size=1):
     target_indices = torch.randint(0, direction_count, [batch_size])
 
     # Casting from uniform distribution
@@ -69,16 +69,22 @@ def make_shifts(latent_dim, batch_size=1):
     return target_indices, shifts, z_shift
 
 
-def train_and_save_directions(num_steps=1000, bias=True):
+def train_and_save_directions(save_path, num_steps=1000, direction_count=40, bias=True):
     # init optimizers for MatrixA, Reconstructor
-    matrix_a = MatrixALinear(input_dim=direction_count, bias=bias, output_dim=z_dim).to(device)
-    matrix_a_opt = torch.optim.Adam(matrix_a.parameters(), lr=reconstructor_lr)
+    direction_matrix = MatrixALinear(input_dim=direction_count, bias=bias, output_dim=z_dim).to(device)
+    direction_matrix_opt = torch.optim.Adam(direction_matrix.parameters(), lr=reconstructor_lr)
+    reconstructor = StyleGANReconstructor(directions_count=direction_count,
+                                          num_channels=num_channels,
+                                          width=2).to(device)
     reconstructor_opt = torch.optim.Adam(reconstructor.parameters(), lr=reconstructor_lr)
 
     # start training loop
     for step in range(num_steps):
+        if step % 100 == 0:
+            print(f'Step {step} of {num_steps}')
+
         G.zero_grad()
-        matrix_a.zero_grad()
+        direction_matrix.zero_grad()
         reconstructor.zero_grad()
 
         # cast random noise z
@@ -86,8 +92,8 @@ def train_and_save_directions(num_steps=1000, bias=True):
 
         # generate shifts
         # cast random integer that represents the k^th column  --> e_k
-        target_indices, shifts, basis_shift = make_shifts(matrix_a.input_dim, 14)
-        shift = matrix_a(basis_shift)
+        target_indices, shifts, basis_shift = make_shifts(direction_matrix.input_dim, direction_count, 14)
+        shift = direction_matrix(basis_shift)
 
         # generate images --> from z and from z + A(epsilon * e_k)
         images = generate_stylegan2_image(z)
@@ -101,14 +107,21 @@ def train_and_save_directions(num_steps=1000, bias=True):
         loss = logit_loss + shift_loss
         loss.backward()
 
-        matrix_a_opt.step()
+        direction_matrix_opt.step()
         reconstructor_opt.step()
     # display image from A(x) with shift epsilon
-    print(matrix_a)
+    filename = os.path.join(save_path, f'direction_matrix_{direction_count}_directions_{num_steps}_steps.pt')
+    torch.save(direction_matrix, filename)
+    print(direction_matrix)
 
 
-train_and_save_directions(num_steps=10)
+train_and_save_directions(
+    save_path=f'/home/yashar/git/AD-with-GANs/data/StyleGAN2_CelebA/direction_matrices/',
+    num_steps=3000,
+    direction_count=40,
+)
 
 # generate_stylegan2_image(
 #     z=torch.randn(14, 512, device=device),
+#     show=True,
 # )

@@ -103,7 +103,7 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
     if os.path.exists(checkpoint_folder): shutil.rmtree(checkpoint_folder)
 
     if not generator:
-        generator = Generator(size_z=size_z,
+        generator = Generator(z_dim=size_z,
                               num_feature_maps=num_feature_maps_g,
                               num_color_channels=num_color_channels).to(device)
 
@@ -259,7 +259,7 @@ def train_direction_matrix(root_dir,
 
 
 def load_gan(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_maps_d, num_color_channels, device):
-    generator = Generator(size_z=size_z,
+    generator = Generator(z_dim=size_z,
                           num_feature_maps=num_feature_maps_g,
                           num_color_channels=num_color_channels).to(device)
     discriminator = Discriminator(num_feature_maps=num_feature_maps_d,

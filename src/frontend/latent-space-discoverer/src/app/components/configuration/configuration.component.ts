@@ -26,7 +26,7 @@ export class ConfigurationComponent {
 
   @Output() startHandler: EventEmitter<any> = new EventEmitter();
   @Output() generateDirectionSequence: EventEmitter<any> = new EventEmitter();
-  @Output() updateDatasetPreviewImage: EventEmitter<any> = new EventEmitter();
+    @Output() reloadNoiseAndPreviewImage: EventEmitter<any> = new EventEmitter();
 
   startHandlerClick() {
     this.startHandler.emit()
@@ -34,7 +34,7 @@ export class ConfigurationComponent {
 
   onDatasetSelectChange(value: MatSelectChange) {
     this.datasetChange.emit(value.value)
-    this.updateDatasetPreviewImage.emit()
+    this.reloadNoiseAndPreviewImage.emit()
     this.directionMatrixSelectOptions = value.value[1]
   }
 

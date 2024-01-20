@@ -1,6 +1,6 @@
 import {SaveLabelModel} from "./save-label-to-db-model.model";
 export interface SessionLabelsModel {
-  z: number[]
+  z: any
   anomalous_dims: any[]
   shifts_range: number
   shifts_count: number

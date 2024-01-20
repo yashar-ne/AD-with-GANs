@@ -3,11 +3,11 @@ import torch.nn as nn
 
 
 class Generator(nn.Module):
-    def __init__(self, size_z, num_feature_maps, num_color_channels):
+    def __init__(self, z_dim, num_feature_maps, num_color_channels):
         super(Generator, self).__init__()
-        self.size_z = size_z
+        self.z_dim = z_dim
         self.network = nn.Sequential(
-            nn.ConvTranspose2d(self.size_z, num_feature_maps * 4, 4, 1, 0, bias=False),
+            nn.ConvTranspose2d(self.z_dim, num_feature_maps * 4, 4, 1, 0, bias=False),
             nn.BatchNorm2d(num_feature_maps * 4),
             nn.ReLU(True),
 

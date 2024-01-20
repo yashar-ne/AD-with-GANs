@@ -49,11 +49,12 @@ class DatasetGeneratorMnist_9_6(AbstractDatasetGenerator):
             add_line_to_csv(csv_path, [file_name, "True"])
 
 
-ds_generator = DatasetGeneratorMnist_9_6()
+if __name__ == '__main__':
+    ds_generator = DatasetGeneratorMnist_9_6()
 
-# ds_generator.run_generate_dataset()
-# ds_generator.run_equalize_image_sizes()
-# ds_generator.run_train_and_save_gan()
-# ds_generator.run_train_direction_matrix()
-# ds_generator.run_train_beta_vae()
-ds_generator.run_create_latent_space_dataset()
+    # ds_generator.run_generate_dataset()
+    # ds_generator.run_equalize_image_sizes()
+    # ds_generator.run_train_and_save_gan()
+    # ds_generator.run_train_direction_matrix()
+    # ds_generator.run_train_beta_vae()
+    ds_generator.run_create_latent_space_dataset()

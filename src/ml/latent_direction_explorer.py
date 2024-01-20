@@ -37,7 +37,7 @@ class LatentDirectionExplorer:
 
         # init Generator
         if not generator:
-            self.g: Generator = Generator(size_z=self.z_dim, num_feature_maps=64, num_color_channels=1).to(device)
+            self.g: Generator = Generator(z_dim=self.z_dim, num_feature_maps=64, num_color_channels=1).to(device)
         else:
             self.g = generator
 

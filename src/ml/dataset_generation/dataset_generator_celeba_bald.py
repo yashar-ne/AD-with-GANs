@@ -59,10 +59,11 @@ class DatasetGeneratorCelebA_Bald(AbstractDatasetGenerator):
             add_line_to_csv(csv_path, [new_filename, "True"])
 
 
-ds_generator = DatasetGeneratorCelebA_Bald()
-# ds_generator.run_generate_dataset()
-# ds_generator.run_equalize_image_sizes()
-# ds_generator.run_train_and_save_gan(display_generator_test=True)
-# ds_generator.run_train_direction_matrix()
-ds_generator.run_train_beta_vae()
-# ds_generator.run_create_latent_space_dataset()
+if __name__ == '__main__':
+    ds_generator = DatasetGeneratorCelebA_Bald()
+    # ds_generator.run_generate_dataset()
+    # ds_generator.run_equalize_image_sizes()
+    # ds_generator.run_train_and_save_gan(display_generator_test=True)
+    # ds_generator.run_train_direction_matrix()
+    ds_generator.run_train_beta_vae()
+    # ds_generator.run_create_latent_space_dataset()
