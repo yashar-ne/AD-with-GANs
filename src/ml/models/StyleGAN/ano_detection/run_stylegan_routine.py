@@ -1,12 +1,15 @@
 import os.path
 
 import PIL
-import torch
-from torch import nn
-
 import dnnlib
 import legacy
-from src.ml.models.StyleGAN.stylegan_reconstructor import StyleGANReconstructor
+import torch
+from torch import nn
+from torchvision.transforms import transforms
+
+from src.ml.dataset_generation.generate_dataset import get_dataloader
+from src.ml.latent_space_mapper import LatentSpaceMapper
+from src.ml.models.StyleGAN.ano_detection.stylegan_reconstructor import StyleGANReconstructor
 from src.ml.models.base.matrix_a_linear import MatrixALinear
 
 device = torch.device('cuda')
@@ -28,6 +31,8 @@ with dnnlib.util.open_url(network_pkl) as f:
     networks = legacy.load_network_pkl(f)
     G = networks['G_ema'].to(device)
     D = networks['D'].to(device)
+
+lsm: LatentSpaceMapper = LatentSpaceMapper(G, D, device)
 
 
 def generate_noise():
@@ -115,11 +120,31 @@ def train_and_save_directions(save_path, num_steps=1000, direction_count=40, bia
     print(direction_matrix)
 
 
-train_and_save_directions(
-    save_path=f'/home/yashar/git/AD-with-GANs/data/StyleGAN2_CelebA/direction_matrices/',
-    num_steps=3000,
-    direction_count=40,
-)
+def create_latent_space_dataset(root_dir, dataset_name):
+    print('MAPPING LATENT SPACE POINTS')
+    transform = transforms.Compose(
+        [transforms.ToTensor(),
+         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+    )
+    dataset_folder = os.path.join(root_dir, dataset_name, 'dataset')
+    dataset_raw_folder = os.path.join(root_dir, dataset_name, 'dataset_raw')
+    if os.path.exists(dataset_folder):
+        # shutil.rmtree(dataset_folder)
+        print('Dataset already exists')
+        return
+
+    os.makedirs(dataset_folder, exist_ok=True)
+    csv_path = os.path.join(dataset_folder, "latent_space_mappings.csv")
+    dataset = get_dataloader(dataset_folder=dataset_raw_folder,
+                             batch_size=1,
+                             transform=transform,
+                             shuffle=True)
+
+# train_and_save_directions(
+#     save_path=f'/data/StyleGAN2_CelebA/direction_matrices/',
+#     num_steps=3000,
+#     direction_count=40,
+# )
 
 # generate_stylegan2_image(
 #     z=torch.randn(14, 512, device=device),

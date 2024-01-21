@@ -1,6 +1,6 @@
 import sys
 
-from src.ml.models.StyleGAN.stylegan_generator import StyleGANGenerator
+from src.ml.models.StyleGAN.ano_detection.stylegan_generator_wrapper import StyleGANGeneratorWrapper
 
 sys.path.append('ml/models/StyleGAN')
 
@@ -78,8 +78,8 @@ class MainController:
                             {f: {'matrix_a': direction_matrix_linear, 'direction_count': input_dim}})
                 with dnnlib.util.open_url(model_path) as f:
                     networks = legacy.load_network_pkl(f)
-                    g: StyleGANGenerator = networks['G_ema'].to(self.device)
-                    g = StyleGANGenerator(g)
+                    g = networks['G_ema'].to(self.device)
+                    g = StyleGANGeneratorWrapper(g)
 
                 self.datasets.update({
                     dataset_name: {
