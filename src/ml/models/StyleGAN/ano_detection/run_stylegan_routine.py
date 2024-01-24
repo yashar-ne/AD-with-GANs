@@ -1,14 +1,13 @@
 import os.path
 
 import PIL
-import dnnlib
-import legacy
 import torch
 from torch import nn
 from torchvision.transforms import transforms
 
 from src.ml.dataset_generation.generate_dataset import get_dataloader
 from src.ml.latent_space_mapper import LatentSpaceMapper
+from src.ml.models.StyleGAN import dnnlib, legacy
 from src.ml.models.StyleGAN.ano_detection.stylegan_reconstructor import StyleGANReconstructor
 from src.ml.models.base.matrix_a_linear import MatrixALinear
 

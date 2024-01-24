@@ -1,14 +1,11 @@
 import torch
 
-from src.ml.models.base.discriminator import Discriminator
-from src.ml.models.base.generator import Generator
-
 
 class LatentSpaceMapper:
-    def __init__(self, generator: Generator, discriminator: Discriminator, device):
-        self.generator: Generator = generator
+    def __init__(self, generator, discriminator, device):
+        self.generator = generator
         self.generator.to(device)
-        self.discriminator: Discriminator = discriminator
+        self.discriminator = discriminator
         self.discriminator.to(device)
         self.device = device
 

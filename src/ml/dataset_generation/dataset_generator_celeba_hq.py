@@ -18,7 +18,8 @@ class DatasetGeneratorCelebaHQ(AbstractDatasetGenerator):
             draw_images=False,
             num_imgs=0,
             directions_count=20,
-            direction_train_steps=1000
+            direction_train_steps=1000,
+            stylegan=True
         )
 
     def generate_normals(self, dataset_folder, csv_path, temp_directory):
@@ -32,8 +33,8 @@ class DatasetGeneratorCelebaHQ(AbstractDatasetGenerator):
             reader = csv.reader(csvfile, delimiter=' ')
             next(reader)
             next(reader)
-            for row in itertools.islice(reader, 500):
-                if row[15] == class_id:
+            for row in itertools.islice(reader, 1000):
+                if row[17] == class_id:
                     files.append((row[0]))
 
         for i, filename in enumerate(files):
@@ -53,9 +54,9 @@ class DatasetGeneratorCelebaHQ(AbstractDatasetGenerator):
         with open(dataset_directory_csv, 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=' ')
             next(reader)
-            next(reader)
-            for row in itertools.islice(reader, 500):
-                if row[15] == class_id:
+            head = next(reader)
+            for row in itertools.islice(reader, 5000):
+                if row[17] == class_id:
                     files.append((row[0]))
 
         for i, filename in enumerate(files):
@@ -69,9 +70,7 @@ class DatasetGeneratorCelebaHQ(AbstractDatasetGenerator):
 if __name__ == '__main__':
     ds_generator = DatasetGeneratorCelebaHQ()
 
-    ds_generator.run_generate_dataset(ano_fraction=0.1)
-    # ds_generator.run_equalize_image_sizes()
-    # ds_generator.run_train_and_save_gan(display_generator_test=True)
+    # ds_generator.run_generate_dataset(ano_fraction=0.1)
     # ds_generator.run_train_direction_matrix()
     # ds_generator.run_train_beta_vae()
-    # ds_generator.run_create_latent_space_dataset()
+    ds_generator.run_create_latent_space_dataset()

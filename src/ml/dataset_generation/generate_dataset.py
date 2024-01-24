@@ -1,3 +1,7 @@
+import sys
+
+sys.path.append('ml/models/StyleGAN')
+
 import csv
 import os
 import shutil
@@ -310,7 +314,8 @@ def create_latent_space_dataset(root_dir,
                                 retry_check_after_iter=5000,
                                 learning_rate=0.001,
                                 print_every_n_iters=5000,
-                                draw_images=False):
+                                draw_images=False,
+                                stylegan=False):
     print('MAPPING LATENT SPACE POINTS')
     dataset_folder = os.path.join(root_dir, dataset_name, 'dataset')
     dataset_raw_folder = os.path.join(root_dir, dataset_name, 'dataset_raw')
@@ -339,10 +344,11 @@ def create_latent_space_dataset(root_dir,
                                             num_color_channels=num_color_channels,
                                             device=device)
 
-    generator.load_state_dict(
-        torch.load(os.path.join(root_dir, dataset_name, "generator.pkl"), map_location=torch.device(device)))
-    discriminator.load_state_dict(
-        torch.load(os.path.join(root_dir, dataset_name, "discriminator.pkl"), map_location=torch.device(device)))
+    if not stylegan:
+        generator.load_state_dict(
+            torch.load(os.path.join(root_dir, dataset_name, "generator.pkl"), map_location=torch.device(device)))
+        discriminator.load_state_dict(
+            torch.load(os.path.join(root_dir, dataset_name, "discriminator.pkl"), map_location=torch.device(device)))
 
     generator.eval()
     discriminator.eval()

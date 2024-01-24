@@ -15,7 +15,8 @@ class StyleGANDiscriminatorWrapper(Discriminator):
 
         self.img_resolution_log2 = d.img_resolution_log2
         self.block_resolutions = d.block_resolutions
-        self.mapping = d.mapping
+        if d.mapping is not None:
+            self.mapping = d.mapping
         self.b4 = d.b4
 
     def forward(self, z, c=None, **block_kwargs):

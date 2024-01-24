@@ -7,6 +7,10 @@ import torchvision.transforms as transforms
 from src.ml.dataset_generation.generate_dataset import create_latent_space_dataset, train_direction_matrix, \
     generate_dataset, \
     train_and_save_gan, equalize_image_sizes, test_generator_and_show_plot, train_beta_vae
+from src.ml.models.StyleGAN import dnnlib, legacy
+from src.ml.models.StyleGAN.ano_detection.stylegan_discriminator_wrapper import StyleGANDiscriminatorWrapper
+from src.ml.models.StyleGAN.ano_detection.stylegan_generator_wrapper import StyleGANGeneratorWrapper
+from src.ml.models.StyleGAN.ano_detection.stylegan_reconstructor import StyleGANReconstructor
 from src.ml.models.base.discriminator_master import DiscriminatorMaster
 from src.ml.models.base.generator_master import GeneratorMaster
 from src.ml.models.base.reconstructor import Reconstructor
@@ -37,7 +41,8 @@ class AbstractDatasetGenerator(ABC):
                  retry_check_after_iter=2500,
                  start_learning_rate=0.0001,
                  print_every_n_iters=2500,
-                 draw_images=True):
+                 draw_images=True,
+                 stylegan=False):
         self.root_dir = root_dir
         self.temp_directory = temp_directory
         self.dataset_name = dataset_name
@@ -62,6 +67,7 @@ class AbstractDatasetGenerator(ABC):
         self.start_learning_rate = start_learning_rate
         self.print_every_n_iters = print_every_n_iters
         self.draw_images = draw_images
+        self.stylegan = stylegan
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -73,17 +79,27 @@ class AbstractDatasetGenerator(ABC):
              transforms.Normalize((0.5,), (0.5,))]
         )
 
-        self.generator = GeneratorMaster(size_z=self.size_z, num_feature_maps=self.num_feature_maps_g,
-                                         num_color_channels=self.num_color_channels,
-                                         dropout_rate=0.1).to(self.device)
+        if not self.stylegan:
+            self.generator = GeneratorMaster(size_z=self.size_z, num_feature_maps=self.num_feature_maps_g,
+                                             num_color_channels=self.num_color_channels,
+                                             dropout_rate=0.1).to(self.device)
 
-        self.discriminator = DiscriminatorMaster(num_feature_maps=self.num_feature_maps_d,
-                                                 num_color_channels=self.num_color_channels,
-                                                 dropout_rate=0.1).to(self.device)
+            self.discriminator = DiscriminatorMaster(num_feature_maps=self.num_feature_maps_d,
+                                                     num_color_channels=self.num_color_channels,
+                                                     dropout_rate=0.1).to(self.device)
+            self.reconstructor = Reconstructor(directions_count=self.directions_count,
+                                               num_channels=self.num_color_channels,
+                                               width=2).to(self.device)
 
-        self.reconstructor = Reconstructor(directions_count=self.directions_count,
-                                           num_channels=self.num_color_channels,
-                                           width=2).to(self.device)
+        else:
+            with dnnlib.util.open_url("../data/StyleGAN2_CelebA/stylegan2-celebahq-256x256.pkl") as f:
+                networks = legacy.load_network_pkl(f)
+                self.generator = StyleGANGeneratorWrapper(networks['G_ema']).to(self.device)
+                self.discriminator = StyleGANDiscriminatorWrapper(networks['D']).to(self.device)
+
+            self.reconstructor = StyleGANReconstructor(directions_count=self.directions_count,
+                                                       num_channels=self.num_color_channels,
+                                                       width=2).to(self.device)
 
     @abstractmethod
     def generate_normals(self, dataset_folder, csv_path, temp_directory):
@@ -167,7 +183,8 @@ class AbstractDatasetGenerator(ABC):
                                     retry_check_after_iter=self.retry_check_after_iter,
                                     learning_rate=self.start_learning_rate,
                                     print_every_n_iters=self.print_every_n_iters,
-                                    draw_images=self.draw_images)
+                                    draw_images=self.draw_images,
+                                    stylegan=self.stylegan)
 
     def run(self, ano_fraction):
         self.run_generate_dataset(ano_fraction=ano_fraction)
