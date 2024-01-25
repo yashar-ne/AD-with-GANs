@@ -41,7 +41,7 @@ class AbstractDatasetGenerator(ABC):
                  retry_check_after_iter=2500,
                  start_learning_rate=0.0001,
                  print_every_n_iters=2500,
-                 draw_images=True,
+                 draw_images=False,
                  stylegan=False):
         self.root_dir = root_dir
         self.temp_directory = temp_directory

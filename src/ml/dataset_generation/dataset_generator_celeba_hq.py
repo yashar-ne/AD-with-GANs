@@ -14,12 +14,13 @@ class DatasetGeneratorCelebaHQ(AbstractDatasetGenerator):
             dataset_name='DS17_celeba_hq_glasses',
             num_color_channels=3,
             num_epochs=1500,
-            n_latent_space_search_iterations=3500,
-            draw_images=False,
+            n_latent_space_search_iterations=2500,
+            draw_images=True,
             num_imgs=0,
             directions_count=20,
             direction_train_steps=1000,
-            stylegan=True
+            stylegan=True,
+            only_consider_anos=True,
         )
 
     def generate_normals(self, dataset_folder, csv_path, temp_directory):
@@ -33,8 +34,8 @@ class DatasetGeneratorCelebaHQ(AbstractDatasetGenerator):
             reader = csv.reader(csvfile, delimiter=' ')
             next(reader)
             next(reader)
-            for row in itertools.islice(reader, 1000):
-                if row[17] == class_id:
+            for row in itertools.islice(reader, 200):
+                if row[6] == class_id:
                     files.append((row[0]))
 
         for i, filename in enumerate(files):
@@ -55,8 +56,8 @@ class DatasetGeneratorCelebaHQ(AbstractDatasetGenerator):
             reader = csv.reader(csvfile, delimiter=' ')
             next(reader)
             head = next(reader)
-            for row in itertools.islice(reader, 5000):
-                if row[17] == class_id:
+            for row in itertools.islice(reader, 1000):
+                if row[6] == class_id:
                     files.append((row[0]))
 
         for i, filename in enumerate(files):

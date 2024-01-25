@@ -354,7 +354,10 @@ def create_latent_space_dataset(root_dir,
     discriminator.eval()
 
     os.makedirs(dataset_folder, exist_ok=True)
-    lsm: LatentSpaceMapper = LatentSpaceMapper(generator=generator, discriminator=discriminator, device=device)
+    lsm: LatentSpaceMapper = LatentSpaceMapper(generator=generator,
+                                               discriminator=discriminator,
+                                               device=device,
+                                               stylegan=stylegan)
     mapped_images = []
     cp_counter = 0
     counter = len(dataset) - start_with_image_number - 1
@@ -383,7 +386,8 @@ def create_latent_space_dataset(root_dir,
                                                                                       retry_check_after_iter=retry_check_after_iter,
                                                                                       learning_rate=learning_rate,
                                                                                       print_every_n_iters=print_every_n_iters,
-                                                                                      retry_threshold=retry_threshold)
+                                                                                      retry_threshold=retry_threshold,
+                                                                                      stylegan=stylegan)
         if retry:
             if retry_counter == max_retries:
                 retry_counter = 0

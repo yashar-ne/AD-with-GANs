@@ -2,12 +2,13 @@ import torch
 
 
 class LatentSpaceMapper:
-    def __init__(self, generator, discriminator, device):
+    def __init__(self, generator, discriminator, device, stylegan=False):
         self.generator = generator
         self.generator.to(device)
         self.discriminator = discriminator
         self.discriminator.to(device)
         self.device = device
+        self.stylegan = stylegan
 
         self.criterion = torch.nn.MSELoss()
 
@@ -18,9 +19,13 @@ class LatentSpaceMapper:
                                            retry_check_after_iter=4000,
                                            learning_rate=0.001,
                                            print_every_n_iters=10000,
-                                           retry_threshold=200):
+                                           retry_threshold=200,
+                                           stylegan=False):
         image.to(self.device)
-        z = torch.randn(1, size_z, 1, 1, device=self.device, requires_grad=True)
+        if not stylegan:
+            z = torch.randn(1, size_z, 1, 1, device=self.device, requires_grad=True)
+        else:
+            z = torch.randn(1, 512, device=self.device, requires_grad=True)
         z_optimizer = torch.optim.Adam([z], lr=learning_rate)
         losses = []
         final_loss = 0
@@ -53,11 +58,18 @@ class LatentSpaceMapper:
     def __get_anomaly_score(self, z, image):
         lamda = 0.1
         fake = self.generator(z.to(self.device))
-        _, f_real = self.discriminator(image.to(self.device))
-        _, f_fake = self.discriminator(fake)
+        if not self.stylegan:
+            _, f_real = self.discriminator(image.to(self.device))
+            _, f_fake = self.discriminator(fake)
+        else:
+            f_real = self.discriminator(image.to(self.device))
+            f_fake = self.discriminator(fake)
 
         loss_r = self.criterion(image.to(self.device), fake)
         loss_d = self.criterion(f_real, f_fake)
         loss = (1 - lamda) * loss_r + lamda * loss_d
+
+        # loss_r = self.criterion(image.to(self.device), fake)
+        # loss = (1 - lamda) * loss_r
 
         return loss
