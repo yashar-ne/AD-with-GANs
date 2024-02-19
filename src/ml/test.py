@@ -48,11 +48,11 @@ def validate_model(base_path, direction_matrix_path, z, anomalous_direction_indi
     print("With cosine angle metric and origin shift", auc)
 
 
-def visualize_dataset(base_path, title='', n_components=2):
+def visualize_dataset(base_path, title='', n_components=3):
     latent_space_data_points, latent_space_data_labels = load_data_points(
         os.path.join(base_path, 'dataset'))
 
-    tsne = (TSNE(random_state=42, n_components=n_components, n_iter=300)
+    tsne = (TSNE(random_state=42, n_components=n_components, n_iter=1000)
             .fit_transform(np.array(latent_space_data_points)))
 
     plt.figure(figsize=(15, 15))
@@ -422,13 +422,15 @@ anomalous_directions_fashionmnist_shirt_sneaker = [
 #                anomalous_directions_mnist_9_6)
 
 # visualize_dataset('../data/DS14_fashionmnist_shirt_sneaker', title='FashionMNIST Shirt vs Sneaker')
-validate_model('../data/DS14_fashionmnist_shirt_sneaker',
-               'direction_matrices/direction_matrix_steps_1500_bias_k_30.pkl',
-               noise_fashionmnist_shirt_sneaker,
-               anomalous_directions_fashionmnist_shirt_sneaker)
+# validate_model('../data/DS14_fashionmnist_shirt_sneaker',
+#                'direction_matrices/direction_matrix_steps_1500_bias_k_30.pkl',
+#                noise_fashionmnist_shirt_sneaker,
+#                anomalous_directions_fashionmnist_shirt_sneaker)
 
 # g = torch.load('/home/yashar/git/AD-with-GANs/data/DS16_mars_novelty/generator_model.pkl')
 # test_generator(128, 100, g, '/home/yashar/git/AD-with-GANs/data/DS16_mars_novelty/generator.pkl',
 #                torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
 # plt.show(block=False)
 # plt.close()
+
+visualize_dataset('../data/DS17_celeba_hq_bald', title='CelebA-HQ, Bald -- StyleGAN2')

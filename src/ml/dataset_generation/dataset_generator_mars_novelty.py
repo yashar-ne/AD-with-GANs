@@ -11,7 +11,7 @@ class DatasetGeneratorMvTecHazelnut(AbstractDatasetGenerator):
     def __init__(self):
         super().__init__(
             dataset_name='DS16_mars_novelty',
-            num_color_channels=3,
+            num_channels=3,
             num_epochs=1000,
             n_latent_space_search_iterations=4000,
             draw_images=True,

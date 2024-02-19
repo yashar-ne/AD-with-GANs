@@ -17,9 +17,11 @@ class LatentDirectionExplorer:
                  device,
                  saved_models_path,
                  num_channels=1,
+                 direction_batch_size=1,
                  bias=True,
                  generator=None,
-                 reconstructor=None):
+                 reconstructor=None,
+                 is_stylegan=False):
         super(LatentDirectionExplorer, self).__init__()
         self.min_shift = 0.5
         self.shift_scale = 6.0
@@ -30,10 +32,11 @@ class LatentDirectionExplorer:
         self.cross_entropy = nn.CrossEntropyLoss().to(device)
         self.saved_models_path = saved_models_path
 
-        self.batch_size = 1
+        self.direction_batch_size = direction_batch_size
         self.z_dim = z_dim
         self.directions_count = directions_count
         self.device = device
+        self.is_stylegan = is_stylegan
 
         # init Generator
         if not generator:
@@ -67,16 +70,22 @@ class LatentDirectionExplorer:
 
         # start training loop
         for step in range(num_steps):
+            if step % 100 == 0:
+                print(f'Step {step} of {num_steps}')
+
             self.g.zero_grad()
             self.matrix_a.zero_grad()
             self.reconstructor.zero_grad()
 
             # cast random noise z
-            z = generate_noise(batch_size=self.batch_size, z_dim=self.z_dim, device=self.device)
+            if self.is_stylegan:
+                z = torch.randn(self.direction_batch_size, self.z_dim, device=self.device)
+            else:
+                z = generate_noise(batch_size=self.direction_batch_size, z_dim=self.z_dim, device=self.device)
 
             # generate shifts
             # cast random integer that represents the k^th column  --> e_k
-            target_indices, shifts, basis_shift = self.__make_shifts(self.matrix_a.input_dim, self.batch_size)
+            target_indices, shifts, basis_shift = self.__make_shifts(self.matrix_a.input_dim, self.direction_batch_size)
             shift = self.matrix_a(basis_shift)
 
             # generate images --> from z and from z + A(epsilon * e_k)
@@ -117,7 +126,7 @@ class LatentDirectionExplorer:
         shifts[(shifts < self.min_shift) & (shifts > 0)] = self.min_shift
         shifts[(shifts > -self.min_shift) & (shifts < 0)] = -self.min_shift
 
-        z_shift = torch.zeros([self.batch_size] + [latent_dim], device=self.device)
+        z_shift = torch.zeros([self.direction_batch_size] + [latent_dim], device=self.device)
         for i, (index, val) in enumerate(zip(target_indices, shifts)):
             z_shift[i][index] += val
 
@@ -125,8 +134,10 @@ class LatentDirectionExplorer:
 
     def __save_models(self, filename):
         print("Saving models...")
-        torch.save(self.matrix_a.state_dict(), f'{self.saved_models_path}/{filename}')
-        # torch.save(self.reconstructor.state_dict(), f'{self.saved_models_path}/reconstructor_{filename}.pkl')
+        if self.is_stylegan:
+            torch.save(self.matrix_a, f'{self.saved_models_path}/{filename}')
+        else:
+            torch.save(self.matrix_a.state_dict(), f'{self.saved_models_path}/{filename}')
 
     def __save_checkpoint(self, iteration):
         torch.save(self.matrix_a.state_dict(), f'{self.saved_models_path}/cp/matrix_a_{time.time()}_{iteration}.pkl')

@@ -3,14 +3,14 @@ import torch.nn as nn
 
 
 class GeneratorMaster(nn.Module):
-    def __init__(self, size_z, num_feature_maps, num_color_channels, dropout_rate=0):
+    def __init__(self, z_dim, num_feature_maps, num_channels, dropout_rate=0):
         super(GeneratorMaster, self).__init__()
-        self.size_z = size_z
+        self.z_dim = z_dim
         self.num_feature_maps = num_feature_maps
-        self.num_color_channels = num_color_channels
+        self.num_channels = num_channels
         self.dropout_rate = dropout_rate
         self.network = nn.Sequential(
-            nn.ConvTranspose2d(self.size_z, num_feature_maps * 8, 4, 1, 0, bias=False),
+            nn.ConvTranspose2d(self.z_dim, num_feature_maps * 8, 4, 1, 0, bias=False),
             nn.BatchNorm2d(num_feature_maps * 8),
             nn.ReLU(True),
 
@@ -32,7 +32,7 @@ class GeneratorMaster(nn.Module):
             nn.BatchNorm2d(num_feature_maps),
             nn.ReLU(True),
 
-            nn.ConvTranspose2d(num_feature_maps, num_color_channels, 4, 2, 1, bias=False),
+            nn.ConvTranspose2d(num_feature_maps, num_channels, 4, 2, 1, bias=False),
             nn.Tanh()
         )
 

@@ -25,7 +25,7 @@ export class DimensionLabelingComponent implements OnInit, OnDestroy {
 
   dataset: string = ''
   directionMatrix: string = ''
-  shiftRange: number = 30
+  shiftRange: number = 3
   shiftCount: number = 5
   dim: number = 0
   direction: number = 1

@@ -99,3 +99,8 @@ def get_folders_from_dataset_name(root_dir, dataset_name):
     checkpoint_folder = os.path.join(root_dir, '..', 'checkpoints', dataset_name)
 
     return dataset_folder, dataset_raw_folder, checkpoint_folder
+
+
+def is_stylegan_dataset(dataset_name):
+    stylegan_datasets = ['DS17_celeba_hq_bald']
+    return dataset_name in stylegan_datasets

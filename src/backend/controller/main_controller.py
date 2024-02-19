@@ -16,7 +16,7 @@ from src.ml.latent_direction_visualizer import LatentDirectionVisualizer
 from src.ml.models.StyleGAN import dnnlib, legacy
 from src.ml.models.base.matrix_a_linear import MatrixALinear
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
-    generate_base64_image_from_tensor
+    generate_base64_image_from_tensor, is_stylegan_dataset
 from src.ml.validation.ano_gan_validation import get_roc_auc_for_ano_gan_validation
 from src.ml.validation.knn_validation import get_knn_validation
 from src.ml.validation.latent_distance_validation import get_roc_auc_for_euclidean_distance_metric
@@ -26,15 +26,20 @@ from src.ml.validation.validation_utils import load_data_points
 
 
 class MainController:
-    def __init__(self, base_path, z_dim, bias=False):
+    def __init__(self, base_path, z_dim):
         self.base_path = base_path
         self.dataset_names = os.listdir(base_path)
         self.z_dim = z_dim
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.datasets = {}
 
+        self.init_datasets(base_path)
+
+    def init_datasets(self, base_path):
         for dataset_name in self.dataset_names:
-            if dataset_name != 'StyleGAN2_CelebA':
+            if not is_stylegan_dataset(dataset_name):
+                if not os.path.isdir(os.path.join(base_path, dataset_name)):
+                    continue
                 direction_matrix_path = os.path.join(base_path, dataset_name, 'direction_matrices')
                 generator_model_path = os.path.join(base_path, dataset_name, 'generator_model.pkl')
                 vae_model_path = os.path.join(base_path, dataset_name, 'vae_model.pkl')
@@ -56,7 +61,6 @@ class MainController:
                 # g = self.get_generator_by_dataset_name(dataset_name)
                 g = torch.load(generator_model_path, map_location=torch.device(self.device))
                 vae = torch.load(vae_model_path, map_location=torch.device(self.device))
-                # g.load_state_dict(torch.load(generator_path, map_location=torch.device(self.device)))
                 self.datasets.update({
                     dataset_name: {
                         'direction_matrices': direction_matrices,
@@ -67,7 +71,8 @@ class MainController:
                 })
             else:
                 direction_matrix_path = os.path.join(base_path, dataset_name, 'direction_matrices')
-                model_path = os.path.join(base_path, dataset_name, 'stylegan2-celebahq-256x256.pkl')
+                model_path = os.path.join(base_path, dataset_name, 'stylegan_pretrained_models.pkl')
+                vae_model_path = os.path.join(base_path, dataset_name, 'vae_model.pkl')
                 direction_matrices = {}
                 for f in os.listdir(direction_matrix_path):
                     if os.path.isfile(os.path.join(direction_matrix_path, f)):
@@ -80,19 +85,19 @@ class MainController:
                     networks = legacy.load_network_pkl(f)
                     g = networks['G_ema'].to(self.device)
                     g = StyleGANGeneratorWrapper(g)
-
+                vae = torch.load(vae_model_path, map_location=torch.device(self.device))
                 self.datasets.update({
                     dataset_name: {
                         'direction_matrices': direction_matrices,
                         'generator': g,
-                        'vae': None,
-                        'data': None
+                        'vae': vae,
+                        'data': load_data_points(os.path.join(base_path, dataset_name, 'dataset'))
                     }
                 })
 
     def get_single_image(self, dataset_name, z):
         generator = self.datasets.get(dataset_name).get('generator').to(self.device)
-        if dataset_name == 'StyleGAN2_CelebA':
+        if is_stylegan_dataset(dataset_name):
             z = torch.FloatTensor(z).to(self.device)
             img = generator(z, None, truncation_psi=0.7, noise_mode='const')
         else:
@@ -144,7 +149,8 @@ class MainController:
 
         roc_auc_vae, _ = get_vae_roc_auc_for_image_data(root_dir=self.base_path,
                                                         dataset_name=dataset_name,
-                                                        vae=self.datasets.get(dataset_name).get('vae'))
+                                                        vae=self.datasets.get(dataset_name).get('vae')) \
+            if self.datasets.get(dataset_name).get('vae') is not None else (None, None)
 
         roc_auc_1nn, _ = get_knn_validation(dataset_name=dataset_name, k=1)
 
@@ -169,7 +175,7 @@ class MainController:
         save_session_labels_to_db(session_labels=session_labels)
 
     def get_random_noise(self, z_dim, dataset_name):
-        if dataset_name == 'StyleGAN2_CelebA':
+        if is_stylegan_dataset(dataset_name):
             return torch.randn(14, 512, device=self.device)
         return generate_noise(batch_size=1, z_dim=z_dim, device=self.device)
 

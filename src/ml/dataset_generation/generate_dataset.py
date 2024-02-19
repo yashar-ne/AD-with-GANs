@@ -1,5 +1,7 @@
 import sys
 
+from src.ml.tools.utils import is_stylegan_dataset
+
 sys.path.append('ml/models/StyleGAN')
 
 import csv
@@ -59,9 +61,9 @@ def generate_dataset(root_dir, temp_directory, dataset_name, generate_normals, g
     generate_anomalies(dataset_folder, csv_path, temp_directory, ano_fraction)
 
 
-def equalize_image_sizes(final_image_size, root_dir, dataset_name, num_color_channels):
+def equalize_image_sizes(final_image_size, root_dir, dataset_name, num_channels):
     dataset_folder = os.path.join(root_dir, dataset_name, 'dataset_raw')
-    background_color = (0, 0, 0) if num_color_channels == 3 else 0
+    background_color = (0, 0, 0) if num_channels == 3 else 0
     for file in os.listdir(dataset_folder):
         if file.endswith(".png"):
             im = Image.open(os.path.join(dataset_folder, file))
@@ -96,7 +98,7 @@ def weights_init(m):
 
 
 def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_maps_g, num_feature_maps_d,
-                       num_color_channels, batch_size,
+                       num_channels, batch_size,
                        device, learning_rate, transform=None, discriminator=None, generator=None, num_imgs=None,
                        save_checkpoint_every_n_epoch=10, initial_state_generator=None,
                        initial_state_discriminator=None):
@@ -109,7 +111,7 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
     if not generator:
         generator = Generator(z_dim=size_z,
                               num_feature_maps=num_feature_maps_g,
-                              num_color_channels=num_color_channels).to(device)
+                              num_color_channels=num_channels).to(device)
 
     if initial_state_generator is not None and initial_state_discriminator is not None:
         generator.load_state_dict(torch.load(initial_state_generator, map_location=torch.device(device)))
@@ -119,7 +121,7 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
 
     if not discriminator:
         discriminator = Discriminator(num_feature_maps=num_feature_maps_d,
-                                      num_color_channels=num_color_channels).to(device)
+                                      num_color_channels=num_channels).to(device)
 
     dataloader = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=batch_size, transform=transform,
                                 nrows=num_imgs)
@@ -237,6 +239,8 @@ def train_direction_matrix(root_dir,
                            direction_count,
                            steps,
                            device,
+                           direction_batch_size=1,
+                           z_dim=100,
                            num_channels=1,
                            use_bias=True,
                            generator=None,
@@ -248,15 +252,19 @@ def train_direction_matrix(root_dir,
     os.makedirs(dataset_root_folder, exist_ok=True)
     os.makedirs(direction_matrices_folder, exist_ok=True)
 
-    trainer = LatentDirectionExplorer(z_dim=100,
+    trainer = LatentDirectionExplorer(z_dim=z_dim,
                                       directions_count=direction_count,
                                       bias=use_bias,
                                       device=device,
+                                      direction_batch_size=direction_batch_size,
                                       num_channels=num_channels,
                                       saved_models_path=direction_matrices_folder,
                                       generator=generator,
-                                      reconstructor=reconstructor)
-    trainer.load_generator(os.path.join(dataset_root_folder, 'generator.pkl'))
+                                      reconstructor=reconstructor,
+                                      is_stylegan=is_stylegan_dataset(dataset_name))
+    if not generator:
+        trainer.load_generator(os.path.join(dataset_root_folder, 'generator.pkl'))
+
     b = 'bias' if use_bias else 'nobias'
     trainer.train_and_save(filename=f'direction_matrix_steps_{steps}_{b}_k_{direction_count}.pkl', num_steps=steps)
     shutil.rmtree(os.path.join(direction_matrices_folder, 'cp'))
@@ -300,7 +308,7 @@ def create_latent_space_dataset(root_dir,
                                 size_z,
                                 num_feature_maps_g,
                                 num_feature_maps_d,
-                                num_color_channels,
+                                num_channels,
                                 device,
                                 n_latent_space_search_iterations=100000,
                                 generator=None,
@@ -315,6 +323,7 @@ def create_latent_space_dataset(root_dir,
                                 learning_rate=0.001,
                                 print_every_n_iters=5000,
                                 draw_images=False,
+                                use_discriminator_for_latent_space_mapping=True,
                                 stylegan=False):
     print('MAPPING LATENT SPACE POINTS')
     dataset_folder = os.path.join(root_dir, dataset_name, 'dataset')
@@ -341,7 +350,7 @@ def create_latent_space_dataset(root_dir,
                                             size_z=size_z,
                                             num_feature_maps_g=num_feature_maps_g,
                                             num_feature_maps_d=num_feature_maps_d,
-                                            num_color_channels=num_color_channels,
+                                            num_color_channels=num_channels,
                                             device=device)
 
     if not stylegan:
@@ -387,6 +396,7 @@ def create_latent_space_dataset(root_dir,
                                                                                       learning_rate=learning_rate,
                                                                                       print_every_n_iters=print_every_n_iters,
                                                                                       retry_threshold=retry_threshold,
+                                                                                      use_discriminator_for_latent_space_mapping=use_discriminator_for_latent_space_mapping,
                                                                                       stylegan=stylegan)
         if retry:
             if retry_counter == max_retries:

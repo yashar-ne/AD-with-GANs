@@ -20,6 +20,7 @@ class LatentSpaceMapper:
                                            learning_rate=0.001,
                                            print_every_n_iters=10000,
                                            retry_threshold=200,
+                                           use_discriminator_for_latent_space_mapping=True,
                                            stylegan=False):
         image.to(self.device)
         if not stylegan:
@@ -34,7 +35,7 @@ class LatentSpaceMapper:
 
         for i in range(n_iterations):
             retry = False
-            loss = self.__get_anomaly_score(z, image)
+            loss = self.__get_anomaly_score(z, image, use_discriminator_for_latent_space_mapping)
             final_loss = loss.data.item()
 
             if (i % print_every_n_iters == 0 and i != 0) or (i == n_iterations - 1):
@@ -55,21 +56,21 @@ class LatentSpaceMapper:
 
         return z, final_loss, retry
 
-    def __get_anomaly_score(self, z, image):
+    def __get_anomaly_score(self, z, image, use_discriminator_for_latent_space_mapping):
         lamda = 0.1
         fake = self.generator(z.to(self.device))
-        if not self.stylegan:
-            _, f_real = self.discriminator(image.to(self.device))
-            _, f_fake = self.discriminator(fake)
+
+        if use_discriminator_for_latent_space_mapping:
+            if not self.stylegan:
+                _, f_real = self.discriminator(image.to(self.device))
+                _, f_fake = self.discriminator(fake)
+            else:
+                f_real = self.discriminator(image.to(self.device))
+                f_fake = self.discriminator(fake)
+
+            loss_r = self.criterion(image.to(self.device), fake)
+            loss_d = self.criterion(f_real, f_fake)
+            return (1 - lamda) * loss_r + lamda * loss_d
         else:
-            f_real = self.discriminator(image.to(self.device))
-            f_fake = self.discriminator(fake)
-
-        loss_r = self.criterion(image.to(self.device), fake)
-        loss_d = self.criterion(f_real, f_fake)
-        loss = (1 - lamda) * loss_r + lamda * loss_d
-
-        # loss_r = self.criterion(image.to(self.device), fake)
-        # loss = (1 - lamda) * loss_r
-
-        return loss
+            loss_r = self.criterion(image.to(self.device), fake)
+            return (1 - lamda) * loss_r

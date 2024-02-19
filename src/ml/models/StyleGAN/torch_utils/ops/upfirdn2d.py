@@ -9,13 +9,11 @@
 """Custom PyTorch ops for efficient resampling of 2D images."""
 
 import os
-import warnings
 
 import numpy as np
 import torch
 
 from . import conv2d_gradfix
-from .. import custom_ops
 from .. import misc
 
 # ----------------------------------------------------------------------------
@@ -29,11 +27,10 @@ def _init():
     if not _inited:
         sources = ['upfirdn2d.cpp', 'upfirdn2d.cu']
         sources = [os.path.join(os.path.dirname(__file__), s) for s in sources]
-        try:
-            _plugin = custom_ops.get_plugin('upfirdn2d_plugin', sources=sources, extra_cuda_cflags=['--use_fast_math'])
-        except:
-            warnings.warn('Failed to build CUDA kernels for upfirdn2d. Falling back to slow reference implementation.')
-            # warnings.warn('Failed to build CUDA kernels for upfirdn2d. Falling back to slow reference implementation. Details:\n\n' + traceback.format_exc())
+        # try:
+        #     _plugin = custom_ops.get_plugin('upfirdn2d_plugin', sources=sources, extra_cuda_cflags=['--use_fast_math'])
+        # except:
+        #     warnings.warn('Failed to build CUDA kernels for upfirdn2d. Falling back to slow reference implementation.')
     return _plugin is not None
 
 

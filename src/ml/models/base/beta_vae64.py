@@ -25,6 +25,7 @@ class BetaVAE64(nn.Module):
         self.device = device
         self.beta = beta
         self.kl_weight = kl_weight
+        self.dataloader = None
 
         self.encConv1 = nn.Conv2d(num_color_channels, 64, 4, 2, 1)
         self.encConv2 = nn.Conv2d(64, 32, 4, 2, 1)
@@ -108,6 +109,7 @@ class BetaVAE64(nn.Module):
 
     def train_model(self, dataloader):
         self.train()
+        self.dataloader = dataloader
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
 
         for epoch in range(self.num_epochs):
@@ -122,6 +124,8 @@ class BetaVAE64(nn.Module):
                 loss.backward()
                 optimizer.step()
 
+            if epoch % 10 == 0:
+                self.draw_samples(dataloader, 1)
             print(f'Epoch {epoch}/{self.num_epochs}: Loss {loss}')
 
     def compute_loss(self, x, output, mu, log_var):
@@ -138,7 +142,7 @@ class BetaVAE64(nn.Module):
         self.eval()
         with (torch.no_grad()):
             for data in random.sample(list(dataset), num_samples):
-                imgs, _ = data
+                imgs, _, _ = data
                 imgs = imgs.to(self.device)
                 img = np.transpose(imgs[0].cpu().numpy(), [1, 2, 0])
                 plt.subplot(121)

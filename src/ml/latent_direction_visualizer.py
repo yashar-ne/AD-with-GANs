@@ -24,7 +24,11 @@ class LatentDirectionVisualizer:
         super(LatentDirectionVisualizer, self).__init__()
         self.g = generator
         self.direction_matrix_linear: MatrixALinear = direction_matrix_linear
-        self.dim = self.g.z_dim
+
+        if hasattr(self.g, 'z_dim'):
+            self.z_dim = self.g.z_dim
+        else:
+            self.z_dim = self.g.size_z  # legacy models
         self.device = device
         self.data = []
 

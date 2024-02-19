@@ -10,7 +10,7 @@ class DatasetGeneratorMvTecHazelnut(AbstractDatasetGenerator):
     def __init__(self):
         super().__init__(
             dataset_name='DS15_mvtec_hazelnut',
-            num_color_channels=3,
+            num_channels=3,
             num_epochs=1500,
             n_latent_space_search_iterations=3500,
             draw_images=False,

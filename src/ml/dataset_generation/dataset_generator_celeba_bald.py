@@ -12,7 +12,7 @@ class DatasetGeneratorCelebA_Bald(AbstractDatasetGenerator):
     def __init__(self):
         super().__init__(
             dataset_name='DS13_celeba_bald',
-            num_color_channels=3,
+            num_channels=3,
             num_epochs=20,
             n_latent_space_search_iterations=2000,
             draw_images=False

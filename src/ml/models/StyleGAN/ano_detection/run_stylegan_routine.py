@@ -1,11 +1,13 @@
+import sys
+
+sys.path.append('ml/models/StyleGAN')
+
 import os.path
 
 import PIL
 import torch
 from torch import nn
-from torchvision.transforms import transforms
 
-from src.ml.dataset_generation.generate_dataset import get_dataloader
 from src.ml.latent_space_mapper import LatentSpaceMapper
 from src.ml.models.StyleGAN import dnnlib, legacy
 from src.ml.models.StyleGAN.ano_detection.stylegan_reconstructor import StyleGANReconstructor
@@ -13,7 +15,7 @@ from src.ml.models.base.matrix_a_linear import MatrixALinear
 
 device = torch.device('cuda')
 
-network_pkl = '/home/yashar/git/AD-with-GANs/data/StyleGAN2_CelebA/stylegan2-celebahq-256x256.pkl'
+network_pkl = '/home/yashar/git/AD-with-GANs/data/DS17_celeba_hq_bald/stylegan_pretrained_models.pkl'
 num_channels = 3
 z_dim = 512
 reconstructor_lr = 0.002
@@ -96,7 +98,7 @@ def train_and_save_directions(save_path, num_steps=1000, direction_count=40, bia
 
         # generate shifts
         # cast random integer that represents the k^th column  --> e_k
-        target_indices, shifts, basis_shift = make_shifts(direction_matrix.input_dim, direction_count, 14)
+        target_indices, shifts, basis_shift = make_shifts(direction_matrix.input_dim, direction_count, batch_size=14)
         shift = direction_matrix(basis_shift)
 
         # generate images --> from z and from z + A(epsilon * e_k)
@@ -119,31 +121,11 @@ def train_and_save_directions(save_path, num_steps=1000, direction_count=40, bia
     print(direction_matrix)
 
 
-def create_latent_space_dataset(root_dir, dataset_name):
-    print('MAPPING LATENT SPACE POINTS')
-    transform = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
-    )
-    dataset_folder = os.path.join(root_dir, dataset_name, 'dataset')
-    dataset_raw_folder = os.path.join(root_dir, dataset_name, 'dataset_raw')
-    if os.path.exists(dataset_folder):
-        # shutil.rmtree(dataset_folder)
-        print('Dataset already exists')
-        return
-
-    os.makedirs(dataset_folder, exist_ok=True)
-    csv_path = os.path.join(dataset_folder, "latent_space_mappings.csv")
-    dataset = get_dataloader(dataset_folder=dataset_raw_folder,
-                             batch_size=1,
-                             transform=transform,
-                             shuffle=True)
-
-# train_and_save_directions(
-#     save_path=f'/data/StyleGAN2_CelebA/direction_matrices/',
-#     num_steps=3000,
-#     direction_count=40,
-# )
+train_and_save_directions(
+    save_path=f'/data/DS17_celeba_hq_bald/direction_matrices/',
+    num_steps=3000,
+    direction_count=40,
+)
 
 # generate_stylegan2_image(
 #     z=torch.randn(14, 512, device=device),

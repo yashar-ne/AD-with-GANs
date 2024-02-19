@@ -2,14 +2,14 @@ import torch.nn as nn
 
 
 class DiscriminatorMaster(nn.Module):
-    def __init__(self, num_feature_maps, num_color_channels, dropout_rate=0):
+    def __init__(self, num_feature_maps, num_channels, dropout_rate=0):
         super(DiscriminatorMaster, self).__init__()
         self.dropout_rate = dropout_rate
         self.num_feature_maps = num_feature_maps
-        self.num_color_channels = num_color_channels
+        self.num_color_channels = num_channels
 
         self.layer1 = nn.Sequential(
-            nn.Conv2d(num_color_channels, num_feature_maps, 4, 2, 1, bias=False),
+            nn.Conv2d(num_channels, num_feature_maps, 4, 2, 1, bias=False),
             nn.LeakyReLU(0.2, inplace=True),
         )
 

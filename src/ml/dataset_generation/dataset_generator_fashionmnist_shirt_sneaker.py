@@ -11,7 +11,7 @@ class DatasetGeneratorMnistFashionMnist(AbstractDatasetGenerator):
     def __init__(self):
         super().__init__(
             dataset_name='DS14_fashionmnist_shirt_sneaker',
-            num_color_channels=1,
+            num_channels=1,
             num_epochs=100,
             n_latent_space_search_iterations=2000,
             draw_images=False,

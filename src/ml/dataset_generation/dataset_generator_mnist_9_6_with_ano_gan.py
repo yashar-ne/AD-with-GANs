@@ -10,7 +10,7 @@ class DatasetGeneratorMnist_9_6(AbstractDatasetGenerator):
     def __init__(self):
         super().__init__(
             dataset_name='mnist_9_6_with_ano_gan',
-            num_color_channels=1,
+            num_channels=1,
             num_epochs=100,
             n_latent_space_search_iterations=1500,
             draw_images=False,
