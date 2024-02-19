@@ -5,9 +5,9 @@ import torch
 import torchvision
 from PIL import Image
 
+from src.ml.evaluation.validation_utils import get_roc_curve_as_base64
 from src.ml.models.base.beta_vae64 import BetaVAE64
 from src.ml.tools.utils import get_folders_from_dataset_name
-from src.ml.validation.validation_utils import get_roc_curve_as_base64
 
 
 def get_vae_roc_auc_for_image_data(root_dir, dataset_name, vae=None):

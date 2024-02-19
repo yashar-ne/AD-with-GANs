@@ -5,10 +5,10 @@ import torch
 from matplotlib import pyplot as plt
 from sklearn.manifold import TSNE
 
+from src.ml.evaluation.latent_distance_evaluation import get_roc_auc_for_euclidean_distance_metric, \
+    get_roc_auc_for_angle_distance, get_roc_auc_for_angle_distance_with_origin_shift
+from src.ml.evaluation.validation_utils import load_data_points
 from src.ml.models.base.matrix_a_linear import MatrixALinear
-from src.ml.validation.latent_distance_validation import get_roc_auc_for_euclidean_distance_metric, \
-    get_roc_auc_for_average_distance_metric, get_roc_auc_for_angle_distance_with_origin_shift
-from src.ml.validation.validation_utils import load_data_points
 
 
 def validate_model(base_path, direction_matrix_path, z, anomalous_direction_indices):
@@ -32,10 +32,10 @@ def validate_model(base_path, direction_matrix_path, z, anomalous_direction_indi
     # img.show()
     print("With euclidearn distance", auc)
 
-    roc, auc = get_roc_auc_for_average_distance_metric(latent_space_data_points=latent_space_data_points,
-                                                       latent_space_data_labels=latent_space_data_labels,
-                                                       direction_matrix=direction_matrix,
-                                                       anomalous_direction_indices=anomalous_direction_indices)
+    roc, auc = get_roc_auc_for_angle_distance(latent_space_data_points=latent_space_data_points,
+                                              latent_space_data_labels=latent_space_data_labels,
+                                              direction_matrix=direction_matrix,
+                                              anomalous_direction_indices=anomalous_direction_indices)
 
     print("With cosine angle metric", auc)
 

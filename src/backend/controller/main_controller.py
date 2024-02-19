@@ -17,16 +17,16 @@ from src.ml.models.StyleGAN import dnnlib, legacy
 from src.ml.models.base.matrix_a_linear import MatrixALinear
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
     generate_base64_image_from_tensor
-from src.ml.validation.ano_gan_validation import get_roc_auc_for_ano_gan_validation
-from src.ml.validation.knn_validation import get_knn_validation
-from src.ml.validation.latent_distance_validation import get_roc_auc_for_euclidean_distance_metric
-from src.ml.validation.lof_validation import get_roc_auc_lof
-from src.ml.validation.vae_validation import get_vae_roc_auc_for_image_data
-from src.ml.validation.validation_utils import load_data_points
+from src.ml.evaluation.ano_gan_evaluation import get_roc_auc_for_ano_gan_validation
+from src.ml.evaluation.knn_evaluation import get_knn_validation
+from src.ml.evaluation.latent_distance_evaluation import get_roc_auc_for_euclidean_distance_metric
+from src.ml.evaluation.lof_evaluation import get_roc_auc_lof
+from src.ml.evaluation.vae_evaluation import get_vae_roc_auc_for_image_data
+from src.ml.evaluation.validation_utils import load_data_points
 
 
 class MainController:
-    def __init__(self, base_path, z_dim, bias=False):
+    def __init__(self, base_path, z_dim):
         self.base_path = base_path
         self.dataset_names = os.listdir(base_path)
         self.z_dim = z_dim
@@ -53,10 +53,8 @@ class MainController:
                         direction_matrices.update(
                             {f: {'matrix_a': direction_matrix_linear, 'direction_count': input_dim}})
 
-                # g = self.get_generator_by_dataset_name(dataset_name)
                 g = torch.load(generator_model_path, map_location=torch.device(self.device))
                 vae = torch.load(vae_model_path, map_location=torch.device(self.device))
-                # g.load_state_dict(torch.load(generator_path, map_location=torch.device(self.device)))
                 self.datasets.update({
                     dataset_name: {
                         'direction_matrices': direction_matrices,

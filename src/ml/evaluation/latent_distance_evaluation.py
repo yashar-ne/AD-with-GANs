@@ -1,8 +1,8 @@
 import numpy as np
 from sklearn.preprocessing import normalize
 
+from src.ml.evaluation.validation_utils import get_roc_curve_as_base64
 from src.ml.tools.utils import extract_weights_from_model
-from src.ml.validation.validation_utils import get_roc_curve_as_base64
 
 
 # Reasoning
@@ -28,10 +28,10 @@ from src.ml.validation.validation_utils import get_roc_curve_as_base64
 # N = 50
 
 # max(lambda_0, lambda_1, lambda_2)
-def get_roc_auc_for_average_distance_metric(latent_space_data_points,
-                                            latent_space_data_labels,
-                                            direction_matrix,
-                                            anomalous_direction_indices):
+def get_roc_auc_for_angle_distance(latent_space_data_points,
+                                   latent_space_data_labels,
+                                   direction_matrix,
+                                   anomalous_direction_indices):
     inlier = []
     latent_space_data_points = normalize(latent_space_data_points, axis=1, norm='l2')
 

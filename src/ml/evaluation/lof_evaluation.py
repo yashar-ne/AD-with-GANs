@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 from sklearn.neighbors import LocalOutlierFactor
 
-from src.ml.validation.validation_utils import get_roc_curve_as_base64
+from src.ml.evaluation.validation_utils import get_roc_curve_as_base64
 
 
 def get_roc_auc_lof(dataset_name, n_neighbours):

@@ -6,7 +6,7 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 
-from src.ml.validation.validation_utils import get_roc_curve_as_base64
+from src.ml.evaluation.validation_utils import get_roc_curve_as_base64
 
 
 def get_knn_validation(dataset_name, k):

@@ -4,7 +4,7 @@ import torch
 import torchvision
 import torchvision.transforms as transforms
 
-from src.ml.dataset_generation.generate_dataset import add_line_to_csv, test_generator_and_show_plot
+from src.ml.dataset_generation.dataset_generation_core import add_line_to_csv, test_generator_and_show_plot
 from src.ml.models.cifar10.cifar10_discriminator import Cifar10Discriminator
 from src.ml.models.cifar10.cifar10_generator import Cifar10Generator
 from src.ml.models.cifar10.cifar10_reconstructor import Cifar10Reconstructor
