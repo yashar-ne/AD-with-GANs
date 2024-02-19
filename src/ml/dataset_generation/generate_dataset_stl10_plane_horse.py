@@ -4,7 +4,7 @@ import torch
 import torchvision
 import torchvision.transforms as transforms
 
-from src.ml.dataset_generation.generate_dataset import add_line_to_csv, test_generator_and_show_plot
+from src.ml.dataset_generation.dataset_generation_core import add_line_to_csv, test_generator_and_show_plot
 from src.ml.models.stl10.stl10_discriminator import Stl10Discriminator1
 from src.ml.models.stl10.stl10_generator import Stl10Generator
 from src.ml.models.stl10.stl10_reconstructor import Stl10Reconstructor

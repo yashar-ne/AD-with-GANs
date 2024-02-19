@@ -4,7 +4,7 @@ import random
 import torch
 from torchvision.datasets import MNIST
 
-from src.ml.dataset_generation.generate_dataset import add_line_to_csv, train_direction_matrix
+from src.ml.dataset_generation.dataset_generation_core import add_line_to_csv, train_direction_matrix
 
 # Hyperparameter
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

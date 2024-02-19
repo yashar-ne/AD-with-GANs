@@ -3,7 +3,7 @@ import os
 from torchvision.datasets import MNIST
 
 from src.ml.dataset_generation.abstract_dataset_generator import AbstractDatasetGenerator
-from src.ml.dataset_generation.generate_dataset import add_line_to_csv
+from src.ml.dataset_generation.dataset_generation_core import add_line_to_csv
 
 
 class DatasetGeneratorMnist_9_6(AbstractDatasetGenerator):

@@ -1,7 +1,7 @@
 import csv
 import os
 
-from src.ml.validation.validation_utils import get_roc_curve_as_base64
+from src.ml.evaluation.validation_utils import get_roc_curve_as_base64
 
 
 def get_roc_auc_for_ano_gan_validation(dataset_name):
