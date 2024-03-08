@@ -15,8 +15,8 @@ class DatasetGeneratorMvTecHazelnut(AbstractDatasetGenerator):
             n_latent_space_search_iterations=3500,
             draw_images=False,
             num_imgs=0,
-            directions_count=20,
-            direction_train_steps=1000
+            directions_count=30,
+            direction_train_steps=3500
         )
 
     def generate_normals(self, dataset_folder, csv_path, temp_directory):

@@ -1,5 +1,11 @@
 import sys
 
+from src.ml.evaluation.ano_gan_evaluation import get_roc_auc_for_ano_gan_validation
+from src.ml.evaluation.knn_evaluation import get_knn_validation
+from src.ml.evaluation.latent_distance_evaluation import get_roc_auc_for_euclidean_distance_metric
+from src.ml.evaluation.lof_evaluation import get_roc_auc_lof
+from src.ml.evaluation.vae_evaluation import get_vae_roc_auc_for_image_data
+from src.ml.evaluation.validation_utils import load_data_points
 from src.ml.models.StyleGAN.ano_detection.stylegan_generator_wrapper import StyleGANGeneratorWrapper
 
 sys.path.append('ml/models/StyleGAN')
@@ -17,12 +23,6 @@ from src.ml.models.StyleGAN import dnnlib, legacy
 from src.ml.models.base.matrix_a_linear import MatrixALinear
 from src.ml.tools.utils import generate_noise, apply_pca_to_matrix_a, generate_base64_images_from_tensor_list, \
     generate_base64_image_from_tensor, is_stylegan_dataset
-from src.ml.validation.ano_gan_validation import get_roc_auc_for_ano_gan_validation
-from src.ml.validation.knn_validation import get_knn_validation
-from src.ml.validation.latent_distance_validation import get_roc_auc_for_euclidean_distance_metric
-from src.ml.validation.lof_validation import get_roc_auc_lof
-from src.ml.validation.vae_validation import get_vae_roc_auc_for_image_data
-from src.ml.validation.validation_utils import load_data_points
 
 
 class MainController:

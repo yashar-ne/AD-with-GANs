@@ -15,8 +15,8 @@ class DatasetGeneratorMnistFashionMnist(AbstractDatasetGenerator):
             num_epochs=100,
             n_latent_space_search_iterations=2000,
             draw_images=False,
-            directions_count=30,
-            direction_train_steps=1500
+            directions_count=50,
+            direction_train_steps=4000
         )
 
     def generate_normals(self, dataset_folder, csv_path, temp_directory):
@@ -63,6 +63,6 @@ if __name__ == '__main__':
     # ds_generator.run_generate_dataset()
     # ds_generator.run_equalize_image_sizes()
     # ds_generator.run_train_and_save_gan()
-    # ds_generator.run_train_direction_matrix()
+    ds_generator.run_train_direction_matrix()
     # ds_generator.run_train_beta_vae()
-    ds_generator.run_create_latent_space_dataset()
+    # ds_generator.run_create_latent_space_dataset()
