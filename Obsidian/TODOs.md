@@ -22,13 +22,28 @@
 		- [ ] why do we use transpose layers in generator?
 - [x] Paper review ✅ 2024-03-09
 - [x] Latent Space Explorer ✅ 2023-12-07
-- [ ] Create dataset and benchmark for Hazelnut/StyleGAN
+
+__________________
+
+- [x] Refactor Method Image! ✅ 2024-03-09
+- [ ] Write Discussion Chapter 📅 2024-03-10 
+- [ ] Write Introduction 📅 2024-03-10 
+- [ ] Write Conclusion 📅 2024-03-10 
+- [ ] Create dataset and benchmark for Hazelnut/StyleGAN 📅 2024-03-10 
 - [ ] Write more descriptive text
-- [ ] Create results overview table (datasets in columns, mark best score)
-- [ ] Put Range-Shifts in separate table
-- [ ] Point out how shifts are determined (experimental)
-- [ ] Point out how step-sizes are determined (include screenshots)
-- [ ] Create vizualization for GeneratorMaster (instead of code)
-- [ ] Create pseudocode for algorithm
-- [ ] Add sample images for inlier/outlier
-- [ ] AnoGAN with CelebA (?)
+	- [x] Chosen Parameters ✅ 2024-03-09
+	- [ ] Results
+		- [ ] Hazelnut DCGAN vs StyleGAN 📅 2024-03-11 
+- [x] Create results overview table (datasets in columns, mark best score) ✅ 2024-03-09
+- [x] Put Range-Shifts in separate table ✅ 2024-03-09
+- [x] Point out how shifts are determined (experimental) ✅ 2024-03-09
+- [ ] Point out how step-sizes are determined (include screenshots) 📅 2024-03-11 
+- [x] Create visualization for GeneratorMaster (instead of code) ✅ 2024-03-09
+- [ ] Create pseudocode for algorithm 📅 2024-03-12 
+- [x] Add sample images for inlier/outlier ✅ 2024-03-09
+- [ ] Fix VAE ROC-AUC for fashion-MNIST 📅 2024-03-12 
+- [ ] Add table captions 📅 2024-03-12 
+- [ ] Abbreviations 📅 2024-03-13
+- [ ] fix front page (unified language) 📅 2024-03-13
+- [ ] AnoGAN in CelebA-HQ/StyleGAN (?) 📅 2024-03-13
+	- [ ] at least, mention that AnoGAN is based on polluted GAN 📅 2024-03-13
