@@ -1,15 +1,15 @@
-- [ ] Update thesis outline
-- [ ] Try out other datasets
+- [x] Update thesis outline ✅ 2024-03-09
+- [x] Try out other datasets ✅ 2024-03-09
 	- [ ] Imagenet
 	- [x] [MVTec](https://www.mvtec.com/company/research/datasets/mvtec-ad/) ✅ 2023-12-07
 	- [x] [CIVAR19](https://www.cs.toronto.edu/~kriz/cifar.html) ✅ 2023-12-07
-- [ ] Implement alternative benchmarks
+- [x] Implement alternative benchmarks ✅ 2024-03-09
 	- [x] Local outlier factor
 	- [ ] i-forrest
 	- [x] Variational Autoencoder Reconstruction Loss ✅ 2023-12-07
 	- [x] AnoGAN (cleanup of existing implementation) ✅ 2023-12-07
 	- [ ] Supervised binary classifier, n labeled images with n equals number of directions 
-- [ ] Research
+- [x] Research ✅ 2024-03-09
 	- [ ] NNs/CNNs
 		- [ ] normalization
 			- [ ] initial
@@ -20,5 +20,15 @@
 			- [ ] stride
 			- [ ] padding
 		- [ ] why do we use transpose layers in generator?
-- [ ] Paper review
+- [x] Paper review ✅ 2024-03-09
 - [x] Latent Space Explorer ✅ 2023-12-07
+- [ ] Create dataset and benchmark for Hazelnut/StyleGAN
+- [ ] Write more descriptive text
+- [ ] Create results overview table (datasets in columns, mark best score)
+- [ ] Put Range-Shifts in separate table
+- [ ] Point out how shifts are determined (experimental)
+- [ ] Point out how step-sizes are determined (include screenshots)
+- [ ] Create vizualization for GeneratorMaster (instead of code)
+- [ ] Create pseudocode for algorithm
+- [ ] Add sample images for inlier/outlier
+- [ ] AnoGAN with CelebA (?)
