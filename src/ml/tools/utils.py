@@ -102,5 +102,8 @@ def get_folders_from_dataset_name(root_dir, dataset_name):
 
 
 def is_stylegan_dataset(dataset_name):
-    stylegan_datasets = ['DS17_celeba_hq_bald']
+    stylegan_datasets = [
+        'DS17_celeba_hq_bald',
+        'DS18_mvtec_hazelnut_stylegan',
+    ]
     return dataset_name in stylegan_datasets

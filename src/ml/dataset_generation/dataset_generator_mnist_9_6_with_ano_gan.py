@@ -9,14 +9,15 @@ from src.ml.dataset_generation.dataset_generation_core import add_line_to_csv
 class DatasetGeneratorMnist_9_6(AbstractDatasetGenerator):
     def __init__(self):
         super().__init__(
-            dataset_name='mnist_9_6_with_ano_gan',
+            dataset_name='DS11_mnist_9_6_with_ano_gan',
             num_channels=1,
             num_epochs=100,
             n_latent_space_search_iterations=1500,
             draw_images=False,
             num_imgs=0,
             directions_count=30,
-            direction_train_steps=1500
+            direction_train_steps=1500,
+            only_consider_anos=False,
         )
 
     def generate_normals(self, dataset_folder, csv_path, temp_directory):
@@ -54,7 +55,8 @@ if __name__ == '__main__':
 
     # ds_generator.run_generate_dataset()
     # ds_generator.run_equalize_image_sizes()
-    # ds_generator.run_train_and_save_gan()
+    # ds_generator.run_train_and_save_gan(display_generator_test=True)
+    # ds_generator.run_train_and_save_gan(unpolluted=True, display_generator_test=True)
     # ds_generator.run_train_direction_matrix()
     # ds_generator.run_train_beta_vae()
-    # ds_generator.run_create_latent_space_dataset()
+    ds_generator.run_create_latent_space_dataset()

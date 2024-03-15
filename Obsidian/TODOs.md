@@ -26,14 +26,15 @@
 __________________
 
 - [x] Refactor Method Image! ✅ 2024-03-09
-- [ ] Write Discussion Chapter 📅 2024-03-10 
-- [ ] Write Introduction 📅 2024-03-10 
-- [ ] Write Conclusion 📅 2024-03-10 
-- [ ] Create dataset and benchmark for Hazelnut/StyleGAN 📅 2024-03-10 
+- [x] Write Discussion Chapter 📅 2024-03-11 ✅ 2024-03-11
+- [ ] Write Introduction 📅 2024-03-12 
+- [ ] Write Conclusion 📅 2024-03-12
+- [ ] Write Abstract
+- [ ] Create dataset and benchmark for Hazelnut/StyleGAN 📅 2024-03-12
 - [ ] Write more descriptive text
 	- [x] Chosen Parameters ✅ 2024-03-09
 	- [ ] Results
-		- [ ] Hazelnut DCGAN vs StyleGAN 📅 2024-03-11 
+		- [ ] Hazelnut DCGAN vs StyleGAN 📅 2024-03-12 
 - [x] Create results overview table (datasets in columns, mark best score) ✅ 2024-03-09
 - [x] Put Range-Shifts in separate table ✅ 2024-03-09
 - [x] Point out how shifts are determined (experimental) ✅ 2024-03-09
@@ -41,7 +42,7 @@ __________________
 - [x] Create visualization for GeneratorMaster (instead of code) ✅ 2024-03-09
 - [ ] Create pseudocode for algorithm 📅 2024-03-12 
 - [x] Add sample images for inlier/outlier ✅ 2024-03-09
-- [ ] Fix VAE ROC-AUC for fashion-MNIST 📅 2024-03-12 
+- [x] Fix VAE ROC-AUC for fashion-MNIST 📅 2024-03-12 ✅ 2024-03-11
 - [ ] Add table captions 📅 2024-03-12 
 - [ ] Abbreviations 📅 2024-03-13
 - [ ] fix front page (unified language) 📅 2024-03-13

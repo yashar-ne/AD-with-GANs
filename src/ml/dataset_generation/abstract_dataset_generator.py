@@ -35,6 +35,7 @@ class AbstractDatasetGenerator(ABC):
                  directions_count=30,
                  direction_batch_size=1,
                  direction_train_steps=2500,
+                 direction_train_shift_scale=6.0,
                  use_bias=True,
                  n_latent_space_search_iterations=5000,
                  max_retries=5,
@@ -62,6 +63,7 @@ class AbstractDatasetGenerator(ABC):
         self.directions_count = directions_count
         self.direction_batch_size = direction_batch_size
         self.direction_train_steps = direction_train_steps
+        self.direction_train_shift_scale = direction_train_shift_scale
         self.use_bias = use_bias
         self.n_latent_space_search_iterations = n_latent_space_search_iterations
         self.max_retries = max_retries
@@ -92,12 +94,21 @@ class AbstractDatasetGenerator(ABC):
             self.discriminator = DiscriminatorMaster(num_feature_maps=self.num_feature_maps_d,
                                                      num_channels=self.num_channels,
                                                      dropout_rate=0.1).to(self.device)
+
+            self.generator_unpolluted = GeneratorMaster(z_dim=self.size_z, num_feature_maps=self.num_feature_maps_g,
+                                                        num_channels=self.num_channels,
+                                                        dropout_rate=0.1).to(self.device)
+
+            self.discriminator_unpolluted = DiscriminatorMaster(num_feature_maps=self.num_feature_maps_d,
+                                                                num_channels=self.num_channels,
+                                                                dropout_rate=0.1).to(self.device)
+
             self.reconstructor = Reconstructor(directions_count=self.directions_count,
                                                num_channels=self.num_channels,
                                                width=2).to(self.device)
 
         else:
-            models_path = os.path.join(self.root_dir, self.dataset_name, "stylegan_pretrained_models.pkl")
+            models_path = os.path.join(self.root_dir, self.dataset_name, "models.pkl")
             with dnnlib.util.open_url(str(models_path)) as f:
                 networks = legacy.load_network_pkl(f)
                 self.generator = StyleGANGeneratorWrapper(networks['G_ema']).to(self.device)
@@ -129,7 +140,7 @@ class AbstractDatasetGenerator(ABC):
                              dataset_name=self.dataset_name,
                              num_channels=self.num_channels)
 
-    def run_train_and_save_gan(self, display_generator_test=True):
+    def run_train_and_save_gan(self, display_generator_test=True, unpolluted=False):
         train_and_save_gan(root_dir=self.root_dir,
                            dataset_name=self.dataset_name,
                            size_z=self.size_z,
@@ -144,13 +155,15 @@ class AbstractDatasetGenerator(ABC):
                            discriminator=self.discriminator,
                            transform=self.transform,
                            num_imgs=self.num_imgs,
-                           save_checkpoint_every_n_epoch=self.save_checkpoint_every_n_epoch)
+                           save_checkpoint_every_n_epoch=self.save_checkpoint_every_n_epoch,
+                           unpolluted=unpolluted)
 
         if display_generator_test:
+            generator_name = 'generator' if not unpolluted else 'generator_unpolluted'
             test_generator_and_show_plot(128,
                                          self.size_z,
                                          self.generator,
-                                         os.path.join(self.root_dir, self.dataset_name, "generator.pkl"),
+                                         os.path.join(self.root_dir, self.dataset_name, f'{generator_name}.pkl'),
                                          self.device)
 
     def run_train_direction_matrix(self):
@@ -163,7 +176,8 @@ class AbstractDatasetGenerator(ABC):
                                device=self.device,
                                use_bias=self.use_bias,
                                generator=self.generator,
-                               reconstructor=self.reconstructor)
+                               reconstructor=self.reconstructor,
+                               direction_train_shift_scale=self.direction_train_shift_scale)
 
     def run_train_beta_vae(self):
         train_beta_vae(device=self.device,
@@ -184,7 +198,9 @@ class AbstractDatasetGenerator(ABC):
                                     device=self.device,
                                     n_latent_space_search_iterations=self.n_latent_space_search_iterations,
                                     generator=self.generator,
+                                    generator_unpolluted=self.generator_unpolluted,
                                     discriminator=self.discriminator,
+                                    discriminator_unpolluted=self.discriminator_unpolluted,
                                     max_retries=self.max_retries,
                                     retry_threshold=self.retry_threshold,
                                     only_consider_anos=self.only_consider_anos,

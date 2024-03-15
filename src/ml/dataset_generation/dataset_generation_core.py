@@ -26,11 +26,12 @@ from src.ml.models.base.discriminator import Discriminator
 from src.ml.models.base.generator import Generator
 
 
-def get_dataloader(dataset_folder, batch_size, transform, nrows=0, shuffle=True):
+def get_dataloader(dataset_folder, batch_size, transform, nrows=0, shuffle=True, unpolluted=False):
     ano_dataset = AnoDataset(
         root_dir=dataset_folder,
         transform=transform,
         nrows=nrows,
+        unpolluted=unpolluted
     )
 
     return torch.utils.data.DataLoader(ano_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=2)
@@ -101,7 +102,7 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
                        num_channels, batch_size,
                        device, learning_rate, transform=None, discriminator=None, generator=None, num_imgs=None,
                        save_checkpoint_every_n_epoch=10, initial_state_generator=None,
-                       initial_state_discriminator=None):
+                       initial_state_discriminator=None, unpolluted=False):
     print('TRAINING GAN')
     dataset_folder = os.path.join(root_dir, dataset_name)
     dataset_raw_folder = os.path.join(dataset_folder, 'dataset_raw')
@@ -123,8 +124,11 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
         discriminator = Discriminator(num_feature_maps=num_feature_maps_d,
                                       num_color_channels=num_channels).to(device)
 
-    dataloader = get_dataloader(dataset_folder=dataset_raw_folder, batch_size=batch_size, transform=transform,
-                                nrows=num_imgs)
+    dataloader = get_dataloader(dataset_folder=dataset_raw_folder,
+                                batch_size=batch_size,
+                                transform=transform,
+                                nrows=num_imgs,
+                                unpolluted=unpolluted)
     criterion = nn.BCELoss()
 
     real_label = 1.
@@ -144,14 +148,14 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
 
     print("Starting Training Loop...")
     for epoch in range(num_epochs):
-        for i, (real_images, _, _) in enumerate(dataloader, 0):
+        for i, (real_image, image_label, _) in enumerate(dataloader, 0):
             # Discriminator
             discriminator.zero_grad()
 
-            bs = real_images.shape[0]
-            real_images = real_images.to(device)
+            bs = real_image.shape[0]
+            real_image = real_image.to(device)
             label = torch.full((bs,), real_label, dtype=torch.float, device=device)
-            output, _ = discriminator(real_images)
+            output, _ = discriminator(real_image)
             output = output.view(-1)
             loss_d_real = criterion(output, label)
             loss_d_real.backward()
@@ -195,7 +199,14 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
         if epoch != 0 and epoch % save_checkpoint_every_n_epoch == 0:
             save_gan_checkpoint(checkpoint_folder, size_z, discriminator, epoch, iterations, generator, device)
 
-    save_gan_models(dataset_folder, discriminator, generator)
+    generator_filename = 'generator_unpolluted' if unpolluted else 'generator'
+    discriminator_filename = 'discriminator_unpolluted' if unpolluted else 'discriminator'
+    save_gan_models(dataset_folder,
+                    discriminator,
+                    generator,
+                    generator_filename=generator_filename,
+                    discriminator_filename=discriminator_filename)
+
     plt.figure(figsize=(10, 5))
     plt.title("Generator and Discriminator Loss During Training")
     plt.plot(g_losses, label="G")
@@ -206,12 +217,16 @@ def train_and_save_gan(root_dir, dataset_name, size_z, num_epochs, num_feature_m
     plt.show()
 
 
-def save_gan_models(dataset_folder, discriminator, generator):
+def save_gan_models(dataset_folder,
+                    discriminator,
+                    generator,
+                    generator_filename='generator',
+                    discriminator_filename='discriminator'):
     print("Saving Generator and Discriminator...")
-    torch.save(generator.state_dict(), os.path.join(dataset_folder, 'generator.pkl'))
-    torch.save(generator, os.path.join(dataset_folder, 'generator_model.pkl'))
-    torch.save(discriminator.state_dict(), os.path.join(dataset_folder, 'discriminator.pkl'))
-    torch.save(discriminator, os.path.join(dataset_folder, 'discriminator_model.pkl'))
+    torch.save(generator.state_dict(), os.path.join(dataset_folder, f'{generator_filename}.pkl'))
+    torch.save(generator, os.path.join(dataset_folder, f'{generator_filename}_model.pkl'))
+    torch.save(discriminator.state_dict(), os.path.join(dataset_folder, f'{discriminator_filename}.pkl'))
+    torch.save(discriminator, os.path.join(dataset_folder, f'{discriminator_filename}_model.pkl'))
 
 
 def save_gan_checkpoint(checkpoint_folder, size_z, discriminator, epoch, iteration, generator, device):
@@ -244,7 +259,8 @@ def train_direction_matrix(root_dir,
                            num_channels=1,
                            use_bias=True,
                            generator=None,
-                           reconstructor=None):
+                           reconstructor=None,
+                           direction_train_shift_scale=6.0):
     print('TRAINING DIRECTION MATRIX')
     dataset_root_folder = os.path.join(root_dir, dataset_name)
     direction_matrices_folder = os.path.join(dataset_root_folder, 'direction_matrices')
@@ -261,7 +277,8 @@ def train_direction_matrix(root_dir,
                                       saved_models_path=direction_matrices_folder,
                                       generator=generator,
                                       reconstructor=reconstructor,
-                                      is_stylegan=is_stylegan_dataset(dataset_name))
+                                      is_stylegan=is_stylegan_dataset(dataset_name),
+                                      direction_train_shift_scale=direction_train_shift_scale)
     if not generator:
         trainer.load_generator(os.path.join(dataset_root_folder, 'generator.pkl'))
 
@@ -270,7 +287,40 @@ def train_direction_matrix(root_dir,
     shutil.rmtree(os.path.join(direction_matrices_folder, 'cp'))
 
 
-def load_gan(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_maps_d, num_color_channels, device):
+def load_gans(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_maps_d, num_color_channels, device):
+    generator_name = 'generator.pkl'
+    generator_name_unpolluted = 'generator_unpolluted.pkl'
+    discriminator_name = 'discriminator.pkl'
+    discriminator_name_unpolluted = 'discriminator_unpolluted.pkl'
+
+    generator = Generator(z_dim=size_z,
+                          num_feature_maps=num_feature_maps_g,
+                          num_color_channels=num_color_channels).to(device)
+    discriminator = Discriminator(num_feature_maps=num_feature_maps_d,
+                                  num_color_channels=num_color_channels).to(device)
+    generator_unpolluted = Generator(z_dim=size_z,
+                                     num_feature_maps=num_feature_maps_g,
+                                     num_color_channels=num_color_channels).to(device)
+    discriminator_unpolluted = Discriminator(num_feature_maps=num_feature_maps_d,
+                                             num_color_channels=num_color_channels).to(device)
+
+    generator.load_state_dict(
+        torch.load(os.path.join(root_dir, dataset_name, generator_name), map_location=torch.device(device)))
+    discriminator.load_state_dict(
+        torch.load(os.path.join(root_dir, dataset_name, discriminator_name), map_location=torch.device(device)))
+
+    generator_unpolluted.load_state_dict(
+        torch.load(os.path.join(root_dir, dataset_name, generator_name_unpolluted),
+                   map_location=torch.device(device)))
+    discriminator_unpolluted.load_state_dict(
+        torch.load(os.path.join(root_dir, dataset_name, discriminator_name_unpolluted),
+                   map_location=torch.device(device)))
+
+    return generator, discriminator, generator_unpolluted, discriminator_unpolluted
+
+
+def load_gan_unpolluted(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_maps_d, num_color_channels,
+                        device):
     generator = Generator(z_dim=size_z,
                           num_feature_maps=num_feature_maps_g,
                           num_color_channels=num_color_channels).to(device)
@@ -278,9 +328,10 @@ def load_gan(root_dir, dataset_name, size_z, num_feature_maps_g, num_feature_map
                                   num_color_channels=num_color_channels).to(device)
 
     generator.load_state_dict(
-        torch.load(os.path.join(root_dir, dataset_name, "generator.pkl"), map_location=torch.device(device)))
+        torch.load(os.path.join(root_dir, dataset_name, "generator_unpolluted.pkl"), map_location=torch.device(device)))
     discriminator.load_state_dict(
-        torch.load(os.path.join(root_dir, dataset_name, "discriminator.pkl"), map_location=torch.device(device)))
+        torch.load(os.path.join(root_dir, dataset_name, "discriminator_unpolluted.pkl"),
+                   map_location=torch.device(device)))
 
     return generator, discriminator
 
@@ -313,6 +364,8 @@ def create_latent_space_dataset(root_dir,
                                 n_latent_space_search_iterations=100000,
                                 generator=None,
                                 discriminator=None,
+                                generator_unpolluted=None,
+                                discriminator_unpolluted=None,
                                 transform=None,
                                 num_images=0,
                                 start_with_image_number=0,
@@ -345,19 +398,30 @@ def create_latent_space_dataset(root_dir,
                              shuffle=True)
 
     if not generator and not discriminator:
-        generator, discriminator = load_gan(root_dir=root_dir,
-                                            dataset_name=dataset_name,
-                                            size_z=size_z,
-                                            num_feature_maps_g=num_feature_maps_g,
-                                            num_feature_maps_d=num_feature_maps_d,
-                                            num_color_channels=num_channels,
-                                            device=device)
+        generator, discriminator, generator_unpolluted, discriminator_unpolluted = load_gans(root_dir=root_dir,
+                                                                                             dataset_name=dataset_name,
+                                                                                             size_z=size_z,
+                                                                                             num_feature_maps_g=num_feature_maps_g,
+                                                                                             num_feature_maps_d=num_feature_maps_d,
+                                                                                             num_color_channels=num_channels,
+                                                                                             device=device)
 
     if not stylegan:
+        generator_name = 'generator.pkl'
+        generator_name_unpolluted = 'generator_unpolluted.pkl'
+        discriminator_name = 'discriminator.pkl'
+        discriminator_name_unpolluted = 'discriminator_unpolluted.pkl'
         generator.load_state_dict(
-            torch.load(os.path.join(root_dir, dataset_name, "generator.pkl"), map_location=torch.device(device)))
+            torch.load(os.path.join(root_dir, dataset_name, generator_name), map_location=torch.device(device)))
+        generator_unpolluted.load_state_dict(
+            torch.load(os.path.join(root_dir, dataset_name, generator_name_unpolluted),
+                       map_location=torch.device(device)))
+
         discriminator.load_state_dict(
-            torch.load(os.path.join(root_dir, dataset_name, "discriminator.pkl"), map_location=torch.device(device)))
+            torch.load(os.path.join(root_dir, dataset_name, discriminator_name), map_location=torch.device(device)))
+        discriminator_unpolluted.load_state_dict(
+            torch.load(os.path.join(root_dir, dataset_name, discriminator_name_unpolluted),
+                       map_location=torch.device(device)))
 
     generator.eval()
     discriminator.eval()
@@ -367,6 +431,10 @@ def create_latent_space_dataset(root_dir,
                                                discriminator=discriminator,
                                                device=device,
                                                stylegan=stylegan)
+    lsm_unpolluted: LatentSpaceMapper = LatentSpaceMapper(generator=generator_unpolluted,
+                                                          discriminator=discriminator_unpolluted,
+                                                          device=device,
+                                                          stylegan=stylegan)
     mapped_images = []
     cp_counter = 0
     counter = len(dataset) - start_with_image_number - 1
@@ -375,7 +443,11 @@ def create_latent_space_dataset(root_dir,
     retry_counter = 0
     iterator = iter(dataset)
     if start_with_image_number == 0:
-        add_line_to_csv(csv_path=csv_path, entries=["filename", "label", "original_filename", "reconstruction_loss"])
+        add_line_to_csv(csv_path=csv_path, entries=["filename",
+                                                    "label",
+                                                    "original_filename",
+                                                    "reconstruction_loss",
+                                                    "reconstruction_loss_unpolluted"])
         data_point, data_label, orig_filename = next(iterator)
 
     for i in range(start_with_image_number):
@@ -398,6 +470,17 @@ def create_latent_space_dataset(root_dir,
                                                                                       retry_threshold=retry_threshold,
                                                                                       use_discriminator_for_latent_space_mapping=use_discriminator_for_latent_space_mapping,
                                                                                       stylegan=stylegan)
+
+        mapped_z_unpolluted, reconstruction_loss_unpolluted, _ = lsm_unpolluted.map_image_to_point_in_latent_space(
+            image=data_point,
+            n_iterations=n_latent_space_search_iterations,
+            retry_check_after_iter=retry_check_after_iter,
+            learning_rate=learning_rate,
+            print_every_n_iters=100000,
+            retry_threshold=100000,
+            use_discriminator_for_latent_space_mapping=use_discriminator_for_latent_space_mapping,
+            stylegan=stylegan)
+
         if retry:
             if retry_counter == max_retries:
                 retry_counter = 0
@@ -419,13 +502,20 @@ def create_latent_space_dataset(root_dir,
 
         if draw_images:
             mapped_img = generator(mapped_z)[0]
+            mapped_img_unpolluted = generator_unpolluted(mapped_z_unpolluted)[0]
             plot_image(data_point[0])
             plot_image(mapped_img)
+            plot_image(mapped_img_unpolluted)
 
         mapped_images.append(mapped_z)
         add_line_to_csv(csv_path=csv_path,
-                        entries=[f'mapped_z_{counter}.pt', data_label.item(), orig_filename[0],
-                                 reconstruction_loss])
+                        entries=[
+                            f'mapped_z_{counter}.pt',
+                            data_label.item(),
+                            orig_filename[0],
+                            reconstruction_loss,
+                            reconstruction_loss_unpolluted
+                        ])
         torch.save(mapped_z, os.path.join(dataset_folder, f'mapped_z_{counter}.pt'))
         cp_counter += 1
 

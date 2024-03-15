@@ -5,7 +5,7 @@ import os
 from PIL import Image
 
 from src.ml.dataset_generation.abstract_dataset_generator import AbstractDatasetGenerator
-from src.ml.dataset_generation.generate_dataset import add_line_to_csv
+from src.ml.dataset_generation.dataset_generation_core import add_line_to_csv
 from src.ml.models.StyleGAN import dnnlib, legacy
 from src.ml.models.StyleGAN.ano_detection.stylegan_generator_wrapper import StyleGANGeneratorWrapper
 from src.ml.models.StyleGAN.ano_detection.stylegan_reconstructor import StyleGANReconstructor
@@ -38,7 +38,7 @@ class DatasetGeneratorCelebaHQ(AbstractDatasetGenerator):
                                                    num_channels=self.num_channels,
                                                    width=2).to(self.device)
 
-        stylegan_models_path = os.path.join(self.root_dir, self.dataset_name, 'stylegan_pretrained_models.pkl')
+        stylegan_models_path = os.path.join(self.root_dir, self.dataset_name, 'models.pkl')
         with dnnlib.util.open_url(str(stylegan_models_path)) as f:
             networks = legacy.load_network_pkl(f)
             G = networks['G_ema'].to(self.device)

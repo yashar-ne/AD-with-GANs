@@ -15,7 +15,7 @@ from src.ml.models.base.matrix_a_linear import MatrixALinear
 
 device = torch.device('cuda')
 
-network_pkl = '/home/yashar/git/AD-with-GANs/data/DS17_celeba_hq_bald/stylegan_pretrained_models.pkl'
+network_pkl = '/home/yashar/git/AD-with-GANs/data/DS17_celeba_hq_bald/models.pkl'
 num_channels = 3
 z_dim = 512
 reconstructor_lr = 0.002

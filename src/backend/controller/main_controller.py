@@ -71,7 +71,7 @@ class MainController:
                 })
             else:
                 direction_matrix_path = os.path.join(base_path, dataset_name, 'direction_matrices')
-                model_path = os.path.join(base_path, dataset_name, 'stylegan_pretrained_models.pkl')
+                model_path = os.path.join(base_path, dataset_name, 'models.pkl')
                 vae_model_path = os.path.join(base_path, dataset_name, 'vae_model.pkl')
                 direction_matrices = {}
                 for f in os.listdir(direction_matrix_path):

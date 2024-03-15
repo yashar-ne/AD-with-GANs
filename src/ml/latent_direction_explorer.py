@@ -18,13 +18,14 @@ class LatentDirectionExplorer:
                  saved_models_path,
                  num_channels=1,
                  direction_batch_size=1,
+                 direction_train_shift_scale=6.0,
                  bias=True,
                  generator=None,
                  reconstructor=None,
-                 is_stylegan=False):
+                 is_stylegan=False, ):
         super(LatentDirectionExplorer, self).__init__()
         self.min_shift = 0.5
-        self.shift_scale = 6.0
+        self.direction_train_shift_scale = direction_train_shift_scale
         self.matrix_a_lr = 0.002
         self.reconstructor_lr = 0.002
         self.label_weight = 1.0
@@ -122,7 +123,7 @@ class LatentDirectionExplorer:
         # See https://github.com/anvoynov/GANLatentDiscovery/blob/5ca8d67bce8dcb9a51de07c98e2d3a0d6ab69fe3/trainer.py#L75
         shifts = 2.0 * torch.rand(target_indices.shape, device=self.device) - 1.0
 
-        shifts = self.shift_scale * shifts
+        shifts = self.direction_train_shift_scale * shifts
         shifts[(shifts < self.min_shift) & (shifts > 0)] = self.min_shift
         shifts[(shifts > -self.min_shift) & (shifts < 0)] = -self.min_shift
 

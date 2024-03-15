@@ -4,8 +4,9 @@ import torch.nn as nn
 
 
 class StyleGANReconstructor(nn.Module):
-    def __init__(self, directions_count, num_channels=3, width=2):
+    def __init__(self, directions_count, num_channels=3, width=2, shape=[14, 6, 256, 256]):
         super(StyleGANReconstructor, self).__init__()
+        self.shape = shape
 
         self.conv = nn.Sequential(
             nn.Conv2d(num_channels * 2, 3 * width, kernel_size=2),
@@ -38,7 +39,7 @@ class StyleGANReconstructor(nn.Module):
 
     def forward(self, x1, x2):
         batch_size = x1.shape[0]
-        combined = torch.reshape(torch.cat([x1, x2], dim=3), [14, 6, 256, 256])
+        combined = torch.reshape(torch.cat([x1, x2], dim=3), shape=self.shape)
         features = self.conv(combined)
         features = features.mean(dim=[-1, -2])
         features = features.view(batch_size, -1)
