@@ -32,6 +32,6 @@ def get_vae_roc_auc_for_image_data(root_dir, dataset_name, vae=None):
             image_path = os.path.join(dataset_raw_folder, row[0])
             img = Image.open(image_path)
             image_scores.append(vae.get_reconstruction_loss(transform(img)).detach().numpy())
-            y.append(1 if row[1] == 'False' else 0)
+            y.append(1 if row[1] == 'True' else 0)
 
     return get_roc_curve_as_base64(y, image_scores)

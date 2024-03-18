@@ -1,8 +1,7 @@
 import sys
 
 from src.ml.evaluation.ano_gan_evaluation import get_roc_auc_for_ano_gan_validation
-from src.ml.evaluation.knn_evaluation import get_knn_validation
-from src.ml.evaluation.latent_distance_evaluation import get_roc_auc_for_euclidean_distance_metric
+from src.ml.evaluation.latent_distance_evaluation import get_roc_auc_for_angle_distance
 from src.ml.evaluation.lof_evaluation import get_roc_auc_lof
 from src.ml.evaluation.vae_evaluation import get_vae_roc_auc_for_image_data
 from src.ml.evaluation.validation_utils import load_data_points
@@ -134,12 +133,11 @@ class MainController:
         latent_space_data_points = self.datasets.get(dataset_name).get('data')[0]
         latent_space_data_labels = self.datasets.get(dataset_name).get('data')[1]
 
-        roc_auc, _ = get_roc_auc_for_euclidean_distance_metric(
+        roc_auc, _ = get_roc_auc_for_angle_distance(
             direction_matrix=direction_matrix,
             anomalous_direction_indices=anomalous_directions,
             latent_space_data_points=latent_space_data_points,
             latent_space_data_labels=latent_space_data_labels,
-            z=random_noise,
         )
 
         roc_auc_lof, _ = get_roc_auc_lof(
@@ -151,8 +149,6 @@ class MainController:
                                                         dataset_name=dataset_name,
                                                         vae=self.datasets.get(dataset_name).get('vae')) \
             if self.datasets.get(dataset_name).get('vae') is not None else (None, None)
-
-        roc_auc_1nn, _ = get_knn_validation(dataset_name=dataset_name, k=1)
 
         roc_auc_ano_gan, _ = get_roc_auc_for_ano_gan_validation(dataset_name=dataset_name)
 
@@ -166,7 +162,6 @@ class MainController:
             roc_auc=roc_auc,
             roc_auc_lof=roc_auc_lof,
             roc_auc_vae=roc_auc_vae,
-            roc_auc_1nn=roc_auc_1nn,
             roc_auc_ano_gan=roc_auc_ano_gan,
         )
 
