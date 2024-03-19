@@ -1,6 +1,7 @@
 import sys
 
-from src.ml.evaluation.ano_gan_evaluation import get_roc_auc_for_ano_gan_validation
+from src.ml.evaluation.ano_gan_evaluation import get_roc_auc_for_ano_gan_validation, \
+    get_roc_auc_for_ano_gan_validation_clean
 from src.ml.evaluation.latent_distance_evaluation import get_roc_auc_for_angle_distance
 from src.ml.evaluation.lof_evaluation import get_roc_auc_lof
 from src.ml.evaluation.vae_evaluation import get_vae_roc_auc_for_image_data
@@ -151,6 +152,7 @@ class MainController:
             if self.datasets.get(dataset_name).get('vae') is not None else (None, None)
 
         roc_auc_ano_gan, _ = get_roc_auc_for_ano_gan_validation(dataset_name=dataset_name)
+        roc_auc_ano_gan_clean, _ = get_roc_auc_for_ano_gan_validation_clean(dataset_name=dataset_name)
 
         if not roc_auc:
             raise HTTPException(
@@ -163,6 +165,7 @@ class MainController:
             roc_auc_lof=roc_auc_lof,
             roc_auc_vae=roc_auc_vae,
             roc_auc_ano_gan=roc_auc_ano_gan,
+            roc_auc_ano_gan_clean=roc_auc_ano_gan_clean,
         )
 
     @staticmethod

@@ -69,5 +69,5 @@ if __name__ == '__main__':
     # ds_generator.run_train_and_save_gan(display_generator_test=True)
     # ds_generator.run_train_and_save_gan(unpolluted=True, display_generator_test=True)
     # ds_generator.run_train_direction_matrix()
-    # ds_generator.run_train_beta_vae()
-    ds_generator.run_create_latent_space_dataset()
+    ds_generator.run_train_beta_vae()
+    # ds_generator.run_create_latent_space_dataset()

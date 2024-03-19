@@ -1,1 +1,0 @@
-git clone https://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@github.com/yasharha/AD-with-GANs.git

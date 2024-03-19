@@ -130,7 +130,6 @@ dmypy.json
 .idea/
 
 src/data/
-/clonegitcolab.txt
 Obsidian/.obsidian/workspace.json
 .ipynb_checkpoints/
 model_gen.ckpt

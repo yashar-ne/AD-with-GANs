@@ -8,3 +8,4 @@ class ValidationResultsModel(BaseModel):
     roc_auc_lof: Optional[str] = None
     roc_auc_vae: Optional[str] = None
     roc_auc_ano_gan: Optional[str] = None
+    roc_auc_ano_gan_clean: Optional[str] = None
